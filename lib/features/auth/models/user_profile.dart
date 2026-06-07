@@ -14,8 +14,8 @@ class UserProfile {
 
   final String id;
   final String displayName;
-  final int age;
-  final MusicianLevel musicianLevel;
+  final int? age;
+  final MusicianLevel? musicianLevel;
   final bool onboardingCompleted;
   final Gender? gender;
   final String preferredNoteLanguage;
@@ -23,15 +23,18 @@ class UserProfile {
   bool get isComplete =>
       onboardingCompleted &&
       displayName.trim().isNotEmpty &&
-      age >= 6 &&
-      age <= 90;
+      age != null &&
+      age! >= 6 &&
+      age! <= 90 &&
+      musicianLevel != null;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
+    final levelRaw = json['musician_level'] as String?;
     return UserProfile(
       id: json['id'] as String,
-      displayName: json['display_name'] as String,
-      age: json['age'] as int,
-      musicianLevel: MusicianLevel.fromDb(json['musician_level'] as String),
+      displayName: json['display_name'] as String? ?? '',
+      age: json['age'] as int?,
+      musicianLevel: levelRaw == null ? null : MusicianLevel.fromDb(levelRaw),
       onboardingCompleted: json['onboarding_completed'] as bool? ?? false,
       gender: Gender.fromDb(json['gender'] as String?),
       preferredNoteLanguage:
@@ -43,8 +46,8 @@ class UserProfile {
     return {
       'id': id,
       'display_name': displayName,
-      'age': age,
-      'musician_level': musicianLevel.dbValue,
+      if (age != null) 'age': age,
+      if (musicianLevel != null) 'musician_level': musicianLevel!.dbValue,
       'onboarding_completed': onboardingCompleted ?? this.onboardingCompleted,
       'preferred_note_language': preferredNoteLanguage,
       if (gender != null) 'gender': gender!.dbValue,
