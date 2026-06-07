@@ -51,7 +51,38 @@ flutter run -d chrome --dart-define-from-file=dart_defines.json
 
 Выполните [`supabase/schema.sql`](supabase/schema.sql) в SQL Editor.
 
-### 2. Email Auth
+Скрипт создаёт таблицу `profiles`, RLS-политики и **триггер `on_auth_user_created`**,
+который автоматически заводит строку в `profiles` при создании пользователя в
+`auth.users` (email, телефон, OAuth).
+
+> **Важно про телефонную регистрацию.** Колонки `display_name`, `age`,
+> `musician_level` сделаны **nullable**. Если оставить их `NOT NULL`, то любой
+> триггер `AFTER INSERT ON auth.users`, который создаёт профиль, упадёт на
+> ограничении и **откатит всю транзакцию регистрации** — пользователь не
+> появится в `auth.users` (но строка в `profiles` может остаться от прошлой
+> попытки). Поэтому `handle_new_user()` объявлен как `security definer`,
+> `set search_path = ''` и **никогда не бросает исключение** (любая ошибка
+> проглатывается, чтобы не блокировать создание auth-пользователя). Если вы
+> ранее заводили свой триггер на `auth.users`, замените его этим вариантом или
+> убедитесь, что он не нарушает `NOT NULL`/`CHECK`.
+
+### 2. Phone Auth (SMS OTP)
+
+Authentication → Providers → **Phone**:
+
+1. Включите **Phone**.
+2. Подключите SMS-провайдера (Twilio / MessageBird / Vonage и т.д.) и заполните
+   ключи. Без провайдера `signInWithOtp(phone)` вернёт ошибку и SMS не уйдёт.
+3. Authentication → **Sign In / Providers** → убедитесь, что включён
+   **Allow new users to sign up** (иначе `shouldCreateUser: true` вернёт
+   `Signups not allowed`).
+4. Twilio trial: номер получателя должен быть в **Verified Caller IDs**.
+
+Flutter-флоу: `signInWithOtp(phone, shouldCreateUser: true, data: metadata)` →
+`verifyOTP(type: sms)` → upsert профиля. Onboarding-данные кладутся в
+`raw_user_meta_data`, поэтому триггер сразу заполняет ими `profiles`.
+
+### 3. Email Auth
 
 Authentication → Providers:
 
@@ -59,7 +90,7 @@ Authentication → Providers:
 2. **Confirm email** — для продакшена включено; для локальной разработки можно временно отключить.
 3. Настройте email templates для confirmation и reset password.
 
-### 3. Publishable key
+### 4. Publishable key
 
 Скопируйте **publishable / anon** key. Secret key в клиент не добавлять.
 

@@ -68,7 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         _profile = profile;
         _nameController.text = profile?.displayName ?? '';
-        _ageController.text = profile?.age.toString() ?? '';
+        _ageController.text = profile?.age?.toString() ?? '';
         _emailController.text = user?.email ?? '';
         _gender = profile?.gender;
       });
@@ -187,11 +187,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
                   const SizedBox(height: 24),
-                  if (_profile != null)
+                  if (_profile?.musicianLevel != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        'Уровень: ${_profile!.musicianLevel.labelRu}',
+                        'Уровень: ${_profile!.musicianLevel!.labelRu}',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
