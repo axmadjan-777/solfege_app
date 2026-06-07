@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Web Server (Safari)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "web-server",
+      "toolArgs": [
+        "--dart-define-from-file=dart_defines.json"
+      ]
+    },
+    {
+      "name": "Chrome (web)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "toolArgs": [
+        "--dart-define-from-file=dart_defines.json"
+      ]
+    },
+    {
+      "name": "Android (телефон)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "android",
+      "toolArgs": [
+        "--dart-define-from-file=dart_defines.json"
+      ]
+    },
+    {
+      "name": "iOS (iPhone)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "ios",
+      "toolArgs": [
+        "--dart-define-from-file=dart_defines.json"
+      ]
+    }
+  ]
+}
