@@ -10,6 +10,22 @@ abstract final class SupabaseConfig {
 
   static const defaultProjectUrl = 'https://zehmcszijutthmeswtci.supabase.co';
 
+  /// URL, на который Supabase редиректит из писем подтверждения email.
+  ///
+  /// По умолчанию — продакшен на GitHub Pages. Можно переопределить через
+  /// `--dart-define=AUTH_REDIRECT_URL=...` (например, для локальной разработки).
+  /// Этот же адрес должен быть в Supabase Dashboard → Authentication → URL
+  /// Configuration → Redirect URLs, иначе Supabase подставит свой Site URL.
+  static const _redirectUrlOverride =
+      String.fromEnvironment('AUTH_REDIRECT_URL');
+
+  static const defaultRedirectUrl =
+      'https://axmadjan-777.github.io/solfege_app/';
+
+  static String get emailRedirectUrl => _redirectUrlOverride.isNotEmpty
+      ? _redirectUrlOverride
+      : defaultRedirectUrl;
+
   static bool get isConfigured =>
       url.isNotEmpty &&
       publishableKey.isNotEmpty &&
