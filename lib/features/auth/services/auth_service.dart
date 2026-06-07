@@ -91,10 +91,14 @@ class AuthService {
 
   Future<String> sendPhoneOtp(String phone) async {
     final normalized = _normalizePhone(phone);
-    await SupabaseClientProvider.client.auth.signInWithOtp(
-      phone: normalized,
-      shouldCreateUser: true,
-    );
+    try {
+      await SupabaseClientProvider.client.auth.signInWithOtp(
+        phone: normalized,
+        shouldCreateUser: true,
+      );
+    } on AuthException catch (error) {
+      throw _mapPhoneOtpError(error);
+    }
     return normalized;
   }
 
@@ -107,12 +111,75 @@ class AuthService {
       phone: normalized,
       onboardingData: onboardingData,
     );
-    await SupabaseClientProvider.client.auth.signInWithOtp(
-      phone: normalized,
-      shouldCreateUser: true,
-      data: OnboardingMetadata.toUserMetadata(onboardingData),
-    );
+    try {
+      await SupabaseClientProvider.client.auth.signInWithOtp(
+        phone: normalized,
+        shouldCreateUser: true,
+        data: OnboardingMetadata.toUserMetadata(onboardingData),
+      );
+    } on AuthException catch (error) {
+      // SMS-провайдер откатывает всю транзакцию регистрации, поэтому при сбое
+      // пользователь не создаётся в auth.users. Не оставляем «висящий» pending
+      // и показываем понятную причину.
+      await _pendingStore.clearPending();
+      throw _mapPhoneOtpError(error);
+    }
     return normalized;
+  }
+
+  /// Переводит ошибки отправки SMS-кода в понятные сообщения. Когда SMS не
+  /// уходит (Twilio/провайдер, лимиты, выключенная регистрация), Supabase
+  /// откатывает создание пользователя — это и есть причина «юзер не появляется
+  /// в auth.users» при телефонной регистрации.
+  AuthException _mapPhoneOtpError(AuthException error) {
+    final code = error.code;
+    final message = error.message;
+    final lowerMessage = message.toLowerCase();
+
+    final isRateLimit = code == 'over_sms_send_rate_limit' ||
+        code == 'over_request_rate_limit' ||
+        error.statusCode == '429' ||
+        lowerMessage.contains('rate limit');
+    if (isRateLimit) {
+      return AuthException(
+        'Слишком много попыток отправки SMS. Подождите и попробуйте позже '
+        '(лимиты SMS настраиваются в Supabase → Authentication → Rate Limits). '
+        'Детали: $message',
+        statusCode: error.statusCode,
+        code: code,
+      );
+    }
+
+    final isSignupDisabled = code == 'signup_disabled' ||
+        lowerMessage.contains('signups not allowed') ||
+        lowerMessage.contains('signup is disabled');
+    if (isSignupDisabled) {
+      return AuthException(
+        'Регистрация новых пользователей отключена. Включите её в Supabase → '
+        'Authentication → Sign In / Providers (Allow new users to sign up). '
+        'Детали: $message',
+        statusCode: error.statusCode,
+        code: code,
+      );
+    }
+
+    final isSmsSendFailure = code == 'sms_send_failed' ||
+        lowerMessage.contains('error sending') ||
+        lowerMessage.contains('provider') ||
+        lowerMessage.contains('sms');
+    if (isSmsSendFailure) {
+      return AuthException(
+        'Не удалось отправить SMS с кодом, поэтому аккаунт не создан. '
+        'Проверьте SMS-провайдера в Supabase (Authentication → Providers → '
+        'Phone): на trial-аккаунте Twilio номер получателя должен быть в '
+        'Verified Caller IDs, а ключи/Messaging Service SID — корректными. '
+        'Детали: $message',
+        statusCode: error.statusCode,
+        code: code,
+      );
+    }
+
+    return error;
   }
 
   Future<AuthResponse> verifyPhoneOtp({
