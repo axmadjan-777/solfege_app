@@ -10,6 +10,18 @@ abstract final class SupabaseConfig {
 
   static const defaultProjectUrl = 'https://zehmcszijutthmeswtci.supabase.co';
 
+  /// URL пользователя возвращается после клика по ссылке из письма
+  /// (подтверждение email / сброс пароля). По умолчанию — задеплоенный
+  /// GitHub Pages билд, чтобы ссылки не вели на localhost. Можно переопределить
+  /// через `--dart-define=SUPABASE_REDIRECT_URL=...`.
+  static const _redirectOverride =
+      String.fromEnvironment('SUPABASE_REDIRECT_URL');
+
+  static const deployedWebUrl = 'https://axmadjan-777.github.io/solfege_app/';
+
+  static String get emailRedirectUrl =>
+      _redirectOverride.isNotEmpty ? _redirectOverride : deployedWebUrl;
+
   static bool get isConfigured =>
       url.isNotEmpty &&
       publishableKey.isNotEmpty &&

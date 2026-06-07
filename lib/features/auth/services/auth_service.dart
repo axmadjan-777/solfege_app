@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/supabase/supabase_client_provider.dart';
+import '../../../core/supabase/supabase_config.dart';
 import '../models/onboarding_data.dart';
 import '../models/onboarding_metadata.dart';
 import 'pending_registration_store.dart';
@@ -38,6 +39,7 @@ class AuthService {
       email: email.trim(),
       password: password,
       data: OnboardingMetadata.toUserMetadata(onboardingData),
+      emailRedirectTo: SupabaseConfig.emailRedirectUrl,
     );
 
     if (response.session != null) {
@@ -77,6 +79,7 @@ class AuthService {
   Future<void> resetPassword(String email) {
     return SupabaseClientProvider.client.auth.resetPasswordForEmail(
       email.trim(),
+      redirectTo: SupabaseConfig.emailRedirectUrl,
     );
   }
 
@@ -84,6 +87,7 @@ class AuthService {
     return SupabaseClientProvider.client.auth.resend(
       type: OtpType.signup,
       email: email.trim(),
+      emailRedirectTo: SupabaseConfig.emailRedirectUrl,
     );
   }
 

@@ -90,6 +90,29 @@ Authentication → Providers:
 2. **Confirm email** — для продакшена включено; для локальной разработки можно временно отключить.
 3. Настройте email templates для confirmation и reset password.
 
+#### URL Configuration (ссылки из писем)
+
+Если ссылка подтверждения ведёт на `localhost`, значит в Supabase задан
+dev-**Site URL**. Authentication → **URL Configuration**:
+
+1. **Site URL** → `https://axmadjan-777.github.io/solfege_app/`
+2. **Redirect URLs** (allowlist) — добавьте:
+   - `https://axmadjan-777.github.io/solfege_app/**`
+   - `http://localhost:*/**` (для локальной разработки)
+
+Приложение само передаёт `emailRedirectTo` (см. `SupabaseConfig.emailRedirectUrl`):
+по умолчанию это задеплоенный GitHub Pages URL. Переопределить можно через
+`--dart-define=SUPABASE_REDIRECT_URL=...` — например, для локального теста письма:
+
+```bash
+flutter run -d chrome \
+  --dart-define-from-file=dart_defines.json \
+  --dart-define=SUPABASE_REDIRECT_URL=http://localhost:8080/
+```
+
+> Supabase подставит `redirect_to` только если URL есть в allowlist Redirect
+> URLs, иначе откатится на Site URL. Поэтому пункты 1–2 обязательны.
+
 ### 4. Publishable key
 
 Скопируйте **publishable / anon** key. Secret key в клиент не добавлять.
