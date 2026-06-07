@@ -21,7 +21,23 @@ cp dart_defines.example.json dart_defines.json
 # Set SUPABASE_PUBLISHABLE_KEY from Supabase Dashboard → Project Settings → API
 ```
 
+**Cursor Cloud Agents:** if the VM secret `SUPABASE_PUBLISHABLE_KEY` is set, generate the file without committing it:
+
+```bash
+python3 - <<'PY'
+import json, os
+with open("dart_defines.json", "w", encoding="utf-8") as f:
+    json.dump({
+        "SUPABASE_URL": "https://zehmcszijutthmeswtci.supabase.co",
+        "SUPABASE_PUBLISHABLE_KEY": os.environ["SUPABASE_PUBLISHABLE_KEY"],
+    }, f, indent=2)
+    f.write("\n")
+PY
+```
+
 Without this file, the app runs but shows **«Supabase не настроен»**. Offline unit/widget tests do not need Supabase.
+
+**Full browser E2E** (scales tab, profiles) also needs a registered Supabase user. Email signup is subject to Supabase rate limits; use an existing test account or disable email confirmation in the Supabase dashboard for local dev.
 
 ### Common commands
 
