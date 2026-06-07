@@ -274,14 +274,13 @@ class ScaleBuilder {
     List<String>? descendingNotes;
     List<int>? descendingMidiNotes;
     if (melodicMinor) {
-      descendingMidiNotes = [tonicMidi];
-      for (var stepIndex = _minorNatural.length - 1; stepIndex >= 1; stepIndex--) {
-        var midi = tonicMidi + _minorNatural[stepIndex];
-        while (midi > tonicMidi) {
-          midi -= 12;
-        }
-        descendingMidiNotes.add(midi);
-      }
+      // Вниз мелодический минор звучит как натуральный: VII и VI не повышены.
+      // Тело спуска — натуральный минор от VII к I в той же октаве, что и
+      // восходящая гамма. Высокая тоника (октавой выше) добавляется в
+      // [Scale._descendingMidi] / [Scale._descendingNotes].
+      descendingMidiNotes = [
+        for (final interval in _minorNatural.reversed) tonicMidi + interval,
+      ];
       descendingNotes = SolfegeNotes.fromMidiList(
         descendingMidiNotes,
         useFlats: useFlats,

@@ -22,8 +22,8 @@ void main() {
     mode: ScaleMode.melodicMinor,
     notes: ['ля', 'си', 'до', 'ре', 'ми', 'фа-диез', 'соль-диез'],
     midiNotes: [69, 71, 72, 74, 76, 78, 80],
-    descendingNotes: ['ля', 'соль', 'фа', 'ми', 'ре', 'до', 'си'],
-    descendingMidiNotes: [69, 67, 65, 64, 62, 60, 59],
+    descendingNotes: ['соль', 'фа', 'ми', 'ре', 'до', 'си', 'ля'],
+    descendingMidiNotes: [79, 77, 76, 74, 72, 71, 69],
     description: 'test',
     listeningTips: ['tip'],
   );
@@ -47,6 +47,19 @@ void main() {
       'ля',
     );
     expect(melodicMinor.midiSequence(ScaleDirection.descending).first, 81);
+  });
+
+  test('melodic minor descending stays within one octave (no octave drop)', () {
+    final midi = melodicMinor.midiSequence(ScaleDirection.descending);
+    // Полный спуск: высокая тоника → натуральный минор → нижняя тоника.
+    expect(midi, [81, 79, 77, 76, 74, 72, 71, 69]);
+    // Все ступени строго между нижней (69) и верхней (81) тониками — ни одна
+    // не должна проваливаться на октаву вниз.
+    expect(midi.every((note) => note >= 69 && note <= 81), isTrue);
+    expect(
+      melodicMinor.noteSequence(ScaleDirection.descending),
+      ['ля', 'соль', 'фа', 'ми', 'ре', 'до', 'си', 'ля'],
+    );
   });
 
   test('upDown plays ascending then descending', () {
