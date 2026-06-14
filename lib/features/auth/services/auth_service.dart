@@ -53,22 +53,36 @@ class AuthService {
     return user?.emailConfirmedAt != null;
   }
 
+  /// Похож ли адрес на возврат по ссылке подтверждения из письма.
+  ///
+  /// Стандартное письмо (implicit-флоу) возвращает токены во фрагменте
+  /// (`#access_token=...&type=signup`); кастомный шаблон может прислать
+  /// `token_hash`; старый PKCE-вариант — `code`. Также сюда попадает адрес с
+  /// текстом ошибки (устаревшая/использованная ссылка).
+  bool isEmailConfirmationLink([Uri? uri]) {
+    final params = _linkParameters(uri ?? Uri.base);
+    return params.containsKey('access_token') ||
+        params.containsKey('token_hash') ||
+        params.containsKey('code') ||
+        params.containsKey('error_description') ||
+        params.containsKey('error_code') ||
+        (params['type'] != null && params['type']!.isNotEmpty);
+  }
+
   /// Завершает подтверждение почты по ссылке из письма.
   ///
-  /// Письмо ведёт на адрес приложения с параметрами `token_hash` и `type`
-  /// (одноразовый проверочный код и его тип). Метод обменивает их на полноценную
-  /// сессию через `verifyOTP`, поэтому подтверждение срабатывает в любом браузере
-  /// и на любом устройстве — в отличие от ссылок с `code`, которым нужен секрет,
-  /// сохранённый в том же браузере при регистрации.
+  /// Стандартное письмо ведёт на сервер Supabase, который сам подтверждает почту
+  /// (на любом устройстве) и затем перенаправляет в приложение с токенами во
+  /// фрагменте адреса — их SDK поднимает в сессию автоматически при запуске.
+  /// Этот метод дополнительно: 1) обрабатывает кастомный шаблон с `token_hash`
+  /// через `verifyOTP`; 2) показывает понятные сообщения для устаревших ссылок и
+  /// для случая, когда PKCE-ссылку открыли в другом браузере.
   ///
   /// [uri] по умолчанию берётся из текущего адреса страницы ([Uri.base]) — это
   /// удобно подменять в тестах.
   Future<EmailLinkResult> handleEmailConfirmationLink([Uri? uri]) async {
     final current = uri ?? Uri.base;
-    final params = <String, String>{
-      ...current.queryParameters,
-      ..._fragmentParameters(current),
-    };
+    final params = _linkParameters(current);
 
     final errorCode = params['error_code'];
     final errorDescription = params['error_description'] ?? params['error'];
@@ -82,30 +96,81 @@ class AuthService {
     }
 
     final tokenHash = params['token_hash'];
-    if (tokenHash == null || tokenHash.isEmpty) {
-      return const EmailLinkResult(EmailLinkOutcome.none);
-    }
-
-    final type = _otpTypeFromString(params['type']);
-    try {
-      final response = await SupabaseClientProvider.client.auth.verifyOTP(
-        tokenHash: tokenHash,
-        type: type,
-      );
-      if (response.session == null) {
-        return const EmailLinkResult(
-          EmailLinkOutcome.failed,
-          'Не удалось завершить подтверждение. Попробуйте войти заново.',
+    if (tokenHash != null && tokenHash.isNotEmpty) {
+      final type = _otpTypeFromString(params['type']);
+      try {
+        final response = await SupabaseClientProvider.client.auth.verifyOTP(
+          tokenHash: tokenHash,
+          type: type,
+        );
+        if (response.session == null) {
+          return const EmailLinkResult(
+            EmailLinkOutcome.failed,
+            'Не удалось завершить подтверждение. Попробуйте войти заново.',
+          );
+        }
+        return const EmailLinkResult(EmailLinkOutcome.confirmed);
+      } on AuthException catch (error) {
+        final expired = _isExpired(error.code, error.message);
+        return EmailLinkResult(
+          expired ? EmailLinkOutcome.expired : EmailLinkOutcome.failed,
+          _humanizeLinkError(error.code, error.message, expired: expired),
         );
       }
-      return const EmailLinkResult(EmailLinkOutcome.confirmed);
-    } on AuthException catch (error) {
-      final expired = _isExpired(error.code, error.message);
-      return EmailLinkResult(
-        expired ? EmailLinkOutcome.expired : EmailLinkOutcome.failed,
-        _humanizeLinkError(error.code, error.message, expired: expired),
-      );
     }
+
+    if (getCurrentSession() != null &&
+        (params.containsKey('access_token') || params.containsKey('code'))) {
+      // Сессию уже подняло SDK на старте (обычный случай для implicit-письма).
+      return const EmailLinkResult(EmailLinkOutcome.confirmed);
+    }
+
+    // Старый PKCE-вариант письма (`?code=...`). Обменять код на сессию можно
+    // только если секрет-проверка лежит в этом же браузере (т.е. регистрация шла
+    // здесь). На другом устройстве обмен невозможен, но почта на сервере уже
+    // подтверждена — достаточно войти вручную.
+    final code = params['code'];
+    if (code != null && code.isNotEmpty) {
+      try {
+        await SupabaseClientProvider.client.auth.exchangeCodeForSession(code);
+        return const EmailLinkResult(EmailLinkOutcome.confirmed);
+      } on AuthException catch (error) {
+        if (_isExpired(error.code, error.message)) {
+          return EmailLinkResult(
+            EmailLinkOutcome.expired,
+            _humanizeLinkError(error.code, error.message, expired: true),
+          );
+        }
+        return const EmailLinkResult(
+          EmailLinkOutcome.failed,
+          'Почта подтверждена. Войдите в приложение по email и паролю '
+          '(ссылку открыли не в том браузере, где была регистрация).',
+        );
+      }
+    }
+
+    // Стандартное письмо (implicit): токены во фрагменте адреса.
+    if (params.containsKey('access_token')) {
+      try {
+        await SupabaseClientProvider.client.auth.getSessionFromUrl(current);
+        return const EmailLinkResult(EmailLinkOutcome.confirmed);
+      } on AuthException catch (error) {
+        final expired = _isExpired(error.code, error.message);
+        return EmailLinkResult(
+          expired ? EmailLinkOutcome.expired : EmailLinkOutcome.failed,
+          _humanizeLinkError(error.code, error.message, expired: expired),
+        );
+      }
+    }
+
+    return const EmailLinkResult(EmailLinkOutcome.none);
+  }
+
+  Map<String, String> _linkParameters(Uri uri) {
+    return <String, String>{
+      ...uri.queryParameters,
+      ..._fragmentParameters(uri),
+    };
   }
 
   Map<String, String> _fragmentParameters(Uri uri) {

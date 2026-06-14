@@ -75,11 +75,32 @@ class _AuthGateState extends State<AuthGate> {
       return;
     }
 
-    // Если сессии ещё нет, а в адресе пришла ссылка подтверждения — завершаем
-    // подтверждение до выбора экрана, чтобы переход по ссылке сразу вёл к успеху,
-    // а не к экрану «Подтвердите email».
-    if (_authService.getCurrentSession() == null) {
-      await _handleConfirmationLink();
+    // Если приложение открыли по ссылке из письма — завершаем подтверждение до
+    // выбора экрана, чтобы переход сразу вёл к успеху, а не к «Подтвердите email».
+    final fromConfirmationLink = _authService.isEmailConfirmationLink();
+    if (fromConfirmationLink && _authService.getCurrentSession() == null) {
+      if (mounted) setState(() => _state = _GateState.verifyingEmailLink);
+      final result = await _authService.handleEmailConfirmationLink();
+      if (result.outcome == EmailLinkOutcome.expired ||
+          result.outcome == EmailLinkOutcome.failed) {
+        _linkMessage = result.message;
+      }
+    }
+
+    // При implicit-флоу сессию поднимает SDK ещё на старте, поэтому отдельно
+    // отмечаем, что после подтверждения по ссылке нужно один раз показать экран
+    // «Email подтверждён».
+    if (fromConfirmationLink) {
+      final user = _authService.getCurrentUser();
+      if (user != null && user.emailConfirmedAt != null) {
+        // Не отмечаем повторно, иначе перезагрузка страницы с токенами в адресе
+        // снова покажет экран успеха.
+        final alreadyShown =
+            await _pendingStore.hasShownVerifiedSuccess(user.id);
+        if (!alreadyShown) {
+          await _pendingStore.markShowVerifiedSuccess(user.id);
+        }
+      }
     }
 
     _authSubscription = _authService.authStateChanges.listen((event) {
@@ -90,27 +111,6 @@ class _AuthGateState extends State<AuthGate> {
       }
     });
     await _resolveState();
-  }
-
-  Future<void> _handleConfirmationLink() async {
-    if (mounted) setState(() => _state = _GateState.verifyingEmailLink);
-    final result = await _authService.handleEmailConfirmationLink();
-
-    switch (result.outcome) {
-      case EmailLinkOutcome.confirmed:
-        final user = _authService.getCurrentUser();
-        if (user != null) {
-          await _pendingStore.markShowVerifiedSuccess(user.id);
-        }
-        _linkMessage = null;
-        break;
-      case EmailLinkOutcome.expired:
-      case EmailLinkOutcome.failed:
-        _linkMessage = result.message;
-        break;
-      case EmailLinkOutcome.none:
-        break;
-    }
   }
 
   Future<void> _resolveState() async {
@@ -133,9 +133,16 @@ class _AuthGateState extends State<AuthGate> {
         _incompleteOnboarding = pendingOnboarding ?? const OnboardingData();
 
         final awaitingEmail = _pendingEmail != null && _pendingEmail!.isNotEmpty;
-        if (awaitingEmail || _linkMessage != null) {
+        if (awaitingEmail) {
+          // Есть кому переотправить письмо — оставляем сообщение для экрана.
           setState(() => _state = _GateState.awaitingEmailConfirmation);
         } else {
+          // Переотправлять некому (другое устройство / очищенный pending). Если по
+          // ссылке пришла ошибка или «войти автоматически нельзя», показываем
+          // приветственный экран с одноразовым сообщением — оттуда доступен вход.
+          final message = _linkMessage;
+          _linkMessage = null;
+          if (message != null) _showSnackAfterBuild(message);
           setState(() => _state = _GateState.unauthenticated);
         }
         return;
@@ -176,6 +183,15 @@ class _AuthGateState extends State<AuthGate> {
     } finally {
       _isResolving = false;
     }
+  }
+
+  void _showSnackAfterBuild(String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    });
   }
 
   Future<void> _onEmailVerifiedStart() async {
