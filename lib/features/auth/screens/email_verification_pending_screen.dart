@@ -15,12 +15,17 @@ class EmailVerificationPendingScreen extends StatefulWidget {
     this.onboardingData = const OnboardingData(),
     this.authService,
     this.onConfirmed,
+    this.initialMessage,
   });
 
   final String email;
   final OnboardingData onboardingData;
   final AuthService? authService;
   final VoidCallback? onConfirmed;
+
+  /// Сообщение, которое нужно показать сразу при открытии экрана
+  /// (например, «ссылка устарела»).
+  final String? initialMessage;
 
   @override
   State<EmailVerificationPendingScreen> createState() =>
@@ -29,13 +34,28 @@ class EmailVerificationPendingScreen extends StatefulWidget {
 
 class _EmailVerificationPendingScreenState
     extends State<EmailVerificationPendingScreen> {
+  static const _resendCooldownSeconds = 60;
+
   late final AuthService _authService = widget.authService ?? AuthService();
   StreamSubscription<AuthState>? _authSubscription;
+  Timer? _cooldownTimer;
   bool _isChecking = false;
+  bool _isResending = false;
+  int _resendSecondsLeft = 0;
 
   @override
   void initState() {
     super.initState();
+    final message = widget.initialMessage;
+    if (message != null && message.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        }
+      });
+    }
     _authSubscription = _authService.authStateChanges.listen((event) {
       if (event.event == AuthChangeEvent.signedIn ||
           event.event == AuthChangeEvent.tokenRefreshed) {
@@ -47,6 +67,7 @@ class _EmailVerificationPendingScreenState
   @override
   void dispose() {
     _authSubscription?.cancel();
+    _cooldownTimer?.cancel();
     super.dispose();
   }
 
@@ -54,11 +75,29 @@ class _EmailVerificationPendingScreenState
     if (_isChecking) return;
     setState(() => _isChecking = true);
     try {
-      await _authService.refreshSession();
-      final user = await _authService.reloadUser();
       final session = _authService.getCurrentSession();
 
-      if (user?.emailConfirmedAt != null && session != null) {
+      // Без активной сессии обновлять и перезапрашивать нечего: подтверждение
+      // в другом окне не попадает в это окно автоматически.
+      if (session == null) {
+        if (!silent && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Откройте ссылку из письма — подтверждение произойдёт '
+                'автоматически. Если письмо открыто на другом устройстве, '
+                'войдите в приложение заново.',
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
+      await _authService.refreshSession();
+      final user = await _authService.reloadUser();
+
+      if (user?.emailConfirmedAt != null) {
         widget.onConfirmed?.call();
         return;
       }
@@ -83,8 +122,61 @@ class _EmailVerificationPendingScreenState
     }
   }
 
+  Future<void> _resend() async {
+    if (_isResending || _resendSecondsLeft > 0) return;
+    final email = widget.email.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Не знаем, на какой адрес отправлять. Зарегистрируйтесь заново.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isResending = true);
+    try {
+      await _authService.resendConfirmationEmail(email);
+      if (!mounted) return;
+      _startCooldown();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Новое письмо отправлено на $email.')),
+      );
+    } on AuthException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
+    } finally {
+      if (mounted) setState(() => _isResending = false);
+    }
+  }
+
+  void _startCooldown() {
+    _cooldownTimer?.cancel();
+    setState(() => _resendSecondsLeft = _resendCooldownSeconds);
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        _resendSecondsLeft -= 1;
+        if (_resendSecondsLeft <= 0) timer.cancel();
+      });
+    });
+  }
+
+  String get _resendLabel => _resendSecondsLeft > 0
+      ? 'Отправить письмо снова ($_resendSecondsLeft)'
+      : 'Отправить письмо снова';
+
   @override
   Widget build(BuildContext context) {
+    final canResend =
+        !_isResending && _resendSecondsLeft == 0 && widget.email.trim().isNotEmpty;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -105,8 +197,10 @@ class _EmailVerificationPendingScreenState
               ),
               const SizedBox(height: 12),
               Text(
-                'Мы отправили ссылку на ${widget.email}. '
-                'Подтвердите почту, затем нажмите кнопку ниже.',
+                widget.email.trim().isEmpty
+                    ? 'Откройте ссылку из письма, чтобы подтвердить почту.'
+                    : 'Мы отправили ссылку на ${widget.email}. '
+                        'Откройте её — подтверждение произойдёт автоматически.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -116,6 +210,17 @@ class _EmailVerificationPendingScreenState
                 label: 'Я подтвердил email',
                 onPressed: _isChecking ? null : () => _checkConfirmed(),
                 isLoading: _isChecking,
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: canResend ? _resend : null,
+                child: _isResending
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(_resendLabel),
               ),
             ],
           ),

@@ -18,6 +18,7 @@ import 'welcome_screen.dart';
 
 enum _GateState {
   loading,
+  verifyingEmailLink,
   configError,
   unauthenticated,
   awaitingEmailConfirmation,
@@ -52,6 +53,7 @@ class _AuthGateState extends State<AuthGate> {
   _GateState _state = _GateState.loading;
   StreamSubscription<AuthState>? _authSubscription;
   String? _pendingEmail;
+  String? _linkMessage;
   OnboardingData _incompleteOnboarding = const OnboardingData();
   bool _isResolving = false;
 
@@ -73,6 +75,13 @@ class _AuthGateState extends State<AuthGate> {
       return;
     }
 
+    // Если сессии ещё нет, а в адресе пришла ссылка подтверждения — завершаем
+    // подтверждение до выбора экрана, чтобы переход по ссылке сразу вёл к успеху,
+    // а не к экрану «Подтвердите email».
+    if (_authService.getCurrentSession() == null) {
+      await _handleConfirmationLink();
+    }
+
     _authSubscription = _authService.authStateChanges.listen((event) {
       if (event.event == AuthChangeEvent.signedIn ||
           event.event == AuthChangeEvent.tokenRefreshed ||
@@ -81,6 +90,27 @@ class _AuthGateState extends State<AuthGate> {
       }
     });
     await _resolveState();
+  }
+
+  Future<void> _handleConfirmationLink() async {
+    if (mounted) setState(() => _state = _GateState.verifyingEmailLink);
+    final result = await _authService.handleEmailConfirmationLink();
+
+    switch (result.outcome) {
+      case EmailLinkOutcome.confirmed:
+        final user = _authService.getCurrentUser();
+        if (user != null) {
+          await _pendingStore.markShowVerifiedSuccess(user.id);
+        }
+        _linkMessage = null;
+        break;
+      case EmailLinkOutcome.expired:
+      case EmailLinkOutcome.failed:
+        _linkMessage = result.message;
+        break;
+      case EmailLinkOutcome.none:
+        break;
+    }
   }
 
   Future<void> _resolveState() async {
@@ -103,7 +133,7 @@ class _AuthGateState extends State<AuthGate> {
         _incompleteOnboarding = pendingOnboarding ?? const OnboardingData();
 
         final awaitingEmail = _pendingEmail != null && _pendingEmail!.isNotEmpty;
-        if (awaitingEmail) {
+        if (awaitingEmail || _linkMessage != null) {
           setState(() => _state = _GateState.awaitingEmailConfirmation);
         } else {
           setState(() => _state = _GateState.unauthenticated);
@@ -162,6 +192,18 @@ class _AuthGateState extends State<AuthGate> {
       _GateState.loading => const Scaffold(
           body: Center(child: CircularProgressIndicator()),
         ),
+      _GateState.verifyingEmailLink => const Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Подтверждаем почту…'),
+              ],
+            ),
+          ),
+        ),
       _GateState.configError => const SupabaseConfigErrorScreen(),
       _GateState.unauthenticated => const WelcomeScreen(),
       _GateState.awaitingEmailConfirmation => EmailVerificationPendingScreen(
@@ -169,6 +211,7 @@ class _AuthGateState extends State<AuthGate> {
           onboardingData: _incompleteOnboarding,
           authService: _authService,
           onConfirmed: _resolveState,
+          initialMessage: _linkMessage,
         ),
       _GateState.emailVerifiedSuccess => EmailVerifiedSuccessScreen(
           onStart: _onEmailVerifiedStart,

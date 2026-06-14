@@ -7,6 +7,29 @@ import '../models/onboarding_metadata.dart';
 import 'pending_registration_store.dart';
 import 'profile_service.dart';
 
+/// Чем закончилась попытка завершить подтверждение по ссылке из письма.
+enum EmailLinkOutcome {
+  /// В адресе нет данных подтверждения — обрабатывать нечего.
+  none,
+
+  /// Почта успешно подтверждена, сессия создана.
+  confirmed,
+
+  /// Ссылка устарела или уже была использована.
+  expired,
+
+  /// Подтвердить не удалось по иной причине.
+  failed,
+}
+
+/// Результат разбора ссылки подтверждения: исход и текст для пользователя.
+class EmailLinkResult {
+  const EmailLinkResult(this.outcome, [this.message]);
+
+  final EmailLinkOutcome outcome;
+  final String? message;
+}
+
 class AuthService {
   AuthService({
     ProfileService? profileService,
@@ -28,6 +51,109 @@ class AuthService {
   bool get isEmailConfirmed {
     final user = getCurrentUser();
     return user?.emailConfirmedAt != null;
+  }
+
+  /// Завершает подтверждение почты по ссылке из письма.
+  ///
+  /// Письмо ведёт на адрес приложения с параметрами `token_hash` и `type`
+  /// (одноразовый проверочный код и его тип). Метод обменивает их на полноценную
+  /// сессию через `verifyOTP`, поэтому подтверждение срабатывает в любом браузере
+  /// и на любом устройстве — в отличие от ссылок с `code`, которым нужен секрет,
+  /// сохранённый в том же браузере при регистрации.
+  ///
+  /// [uri] по умолчанию берётся из текущего адреса страницы ([Uri.base]) — это
+  /// удобно подменять в тестах.
+  Future<EmailLinkResult> handleEmailConfirmationLink([Uri? uri]) async {
+    final current = uri ?? Uri.base;
+    final params = <String, String>{
+      ...current.queryParameters,
+      ..._fragmentParameters(current),
+    };
+
+    final errorCode = params['error_code'];
+    final errorDescription = params['error_description'] ?? params['error'];
+    if ((errorCode != null && errorCode.isNotEmpty) ||
+        (errorDescription != null && errorDescription.isNotEmpty)) {
+      final expired = _isExpired(errorCode, errorDescription);
+      return EmailLinkResult(
+        expired ? EmailLinkOutcome.expired : EmailLinkOutcome.failed,
+        _humanizeLinkError(errorCode, errorDescription, expired: expired),
+      );
+    }
+
+    final tokenHash = params['token_hash'];
+    if (tokenHash == null || tokenHash.isEmpty) {
+      return const EmailLinkResult(EmailLinkOutcome.none);
+    }
+
+    final type = _otpTypeFromString(params['type']);
+    try {
+      final response = await SupabaseClientProvider.client.auth.verifyOTP(
+        tokenHash: tokenHash,
+        type: type,
+      );
+      if (response.session == null) {
+        return const EmailLinkResult(
+          EmailLinkOutcome.failed,
+          'Не удалось завершить подтверждение. Попробуйте войти заново.',
+        );
+      }
+      return const EmailLinkResult(EmailLinkOutcome.confirmed);
+    } on AuthException catch (error) {
+      final expired = _isExpired(error.code, error.message);
+      return EmailLinkResult(
+        expired ? EmailLinkOutcome.expired : EmailLinkOutcome.failed,
+        _humanizeLinkError(error.code, error.message, expired: expired),
+      );
+    }
+  }
+
+  Map<String, String> _fragmentParameters(Uri uri) {
+    final fragment = uri.fragment;
+    if (fragment.isEmpty || !fragment.contains('=')) return const {};
+    return Uri.splitQueryString(fragment);
+  }
+
+  bool _isExpired(String? code, String? message) {
+    final lower = (message ?? '').toLowerCase();
+    return code == 'otp_expired' ||
+        lower.contains('expired') ||
+        lower.contains('invalid') ||
+        lower.contains('already');
+  }
+
+  String _humanizeLinkError(
+    String? code,
+    String? description, {
+    required bool expired,
+  }) {
+    if (expired) {
+      return 'Ссылка подтверждения устарела или уже была использована. '
+          'Запросите новое письмо кнопкой ниже.';
+    }
+    final detail = (description ?? '').trim();
+    if (detail.isEmpty) {
+      return 'Не удалось подтвердить почту. Запросите новое письмо.';
+    }
+    return 'Не удалось подтвердить почту: $detail';
+  }
+
+  OtpType _otpTypeFromString(String? raw) {
+    switch (raw) {
+      case 'signup':
+        return OtpType.signup;
+      case 'recovery':
+        return OtpType.recovery;
+      case 'invite':
+        return OtpType.invite;
+      case 'magiclink':
+        return OtpType.magiclink;
+      case 'email_change':
+        return OtpType.emailChange;
+      case 'email':
+      default:
+        return OtpType.email;
+    }
   }
 
   Future<AuthResponse> signUpWithEmail({
