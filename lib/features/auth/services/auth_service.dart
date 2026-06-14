@@ -119,16 +119,20 @@ class AuthService {
       }
     }
 
-    // Стандартное письмо (implicit) или старый PKCE-вариант. Обычно сессию уже
-    // подняло SDK при запуске; если нет — пробуем разобрать адрес явно.
-    final hasUrlTokens =
-        params.containsKey('access_token') || params.containsKey('code');
-    if (hasUrlTokens) {
-      if (getCurrentSession() != null) {
-        return const EmailLinkResult(EmailLinkOutcome.confirmed);
-      }
+    if (getCurrentSession() != null &&
+        (params.containsKey('access_token') || params.containsKey('code'))) {
+      // Сессию уже подняло SDK на старте (обычный случай для implicit-письма).
+      return const EmailLinkResult(EmailLinkOutcome.confirmed);
+    }
+
+    // Старый PKCE-вариант письма (`?code=...`). Обменять код на сессию можно
+    // только если секрет-проверка лежит в этом же браузере (т.е. регистрация шла
+    // здесь). На другом устройстве обмен невозможен, но почта на сервере уже
+    // подтверждена — достаточно войти вручную.
+    final code = params['code'];
+    if (code != null && code.isNotEmpty) {
       try {
-        await SupabaseClientProvider.client.auth.getSessionFromUrl(current);
+        await SupabaseClientProvider.client.auth.exchangeCodeForSession(code);
         return const EmailLinkResult(EmailLinkOutcome.confirmed);
       } on AuthException catch (error) {
         if (_isExpired(error.code, error.message)) {
@@ -137,12 +141,24 @@ class AuthService {
             _humanizeLinkError(error.code, error.message, expired: true),
           );
         }
-        // Типичный случай: PKCE-ссылку открыли в другом браузере. Почта на
-        // сервере уже подтверждена — достаточно войти вручную.
         return const EmailLinkResult(
           EmailLinkOutcome.failed,
-          'Почта подтверждена, но войти автоматически не получилось '
-          '(ссылку открыли в другом браузере). Войдите в приложение вручную.',
+          'Почта подтверждена. Войдите в приложение по email и паролю '
+          '(ссылку открыли не в том браузере, где была регистрация).',
+        );
+      }
+    }
+
+    // Стандартное письмо (implicit): токены во фрагменте адреса.
+    if (params.containsKey('access_token')) {
+      try {
+        await SupabaseClientProvider.client.auth.getSessionFromUrl(current);
+        return const EmailLinkResult(EmailLinkOutcome.confirmed);
+      } on AuthException catch (error) {
+        final expired = _isExpired(error.code, error.message);
+        return EmailLinkResult(
+          expired ? EmailLinkOutcome.expired : EmailLinkOutcome.failed,
+          _humanizeLinkError(error.code, error.message, expired: expired),
         );
       }
     }
