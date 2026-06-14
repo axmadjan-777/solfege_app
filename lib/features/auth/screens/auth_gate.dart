@@ -93,7 +93,13 @@ class _AuthGateState extends State<AuthGate> {
     if (fromConfirmationLink) {
       final user = _authService.getCurrentUser();
       if (user != null && user.emailConfirmedAt != null) {
-        await _pendingStore.markShowVerifiedSuccess(user.id);
+        // Не отмечаем повторно, иначе перезагрузка страницы с токенами в адресе
+        // снова покажет экран успеха.
+        final alreadyShown =
+            await _pendingStore.hasShownVerifiedSuccess(user.id);
+        if (!alreadyShown) {
+          await _pendingStore.markShowVerifiedSuccess(user.id);
+        }
       }
     }
 
@@ -127,9 +133,16 @@ class _AuthGateState extends State<AuthGate> {
         _incompleteOnboarding = pendingOnboarding ?? const OnboardingData();
 
         final awaitingEmail = _pendingEmail != null && _pendingEmail!.isNotEmpty;
-        if (awaitingEmail || _linkMessage != null) {
+        if (awaitingEmail) {
+          // Есть кому переотправить письмо — оставляем сообщение для экрана.
           setState(() => _state = _GateState.awaitingEmailConfirmation);
         } else {
+          // Переотправлять некому (другое устройство / очищенный pending). Если по
+          // ссылке пришла ошибка или «войти автоматически нельзя», показываем
+          // приветственный экран с одноразовым сообщением — оттуда доступен вход.
+          final message = _linkMessage;
+          _linkMessage = null;
+          if (message != null) _showSnackAfterBuild(message);
           setState(() => _state = _GateState.unauthenticated);
         }
         return;
@@ -170,6 +183,15 @@ class _AuthGateState extends State<AuthGate> {
     } finally {
       _isResolving = false;
     }
+  }
+
+  void _showSnackAfterBuild(String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    });
   }
 
   Future<void> _onEmailVerifiedStart() async {

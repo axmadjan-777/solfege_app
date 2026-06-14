@@ -68,6 +68,11 @@ void main() {
         return http.Response(jsonEncode(sessionJson()), 200,
             headers: {'content-type': 'application/json'});
       }
+      // PKCE-обмен кода на сессию (`?code=...`, тот же браузер).
+      if (path.endsWith('/token')) {
+        return http.Response(jsonEncode(sessionJson()), 200,
+            headers: {'content-type': 'application/json'});
+      }
       // Стандартное письмо (implicit) → getSessionFromUrl → GET /user.
       if (path.endsWith('/user')) {
         return http.Response(jsonEncode(confirmedUserJson()), 200,
@@ -146,6 +151,46 @@ void main() {
     expect(result.outcome, EmailLinkOutcome.confirmed);
     expect(auth.getCurrentSession(), isNotNull);
     expect(auth.isEmailConfirmed, isTrue);
+  });
+
+  test('PKCE ?code= link confirms in the same browser via exchange', () async {
+    await initWith(AuthFlowType.pkce);
+    final auth = AuthService();
+
+    // Регистрация в PKCE кладёт секрет-проверку в локальное хранилище.
+    await auth.signUpWithEmail(
+      email: email,
+      password: 'Password123!',
+      onboardingData: onboarding,
+    );
+
+    final result = await auth.handleEmailConfirmationLink(
+      Uri.parse(
+        'https://axmadjan-777.github.io/solfege_app/'
+        '?code=9ced2592-d996-4349-b238-c71cbf15ef65',
+      ),
+    );
+
+    expect(result.outcome, EmailLinkOutcome.confirmed);
+    expect(auth.getCurrentSession(), isNotNull);
+    expect(paths, contains('/auth/v1/token'));
+  });
+
+  test('PKCE ?code= link from another browser tells user to log in', () async {
+    await initWith(AuthFlowType.pkce);
+    final auth = AuthService();
+
+    // Регистрации здесь НЕ было → секрет-проверки нет → обмен невозможен.
+    final result = await auth.handleEmailConfirmationLink(
+      Uri.parse(
+        'https://axmadjan-777.github.io/solfege_app/'
+        '?code=9ced2592-d996-4349-b238-c71cbf15ef65',
+      ),
+    );
+
+    expect(result.outcome, EmailLinkOutcome.failed);
+    expect(result.message, contains('Войдите'));
+    expect(auth.getCurrentSession(), isNull);
   });
 
   test('expired link is recognised from query params', () async {
