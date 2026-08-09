@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../ai/screens/ai_assistant_placeholder_screen.dart';
+import '../ai/screens/ai_chat_screen.dart';
 import '../practice/screens/practice_placeholder_screen.dart';
 import '../profile/screens/profile_screen.dart';
 import '../scales/screens/scales_list_screen.dart';
@@ -30,7 +30,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
     _ShellTab(
       label: 'ИИ',
       icon: Icons.auto_awesome_rounded,
-      screen: AiAssistantPlaceholderScreen(),
+      screen: AiChatScreen(),
     ),
     _ShellTab(
       label: 'Профиль',
