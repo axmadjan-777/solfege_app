@@ -332,8 +332,7 @@ class AuthService {
       );
     }
 
-    final isDatabaseFailure = code == 'unexpected_failure' ||
-        lowerMessage.contains('database error') ||
+    final isDatabaseFailure = lowerMessage.contains('database error') ||
         lowerMessage.contains('saving new user');
     if (isDatabaseFailure) {
       return AuthException(
