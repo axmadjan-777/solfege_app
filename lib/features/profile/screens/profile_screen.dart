@@ -130,8 +130,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _changePassword() async {
     final password = _newPasswordController.text;
     final confirm = _confirmPasswordController.text;
-    if (password.length < 6) {
-      _showSnack('Пароль должен быть не короче 6 символов');
+    if (password.length < 8) {
+      _showSnack('Пароль должен быть не короче 8 символов');
       return;
     }
     if (password != confirm) {
@@ -243,11 +243,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _InfoRow(
                         label: 'Email',
                         value: user?.email ?? '—',
-                      ),
-                      const SizedBox(height: 8),
-                      _InfoRow(
-                        label: 'Телефон',
-                        value: user?.phone ?? '—',
                       ),
                     ],
                   ),

@@ -4,8 +4,6 @@ import '../../../core/theme/app_colors.dart';
 import '../models/onboarding_data.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
-import 'phone_login_screen.dart';
-import 'phone_register_screen.dart';
 import 'register_screen.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -75,40 +73,8 @@ class AuthScreen extends StatelessWidget {
                   child: const Text('Уже есть аккаунт? Войти'),
                 ),
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => PhoneRegisterScreen(
-                          onboardingData: onboardingData,
-                          authService: authService,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Регистрация по телефону'),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => PhoneLoginScreen(
-                          onboardingData: onboardingData,
-                          authService: authService,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Вход по телефону'),
-                ),
-              ),
+              // Телефонная авторизация временно отключена. Экран намеренно
+              // оставляет только стандартные email/password сценарии Supabase.
               const Spacer(),
             ],
           ),

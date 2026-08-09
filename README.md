@@ -53,9 +53,9 @@ flutter run -d chrome --dart-define-from-file=dart_defines.json
 
 Скрипт создаёт таблицу `profiles`, RLS-политики и **триггер `on_auth_user_created`**,
 который автоматически заводит строку в `profiles` при создании пользователя в
-`auth.users` (email, телефон, OAuth).
+`auth.users`.
 
-> **Важно про телефонную регистрацию.** Колонки `display_name`, `age`,
+> **Важно про регистрацию.** Колонки `display_name`, `age`,
 > `musician_level` сделаны **nullable**. Если оставить их `NOT NULL`, то любой
 > триггер `AFTER INSERT ON auth.users`, который создаёт профиль, упадёт на
 > ограничении и **откатит всю транзакцию регистрации** — пользователь не
@@ -68,19 +68,9 @@ flutter run -d chrome --dart-define-from-file=dart_defines.json
 
 ### 2. Phone Auth (SMS OTP)
 
-Authentication → Providers → **Phone**:
-
-1. Включите **Phone**.
-2. Подключите SMS-провайдера (Twilio / MessageBird / Vonage и т.д.) и заполните
-   ключи. Без провайдера `signInWithOtp(phone)` вернёт ошибку и SMS не уйдёт.
-3. Authentication → **Sign In / Providers** → убедитесь, что включён
-   **Allow new users to sign up** (иначе `shouldCreateUser: true` вернёт
-   `Signups not allowed`).
-4. Twilio trial: номер получателя должен быть в **Verified Caller IDs**.
-
-Flutter-флоу: `signInWithOtp(phone, shouldCreateUser: true, data: metadata)` →
-`verifyOTP(type: sms)` → upsert профиля. Onboarding-данные кладутся в
-`raw_user_meta_data`, поэтому триггер сразу заполняет ими `profiles`.
+Телефонная регистрация и вход временно отключены в интерфейсе приложения.
+Не включайте Phone provider для новых окружений, пока этот сценарий не будет
+возвращён и протестирован отдельно.
 
 ### 3. Email Auth
 
@@ -89,6 +79,14 @@ Authentication → Providers:
 1. Включите **Email**.
 2. **Confirm email** — для продакшена включено; для локальной разработки можно временно отключить.
 3. Настройте email templates для confirmation и reset password.
+
+Приложение использует стандартный `supabase.auth.signUp(email, password)` и
+стандартную отправку писем Supabase. Встроенный SMTP Supabase подходит только
+для тестов: он отправляет письма адресам участников команды проекта и ограничен
+двумя письмами в час. Для регистрации обычных пользователей подключите свой
+SMTP в **Authentication → Emails → SMTP Settings**. Без этого Supabase может
+вернуть `email_address_not_authorized` или `over_email_send_rate_limit`; при
+таком ответе auth-пользователь не создаётся.
 
 #### URL Configuration (обязательно, иначе ссылка ведёт на `localhost`)
 
@@ -135,10 +133,20 @@ ConfirmationLink` вызовет `verifyOTP`), но он нужен только
 4. После подтверждения создаётся `profiles` через upsert.
 5. Один раз показывается экран **«Email подтверждён»** → кнопка **«Старт»** → основное приложение.
 
+Ссылка восстановления пароля возвращает пользователя в приложение на экран
+**«Новый пароль»**. Для регистрации, повторной отправки, восстановления пароля
+и смены email используется один production redirect URL.
+
 Просроченную/использованную ссылку приложение распознаёт и показывает понятное
 сообщение с предложением отправить письмо заново.
 
-Если письмо не приходит: проверьте Spam, Resend после таймера, настройки SMTP в Supabase.
+Если письмо не приходит:
+
+1. Проверьте **Authentication → Logs → Auth Logs**.
+2. Для встроенного SMTP убедитесь, что адрес входит в команду проекта и не
+   исчерпан лимит двух писем в час.
+3. Для любых пользовательских адресов настройте собственный SMTP.
+4. Проверьте Spam и используйте Resend только после таймера.
 
 ## Manual Apple Sign-In setup
 
@@ -186,8 +194,7 @@ lib/features/
    ```
    Или в Cursor/VS Code: **Run → Android (телефон)** / **iOS (iPhone)** — конфиг в `.vscode/launch.json`.
 3. **Звук:** на iPhone включите громкость (режим «без звука» может глушить тоны, если не настроен playback).
-4. **SMS (Twilio trial):** номер получателя должен быть добавлен в Verified Caller IDs в Twilio.
-5. **Email на телефоне:** ссылка из письма откроется в браузере; после подтверждения войдите в приложении вручную.
+4. **Email на телефоне:** ссылка из письма откроется в браузере; после подтверждения войдите в приложении вручную.
 
 > Не разбивайте команду `flutter run` на несколько строк с `\` — zsh обрежет `--dart-define`.
 
