@@ -12,6 +12,7 @@ class PendingRegistrationStore {
   static const _onboardingKey = 'pending_onboarding_json';
   static const _verifiedShownPrefix = 'email_verified_shown_';
   static const _showVerifiedSuccessPrefix = 'show_verified_success_';
+  static const _passwordRecoveryUserKey = 'password_recovery_user_id';
 
   Future<void> savePending({
     required String email,
@@ -64,6 +65,25 @@ class PendingRegistrationStore {
   Future<bool> shouldShowVerifiedSuccess(String userId) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('$_showVerifiedSuccessPrefix$userId') ?? false;
+  }
+
+  /// Пользователь пришёл по ссылке восстановления и ещё не задал новый пароль.
+  ///
+  /// Отметка живёт вне адреса страницы, поэтому перезагрузка или повторный вход
+  /// с сохранённой сессией восстановления снова приводят к экрану нового пароля.
+  Future<void> markPasswordRecoveryPending(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_passwordRecoveryUserKey, userId);
+  }
+
+  Future<void> clearPasswordRecoveryPending() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_passwordRecoveryUserKey);
+  }
+
+  Future<bool> isPasswordRecoveryPending(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_passwordRecoveryUserKey) == userId;
   }
 
   Map<String, dynamic> _encode(OnboardingData data) {
