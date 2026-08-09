@@ -1,15 +1,15 @@
--- Диагностика телефонной регистрации: «юзер не появляется в auth.users».
+-- Диагностика регистрации: «юзер не появляется в auth.users / profiles».
 -- Запускать в Supabase Dashboard → SQL Editor (там достаточно прав).
 -- Скрипт ТОЛЬКО ЧИТАЕТ данные и ничего не меняет.
 --
--- Важно понимать механику: при телефонной регистрации пользователь
+-- Важно понимать механику: при регистрации пользователь
 -- создаётся самим Supabase Auth (GoTrue), а не Flutter-кодом. Создание
 -- пользователя в auth.users может НЕ произойти по двум причинам:
 --   1) AFTER INSERT триггер на auth.users падает с ошибкой и откатывает
 --      всю транзакцию регистрации (этот скрипт проверяет триггеры/таблицу);
---   2) SMS-провайдер (Twilio) не смог отправить код — тогда GoTrue тоже
---      откатывает создание пользователя (это проверяется НЕ здесь, а в
---      Authentication → Logs и в настройках Phone-провайдера).
+--   2) провайдер не смог отправить email/SMS — тогда GoTrue может отклонить
+--      создание пользователя (это проверяется НЕ здесь, а в
+--      Authentication → Logs и в настройках почтового/SMS-провайдера).
 
 -- 1. Все триггеры на auth.users. Должен быть только on_auth_user_created.
 --    Любой ЛИШНИЙ/чужой триггер — частая причина отката регистрации.
@@ -78,3 +78,11 @@ from public.profiles pr
 left join auth.users u on u.id = pr.id
 where u.id is null
 order by pr.created_at desc;
+
+-- 8. Auth-пользователи без profiles. Если строки есть, повторно примените
+--    supabase/schema.sql: он создаст безопасный SECURITY DEFINER trigger.
+select u.id, u.email, u.phone, u.created_at
+from auth.users u
+left join public.profiles pr on pr.id = u.id
+where pr.id is null
+order by u.created_at desc;

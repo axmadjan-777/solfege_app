@@ -226,12 +226,17 @@ class AuthService {
     required String password,
     required OnboardingData onboardingData,
   }) async {
-    final response = await SupabaseClientProvider.client.auth.signUp(
-      email: email.trim(),
-      password: password,
-      data: OnboardingMetadata.toUserMetadata(onboardingData),
-      emailRedirectTo: SupabaseConfig.emailRedirectUrl,
-    );
+    late final AuthResponse response;
+    try {
+      response = await SupabaseClientProvider.client.auth.signUp(
+        email: email.trim(),
+        password: password,
+        data: OnboardingMetadata.toUserMetadata(onboardingData),
+        emailRedirectTo: SupabaseConfig.emailRedirectUrl,
+      );
+    } on AuthException catch (error) {
+      throw _mapEmailAuthError(error, accountWasBeingCreated: true);
+    }
 
     if (response.session != null) {
       await _profileService.ensureCurrentUserProfile(
@@ -253,7 +258,8 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final response = await SupabaseClientProvider.client.auth.signInWithPassword(
+    final response =
+        await SupabaseClientProvider.client.auth.signInWithPassword(
       email: email.trim(),
       password: password,
     );
@@ -273,12 +279,87 @@ class AuthService {
     );
   }
 
-  Future<void> resendConfirmationEmail(String email) {
-    return SupabaseClientProvider.client.auth.resend(
-      type: OtpType.signup,
-      email: email.trim(),
-      emailRedirectTo: SupabaseConfig.emailRedirectUrl,
-    );
+  Future<void> resendConfirmationEmail(String email) async {
+    try {
+      await SupabaseClientProvider.client.auth.resend(
+        type: OtpType.signup,
+        email: email.trim(),
+        emailRedirectTo: SupabaseConfig.emailRedirectUrl,
+      );
+    } on AuthException catch (error) {
+      throw _mapEmailAuthError(error, accountWasBeingCreated: false);
+    }
+  }
+
+  AuthException _mapEmailAuthError(
+    AuthException error, {
+    required bool accountWasBeingCreated,
+  }) {
+    final code = error.code;
+    final message = error.message;
+    final lowerMessage = message.toLowerCase();
+    final accountState =
+        accountWasBeingCreated ? 'Запрос отклонён, аккаунт не создан. ' : '';
+
+    final isEmailRateLimit = code == 'over_email_send_rate_limit' ||
+        code == 'over_request_rate_limit' ||
+        error.statusCode == '429' ||
+        lowerMessage.contains('email rate limit') ||
+        lowerMessage.contains('rate limit exceeded');
+    if (isEmailRateLimit) {
+      return AuthException(
+        '$accountState'
+        'Supabase исчерпал лимит отправки email. Встроенный почтовый сервис '
+        'разрешает только 2 письма в час и предназначен для тестирования. '
+        'Подождите и повторите попытку; для обычных пользователей подключите '
+        'собственный SMTP в Supabase → Authentication → Emails → SMTP Settings.',
+        statusCode: error.statusCode,
+        code: code,
+      );
+    }
+
+    final isAddressNotAuthorized = code == 'email_address_not_authorized' ||
+        lowerMessage.contains('email address not authorized') ||
+        lowerMessage.contains('not authorized to send');
+    if (isAddressNotAuthorized) {
+      return AuthException(
+        '$accountState'
+        'Встроенный SMTP Supabase отправляет письма только участникам команды '
+        'проекта. Добавьте адрес в команду для теста или подключите собственный '
+        'SMTP для регистрации пользователей.',
+        statusCode: error.statusCode,
+        code: code,
+      );
+    }
+
+    final isDatabaseFailure = code == 'unexpected_failure' ||
+        lowerMessage.contains('database error') ||
+        lowerMessage.contains('saving new user');
+    if (isDatabaseFailure) {
+      return AuthException(
+        '$accountState'
+        'Supabase не смог сохранить пользователя. Проверьте Auth logs и '
+        'триггер public.handle_new_user; затем повторно примените '
+        'supabase/schema.sql в SQL Editor.',
+        statusCode: error.statusCode,
+        code: code,
+      );
+    }
+
+    final isSignupDisabled = code == 'signup_disabled' ||
+        lowerMessage.contains('signups not allowed') ||
+        lowerMessage.contains('signup is disabled');
+    if (isSignupDisabled) {
+      return AuthException(
+        '$accountState'
+        'Регистрация отключена в Supabase. Включите Allow new users to sign up '
+        'в Authentication → Sign In / Providers.',
+        statusCode: error.statusCode,
+        code: code,
+      );
+    }
+
+    return error;
   }
 
   String normalizePhone(String phone) => _normalizePhone(phone);
