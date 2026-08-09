@@ -40,7 +40,7 @@ function parseMessages(value: unknown): ChatMessage[] {
     if (normalized.length === 0 || normalized.length > 4000) {
       throw new Error("Сообщение должно содержать от 1 до 4000 символов.");
     }
-    return { role, text: normalized };
+    return { role: role as ChatRole, text: normalized };
   });
 
   if (messages.at(-1)?.role !== "user") {
