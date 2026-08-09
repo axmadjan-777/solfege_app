@@ -97,4 +97,55 @@ void main() {
     expect(thrown.message, contains('Auth logs'));
     expect(thrown.message, contains('handle_new_user'));
   });
+
+  test('email sign-in creates a session before profile resolution', () async {
+    SharedPreferences.setMockInitialValues({});
+    var profileRequested = false;
+    final mockClient = MockClient((request) async {
+      if (request.url.path.endsWith('/token')) {
+        return http.Response(
+          jsonEncode({
+            'access_token': 'fake-access-token',
+            'token_type': 'bearer',
+            'expires_in': 3600,
+            'refresh_token': 'fake-refresh-token',
+            'user': {
+              'id': '00000000-0000-0000-0000-000000000000',
+              'aud': 'authenticated',
+              'role': 'authenticated',
+              'email': 'returning.user@gmail.com',
+              'email_confirmed_at': DateTime.now().toUtc().toIso8601String(),
+              'created_at': DateTime.now().toUtc().toIso8601String(),
+              'app_metadata': <String, dynamic>{},
+              'user_metadata': <String, dynamic>{},
+            },
+          }),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }
+      if (request.url.path.contains('/profiles')) {
+        profileRequested = true;
+      }
+      return http.Response(
+        jsonEncode(<dynamic>[]),
+        200,
+        headers: {'content-type': 'application/json'},
+      );
+    });
+    await Supabase.initialize(
+      url: 'https://project.supabase.co',
+      publishableKey: 'test-publishable-key',
+      httpClient: mockClient,
+      authOptions: const FlutterAuthClientOptions(autoRefreshToken: false),
+    );
+
+    final response = await AuthService().signInWithEmail(
+      email: 'returning.user@gmail.com',
+      password: 'Password123!',
+    );
+
+    expect(response.session, isNotNull);
+    expect(profileRequested, isFalse);
+  });
 }

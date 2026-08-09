@@ -13,12 +13,14 @@ import '../services/profile_service.dart';
 import 'email_verification_pending_screen.dart';
 import 'email_verified_success_screen.dart';
 import 'onboarding_name_screen.dart';
+import 'reset_password_screen.dart';
 import 'supabase_config_error_screen.dart';
 import 'welcome_screen.dart';
 
 enum _GateState {
   loading,
   verifyingEmailLink,
+  passwordRecovery,
   configError,
   unauthenticated,
   awaitingEmailConfirmation,
@@ -77,8 +79,10 @@ class _AuthGateState extends State<AuthGate> {
 
     // Если приложение открыли по ссылке из письма — завершаем подтверждение до
     // выбора экрана, чтобы переход сразу вёл к успеху, а не к «Подтвердите email».
+    final fromPasswordRecovery = _authService.isPasswordRecoveryLink();
     final fromConfirmationLink = _authService.isEmailConfirmationLink();
-    if (fromConfirmationLink && _authService.getCurrentSession() == null) {
+    final fromEmailLink = fromPasswordRecovery || fromConfirmationLink;
+    if (fromEmailLink && _authService.getCurrentSession() == null) {
       if (mounted) setState(() => _state = _GateState.verifyingEmailLink);
       final result = await _authService.handleEmailConfirmationLink();
       if (result.outcome == EmailLinkOutcome.expired ||
@@ -104,12 +108,21 @@ class _AuthGateState extends State<AuthGate> {
     }
 
     _authSubscription = _authService.authStateChanges.listen((event) {
-      if (event.event == AuthChangeEvent.signedIn ||
+      if (event.event == AuthChangeEvent.passwordRecovery &&
+          _authService.getCurrentSession() != null) {
+        if (mounted) {
+          setState(() => _state = _GateState.passwordRecovery);
+        }
+      } else if (event.event == AuthChangeEvent.signedIn ||
           event.event == AuthChangeEvent.tokenRefreshed ||
           event.event == AuthChangeEvent.signedOut) {
         _resolveState();
       }
     });
+    if (fromPasswordRecovery && _authService.getCurrentSession() != null) {
+      if (mounted) setState(() => _state = _GateState.passwordRecovery);
+      return;
+    }
     await _resolveState();
   }
 
@@ -132,7 +145,8 @@ class _AuthGateState extends State<AuthGate> {
         final pendingOnboarding = await _pendingStore.getPendingOnboarding();
         _incompleteOnboarding = pendingOnboarding ?? const OnboardingData();
 
-        final awaitingEmail = _pendingEmail != null && _pendingEmail!.isNotEmpty;
+        final awaitingEmail =
+            _pendingEmail != null && _pendingEmail!.isNotEmpty;
         if (awaitingEmail) {
           // Есть кому переотправить письмо — оставляем сообщение для экрана.
           setState(() => _state = _GateState.awaitingEmailConfirmation);
@@ -169,10 +183,8 @@ class _AuthGateState extends State<AuthGate> {
         return;
       }
 
-      final hasShown =
-          await _pendingStore.hasShownVerifiedSuccess(user.id);
-      final shouldShow =
-          await _pendingStore.shouldShowVerifiedSuccess(user.id);
+      final hasShown = await _pendingStore.hasShownVerifiedSuccess(user.id);
+      final shouldShow = await _pendingStore.shouldShowVerifiedSuccess(user.id);
 
       if (!hasShown && shouldShow && user.emailConfirmedAt != null) {
         setState(() => _state = _GateState.emailVerifiedSuccess);
@@ -219,6 +231,10 @@ class _AuthGateState extends State<AuthGate> {
               ],
             ),
           ),
+        ),
+      _GateState.passwordRecovery => ResetPasswordScreen(
+          authService: _authService,
+          onPasswordUpdated: _resolveState,
         ),
       _GateState.configError => const SupabaseConfigErrorScreen(),
       _GateState.unauthenticated => const WelcomeScreen(),

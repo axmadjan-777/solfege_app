@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solfege_app/core/supabase/supabase_config.dart';
+import 'package:solfege_app/features/auth/screens/reset_password_screen.dart';
 import 'package:solfege_app/features/auth/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -100,5 +102,33 @@ void main() {
       userUri.queryParameters['redirect_to'],
       SupabaseConfig.emailRedirectUrl,
     );
+  });
+
+  testWidgets('recovery screen updates password in the active session', (
+    tester,
+  ) async {
+    await Supabase.instance.client.auth.setSession('fake-refresh-token');
+    capturedUris.clear();
+    var completed = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ResetPasswordScreen(
+          onPasswordUpdated: () async => completed = true,
+        ),
+      ),
+    );
+    final fields = find.byType(TextFormField);
+    await tester.enterText(fields.at(0), 'NewPassword123!');
+    await tester.enterText(fields.at(1), 'NewPassword123!');
+    await tester.tap(find.text('Сохранить новый пароль'));
+    await tester.pumpAndSettle();
+
+    expect(completed, isTrue);
+    expect(
+      capturedUris.any((uri) => uri.path.endsWith('/user')),
+      isTrue,
+    );
+    expect(find.text('Пароль обновлён'), findsOneWidget);
   });
 }

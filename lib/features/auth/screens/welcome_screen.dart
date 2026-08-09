@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../models/onboarding_data.dart';
+import 'login_screen.dart';
 import 'onboarding_name_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -56,6 +57,22 @@ class WelcomeScreen extends StatelessWidget {
                     );
                   },
                   child: const Text('Начать'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const LoginScreen(
+                          onboardingData: OnboardingData(),
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Уже есть аккаунт? Войти'),
                 ),
               ),
             ],

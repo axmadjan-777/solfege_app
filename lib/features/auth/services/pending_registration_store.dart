@@ -9,7 +9,6 @@ class PendingRegistrationStore {
   const PendingRegistrationStore();
 
   static const _emailKey = 'pending_registration_email';
-  static const _phoneKey = 'pending_registration_phone';
   static const _onboardingKey = 'pending_onboarding_json';
   static const _verifiedShownPrefix = 'email_verified_shown_';
   static const _showVerifiedSuccessPrefix = 'show_verified_success_';
@@ -20,35 +19,18 @@ class PendingRegistrationStore {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_emailKey, email.trim());
-    await prefs.remove(_phoneKey);
-    await prefs.setString(_onboardingKey, jsonEncode(_encode(onboardingData)));
-  }
-
-  Future<void> savePendingPhone({
-    required String phone,
-    required OnboardingData onboardingData,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_phoneKey, phone.trim());
-    await prefs.remove(_emailKey);
     await prefs.setString(_onboardingKey, jsonEncode(_encode(onboardingData)));
   }
 
   Future<void> clearPending() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_emailKey);
-    await prefs.remove(_phoneKey);
     await prefs.remove(_onboardingKey);
   }
 
   Future<String?> getPendingEmail() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_emailKey);
-  }
-
-  Future<String?> getPendingPhone() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_phoneKey);
   }
 
   Future<OnboardingData?> getPendingOnboarding() async {
