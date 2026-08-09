@@ -16,15 +16,18 @@ class ScaleStaffCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final resolutions = ScaleHarmony.resolutionsFor(scale);
     final displayMidi = [...scale.midiNotes, scale.midiNotes.first + 12];
+    final displayNoteNames = [...scale.notes, scale.notes.first];
     final displayDegrees = [...Scale.degrees, 'I'];
 
     const config = StaffPaintConfig();
     final keyCount = KeySignatureLookup.forScale(scale).signCount;
     final staffHeight = TrebleStaffLayout.minStaffHeight(
-      midiNotes: displayMidi,
-      topPadding: config.topPadding,
-      lineGap: config.lineGap,
-    ) + 28;
+          midiNotes: displayMidi,
+          noteNames: displayNoteNames,
+          topPadding: config.topPadding,
+          lineGap: config.lineGap,
+        ) +
+        28;
 
     final triadBlocks = [
       _TriadBlockData(
@@ -64,6 +67,7 @@ class ScaleStaffCard extends StatelessWidget {
                 painter: _ScaleWithResolutionsPainter(
                   scale: scale,
                   midiNotes: displayMidi,
+                  noteNames: displayNoteNames,
                   degrees: displayDegrees,
                   resolutions: resolutions,
                   config: config,
@@ -129,6 +133,7 @@ class _TriadStaffSection extends StatelessWidget {
           final midis = _midisForInversion(scale, rootIndex, inv.notes);
           final height = TrebleStaffLayout.minStaffHeight(
             midiNotes: midis,
+            noteNames: inv.notes,
             topPadding: config.topPadding,
             lineGap: config.lineGap,
           );
@@ -171,9 +176,25 @@ class _TriadStaffSection extends StatelessWidget {
   ) {
     final baseMidis = ScaleHarmony.triadMidis(scale, rootIndex);
     final baseNotes = ScaleHarmony.triadNotes(scale, rootIndex);
-    return orderedNotes
-        .map((note) => baseMidis[baseNotes.indexOf(note)])
-        .toList();
+    final rootPositionMidis = <int>[];
+    for (final midi in baseMidis) {
+      var positionedMidi = midi;
+      while (rootPositionMidis.isNotEmpty &&
+          positionedMidi <= rootPositionMidis.last) {
+        positionedMidi += 12;
+      }
+      rootPositionMidis.add(positionedMidi);
+    }
+
+    final result = <int>[];
+    for (final note in orderedNotes) {
+      var midi = rootPositionMidis[baseNotes.indexOf(note)];
+      while (result.isNotEmpty && midi <= result.last) {
+        midi += 12;
+      }
+      result.add(midi);
+    }
+    return result;
   }
 }
 
@@ -181,6 +202,7 @@ class _ScaleWithResolutionsPainter extends CustomPainter {
   _ScaleWithResolutionsPainter({
     required this.scale,
     required this.midiNotes,
+    required this.noteNames,
     required this.degrees,
     required this.resolutions,
     required this.config,
@@ -189,6 +211,7 @@ class _ScaleWithResolutionsPainter extends CustomPainter {
 
   final Scale scale;
   final List<int> midiNotes;
+  final List<String> noteNames;
   final List<String> degrees;
   final List<ScaleResolution> resolutions;
   final StaffPaintConfig config;
@@ -210,14 +233,15 @@ class _ScaleWithResolutionsPainter extends CustomPainter {
     for (var i = 0; i < midiNotes.length; i++) {
       final midi = midiNotes[i];
       final x = leftInset + spacing * i + spacing / 2;
-      final y = TrebleStaffLayout.yForMidi(
+      final y = TrebleStaffLayout.yForWrittenNote(
         midi,
+        noteNames[i],
         topPadding: config.topPadding,
         lineGap: config.lineGap,
       );
       centers.add(Offset(x, y));
 
-      StaffPaintHelpers.drawLedgerLines(canvas, x, midi, config);
+      StaffPaintHelpers.drawLedgerLines(canvas, x, y, config);
       StaffPaintHelpers.drawNoteHead(
         canvas,
         Offset(x, y),
@@ -274,12 +298,13 @@ class _TriadStaffPainter extends CustomPainter {
     for (var i = 0; i < midiNotes.length; i++) {
       final midi = midiNotes[i];
       final x = leftInset + spacing * i + spacing / 2;
-      final y = TrebleStaffLayout.yForMidi(
+      final y = TrebleStaffLayout.yForWrittenNote(
         midi,
+        labels[i],
         topPadding: config.topPadding,
         lineGap: config.lineGap,
       );
-      StaffPaintHelpers.drawLedgerLines(canvas, x, midi, config);
+      StaffPaintHelpers.drawLedgerLines(canvas, x, y, config);
       StaffPaintHelpers.drawNoteHead(canvas, Offset(x, y), filled: false);
 
       final label = TextPainter(

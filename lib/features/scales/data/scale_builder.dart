@@ -14,24 +14,24 @@ class ScaleBuilder {
   static const _minorMelodicUp = [0, 2, 3, 5, 7, 9, 11];
 
   static const _sharpSignLabels = [
-  'фа-диез',
-  'до-диез',
-  'соль-диез',
-  'ре-диез',
-  'ля-диез',
-  'ми-диез',
-  'си-диез',
-];
+    'фа-диез',
+    'до-диез',
+    'соль-диез',
+    'ре-диез',
+    'ля-диез',
+    'ми-диез',
+    'си-диез',
+  ];
 
   static const _flatSignLabels = [
-  'си-бемоль',
-  'ми-бемоль',
-  'ля-бемоль',
-  'ре-бемоль',
-  'соль-бемоль',
-  'до-бемоль',
-  'фа-бемоль',
-];
+    'си-бемоль',
+    'ми-бемоль',
+    'ля-бемоль',
+    'ре-бемоль',
+    'соль-бемоль',
+    'до-бемоль',
+    'фа-бемоль',
+  ];
 
   List<KeySignatureGroup> buildAllGroups() {
     return [
@@ -198,7 +198,6 @@ class ScaleBuilder {
     required int signCount,
     required List<String> signLabels,
   }) {
-    final useFlats = category == KeySignatureCategory.flats;
     final title = '$majorTonicName мажор / $minorTonicName минор';
 
     return KeySignatureGroup(
@@ -214,7 +213,6 @@ class ScaleBuilder {
           tonicMidi: majorTonicMidi,
           mode: ScaleMode.major,
           intervals: _majorNatural,
-          useFlats: useFlats,
           isMajor: true,
         ),
         _buildScale(
@@ -223,7 +221,6 @@ class ScaleBuilder {
           tonicMidi: majorTonicMidi,
           mode: ScaleMode.harmonicMajor,
           intervals: _majorHarmonic,
-          useFlats: useFlats,
           isMajor: true,
         ),
         _buildScale(
@@ -232,7 +229,6 @@ class ScaleBuilder {
           tonicMidi: minorTonicMidi,
           mode: ScaleMode.naturalMinor,
           intervals: _minorNatural,
-          useFlats: useFlats,
           isMajor: false,
         ),
         _buildScale(
@@ -241,7 +237,6 @@ class ScaleBuilder {
           tonicMidi: minorTonicMidi,
           mode: ScaleMode.harmonicMinor,
           intervals: _minorHarmonic,
-          useFlats: useFlats,
           isMajor: false,
         ),
         _buildScale(
@@ -250,7 +245,6 @@ class ScaleBuilder {
           tonicMidi: minorTonicMidi,
           mode: ScaleMode.melodicMinor,
           intervals: _minorMelodicUp,
-          useFlats: useFlats,
           isMajor: false,
           melodicMinor: true,
         ),
@@ -264,12 +258,14 @@ class ScaleBuilder {
     required int tonicMidi,
     required ScaleMode mode,
     required List<int> intervals,
-    required bool useFlats,
     required bool isMajor,
     bool melodicMinor = false,
   }) {
     final midiNotes = intervals.map((i) => tonicMidi + i).toList();
-    final notes = SolfegeNotes.fromMidiList(midiNotes, useFlats: useFlats);
+    final notes = SolfegeNotes.spellScale(
+      tonicName: tonicName,
+      midiNotes: midiNotes,
+    );
 
     List<String>? descendingNotes;
     List<int>? descendingMidiNotes;
@@ -281,10 +277,14 @@ class ScaleBuilder {
       descendingMidiNotes = [
         for (final interval in _minorNatural.reversed) tonicMidi + interval,
       ];
-      descendingNotes = SolfegeNotes.fromMidiList(
-        descendingMidiNotes,
-        useFlats: useFlats,
-      );
+      descendingNotes = [
+        for (var i = 0; i < descendingMidiNotes.length; i++)
+          SolfegeNotes.spellScaleDegree(
+            midi: descendingMidiNotes[i],
+            tonicName: tonicName,
+            degreeIndex: 6 - i,
+          ),
+      ];
     }
 
     final name = '$tonicName ${mode.fullLabelRu}';
@@ -330,25 +330,25 @@ class ScaleBuilder {
   List<String> _listeningTips(ScaleMode mode) {
     return switch (mode) {
       ScaleMode.major => const [
-        'Обратите внимание на устойчивое звучание I, III и V ступеней.',
-        'VII ступень тяготеет к тонике.',
-      ],
+          'Обратите внимание на устойчивое звучание I, III и V ступеней.',
+          'VII ступень тяготеет к тонике.',
+        ],
       ScaleMode.harmonicMajor => const [
-        'Обратите внимание на пониженную VI ступень по сравнению с натуральным мажором.',
-        'Гамма звучит мягче и менее «классически мажорно».',
-      ],
+          'Обратите внимание на пониженную VI ступень по сравнению с натуральным мажором.',
+          'Гамма звучит мягче и менее «классически мажорно».',
+        ],
       ScaleMode.naturalMinor => const [
-        'Сравните с параллельным мажором: общий состав звуков, другая тоника.',
-        'VII ступень не создаёт сильного ведущего тона.',
-      ],
+          'Сравните с параллельным мажором: общий состав звуков, другая тоника.',
+          'VII ступень не создаёт сильного ведущего тона.',
+        ],
       ScaleMode.harmonicMinor => const [
-        'Обратите внимание на увеличенную секунду между VI и VII ступенями.',
-        'VII ступень звучит как сильный вводный тон.',
-      ],
+          'Обратите внимание на увеличенную секунду между VI и VII ступенями.',
+          'VII ступень звучит как сильный вводный тон.',
+        ],
       ScaleMode.melodicMinor => const [
-        'При восхождении сравните с гармоническим минором.',
-        'При спуске звучит как натуральный минор.',
-      ],
+          'При восхождении сравните с гармоническим минором.',
+          'При спуске звучит как натуральный минор.',
+        ],
     };
   }
 }

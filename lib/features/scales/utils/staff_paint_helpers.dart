@@ -24,7 +24,9 @@ class StaffPaintConfig {
   double get staffBottom => topPadding + 4 * lineGap;
 
   double leftInset(int keySignCount) =>
-      8 + clefWidth + (keySignCount == 0 ? 6 : keySignCount * accidentalSpacing + 8);
+      8 +
+      clefWidth +
+      (keySignCount == 0 ? 6 : keySignCount * accidentalSpacing + 8);
 }
 
 abstract final class StaffPaintHelpers {
@@ -74,10 +76,12 @@ abstract final class StaffPaintHelpers {
     if (info.signCount == 0) return;
     final symbol = TrebleStaffLayout.accidentalSymbol(info.category);
     final midis = TrebleStaffLayout.keySignatureMidis(scale);
+    final noteNames = TrebleStaffLayout.keySignatureNoteNames(scale);
     var x = 10 + config.clefWidth;
-    for (final midi in midis) {
-      final y = TrebleStaffLayout.yForMidi(
-        midi,
+    for (var i = 0; i < midis.length; i++) {
+      final y = TrebleStaffLayout.yForWrittenNote(
+        midis[i],
+        noteNames[i],
         topPadding: config.topPadding,
         lineGap: config.lineGap,
       );
@@ -115,41 +119,25 @@ abstract final class StaffPaintHelpers {
   static void drawLedgerLines(
     Canvas canvas,
     double x,
-    int midi,
+    double noteY,
     StaffPaintConfig config,
   ) {
     final paint = Paint()
       ..color = AppColors.border
       ..strokeWidth = 1;
-    final top = TrebleStaffLayout.topStaffLine(config.topPadding);
-    final bottom = TrebleStaffLayout.bottomStaffLine(
-      config.topPadding,
-      config.lineGap,
-    );
-    final y = TrebleStaffLayout.yForMidi(
-      midi,
+    final ledgerLines = TrebleStaffLayout.ledgerLineYsForY(
+      noteY,
       topPadding: config.topPadding,
       lineGap: config.lineGap,
     );
-    final half = config.lineGap / 2;
     const ledgerWidth = 16.0;
 
-    if (y < top - 0.5) {
-      for (var ledgerY = top - half; ledgerY >= y - 0.5; ledgerY -= half) {
-        canvas.drawLine(
-          Offset(x - ledgerWidth / 2, ledgerY),
-          Offset(x + ledgerWidth / 2, ledgerY),
-          paint,
-        );
-      }
-    } else if (y > bottom + 0.5) {
-      for (var ledgerY = bottom + half; ledgerY <= y + 0.5; ledgerY += half) {
-        canvas.drawLine(
-          Offset(x - ledgerWidth / 2, ledgerY),
-          Offset(x + ledgerWidth / 2, ledgerY),
-          paint,
-        );
-      }
+    for (final ledgerY in ledgerLines) {
+      canvas.drawLine(
+        Offset(x - ledgerWidth / 2, ledgerY),
+        Offset(x + ledgerWidth / 2, ledgerY),
+        paint,
+      );
     }
   }
 
