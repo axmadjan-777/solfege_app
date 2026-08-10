@@ -110,9 +110,7 @@ class _AuthGateState extends State<AuthGate> {
     _authSubscription = _authService.authStateChanges.listen((event) {
       if (event.event == AuthChangeEvent.passwordRecovery &&
           _authService.getCurrentSession() != null) {
-        if (mounted) {
-          setState(() => _state = _GateState.passwordRecovery);
-        }
+        _enterPasswordRecovery();
       } else if (event.event == AuthChangeEvent.signedIn ||
           event.event == AuthChangeEvent.tokenRefreshed ||
           event.event == AuthChangeEvent.signedOut) {
@@ -120,9 +118,22 @@ class _AuthGateState extends State<AuthGate> {
       }
     });
     if (fromPasswordRecovery && _authService.getCurrentSession() != null) {
-      if (mounted) setState(() => _state = _GateState.passwordRecovery);
+      await _enterPasswordRecovery();
       return;
     }
+    await _resolveState();
+  }
+
+  Future<void> _enterPasswordRecovery() async {
+    final user = _authService.getCurrentUser();
+    if (user != null) {
+      await _pendingStore.markPasswordRecoveryPending(user.id);
+    }
+    if (mounted) setState(() => _state = _GateState.passwordRecovery);
+  }
+
+  Future<void> _onPasswordUpdated() async {
+    await _pendingStore.clearPasswordRecoveryPending();
     await _resolveState();
   }
 
@@ -141,6 +152,9 @@ class _AuthGateState extends State<AuthGate> {
 
       // Источник истины — auth session, не profiles.
       if (user == null || session == null) {
+        // Право сменить пароль даёт сессия восстановления: без неё отметка
+        // больше не нужна и не должна ловить следующий обычный вход.
+        await _pendingStore.clearPasswordRecoveryPending();
         _pendingEmail = await _pendingStore.getPendingEmail();
         final pendingOnboarding = await _pendingStore.getPendingOnboarding();
         _incompleteOnboarding = pendingOnboarding ?? const OnboardingData();
@@ -159,6 +173,14 @@ class _AuthGateState extends State<AuthGate> {
           if (message != null) _showSnackAfterBuild(message);
           setState(() => _state = _GateState.unauthenticated);
         }
+        return;
+      }
+
+      // Смена пароля обязательна, поэтому событие входа или обновления токена не
+      // должно уводить с экрана нового пароля.
+      if (await _pendingStore.isPasswordRecoveryPending(user.id)) {
+        if (!mounted) return;
+        setState(() => _state = _GateState.passwordRecovery);
         return;
       }
 
@@ -234,7 +256,7 @@ class _AuthGateState extends State<AuthGate> {
         ),
       _GateState.passwordRecovery => ResetPasswordScreen(
           authService: _authService,
-          onPasswordUpdated: _resolveState,
+          onPasswordUpdated: _onPasswordUpdated,
         ),
       _GateState.configError => const SupabaseConfigErrorScreen(),
       _GateState.unauthenticated => const WelcomeScreen(),

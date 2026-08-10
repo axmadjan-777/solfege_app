@@ -169,6 +169,33 @@ lib/features/
 - **ProfileService.ensureCurrentUserProfile** — upsert из onboarding / metadata / pending store.
 - **ScaleToneAudioService** — программная генерация тонов (без audio-файлов).
 
+## Gemini — музыкальный ИИ-чат
+
+Раздел **«ИИ»** использует `gemini-3.1-flash-lite` через Supabase Edge Function
+`gemini-chat`. API-ключ никогда не передаётся во Flutter и не попадает в
+web-сборку.
+
+Настройка:
+
+1. Создайте новый ограниченный Gemini API key в Google AI Studio. Если ключ
+   когда-либо публиковался в чате или git, сначала отзовите его.
+2. Supabase Dashboard → **Edge Functions → Secrets**: добавьте
+   `GEMINI_API_KEY`. Не добавляйте значение в файлы репозитория.
+3. Разверните `supabase/functions/gemini-chat` через Dashboard, MCP или CLI:
+
+   ```bash
+   supabase functions deploy gemini-chat --project-ref zehmcszijutthmeswtci
+   ```
+
+4. При необходимости модель можно переопределить secret-переменной
+   `GEMINI_MODEL`; по умолчанию используется стабильная
+   `gemini-3.1-flash-lite`. Старая `gemini-2.5-flash-lite` больше не доступна
+   новым API-проектам.
+
+Функция требует авторизованную Supabase-сессию, ограничивает историю 12
+сообщениями и применяет серверный мастер-промпт из
+`supabase/functions/gemini-chat/master_prompt.ts`.
+
 ## Product roadmap
 
 См. [`docs/product_roadmap.md`](docs/product_roadmap.md).
