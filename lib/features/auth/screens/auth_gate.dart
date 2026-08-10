@@ -58,6 +58,7 @@ class _AuthGateState extends State<AuthGate> {
   String? _linkMessage;
   OnboardingData _incompleteOnboarding = const OnboardingData();
   bool _isResolving = false;
+  bool _isPasswordRecoveryActive = false;
 
   @override
   void initState() {
@@ -112,8 +113,10 @@ class _AuthGateState extends State<AuthGate> {
           _authService.getCurrentSession() != null) {
         _enterPasswordRecovery();
       } else if (event.event == AuthChangeEvent.signedIn ||
-          event.event == AuthChangeEvent.tokenRefreshed ||
-          event.event == AuthChangeEvent.signedOut) {
+          event.event == AuthChangeEvent.tokenRefreshed) {
+        _resolveState();
+      } else if (event.event == AuthChangeEvent.signedOut) {
+        _isPasswordRecoveryActive = false;
         _resolveState();
       }
     });
@@ -125,6 +128,7 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<void> _enterPasswordRecovery() async {
+    _isPasswordRecoveryActive = true;
     final user = _authService.getCurrentUser();
     if (user != null) {
       await _pendingStore.markPasswordRecoveryPending(user.id);
@@ -134,11 +138,16 @@ class _AuthGateState extends State<AuthGate> {
 
   Future<void> _onPasswordUpdated() async {
     await _pendingStore.clearPasswordRecoveryPending();
+    _isPasswordRecoveryActive = false;
     await _resolveState();
   }
 
   Future<void> _resolveState() async {
     if (_isResolving || !mounted) return;
+    if (_isPasswordRecoveryActive) {
+      setState(() => _state = _GateState.passwordRecovery);
+      return;
+    }
     _isResolving = true;
 
     try {
@@ -216,6 +225,9 @@ class _AuthGateState extends State<AuthGate> {
       setState(() => _state = _GateState.ready);
     } finally {
       _isResolving = false;
+      if (mounted && _isPasswordRecoveryActive) {
+        setState(() => _state = _GateState.passwordRecovery);
+      }
     }
   }
 
