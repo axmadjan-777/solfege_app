@@ -22,6 +22,43 @@ function jsonResponse(body: Record<string, unknown>, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: jsonHeaders });
 }
 
+function getSupabasePublishableKey(): string | null {
+  const rawKeys = Deno.env.get("SUPABASE_PUBLISHABLE_KEYS");
+  if (rawKeys) {
+    try {
+      const keys = JSON.parse(rawKeys);
+      if (typeof keys?.default === "string") return keys.default;
+    } catch (error) {
+      console.error("Invalid SUPABASE_PUBLISHABLE_KEYS", error);
+    }
+  }
+  return Deno.env.get("SUPABASE_ANON_KEY") || null;
+}
+
+async function isAuthenticated(request: Request): Promise<boolean> {
+  const authorization = request.headers.get("Authorization");
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const publishableKey = getSupabasePublishableKey();
+  if (
+    !authorization?.startsWith("Bearer ") || !supabaseUrl || !publishableKey
+  ) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      headers: {
+        Authorization: authorization,
+        apikey: publishableKey,
+      },
+    });
+    return response.ok;
+  } catch (error) {
+    console.error("Supabase Auth validation failed", error);
+    return false;
+  }
+}
+
 function parseMessages(value: unknown): ChatMessage[] {
   if (!Array.isArray(value) || value.length === 0) {
     throw new Error("Отправьте хотя бы один вопрос.");
@@ -55,6 +92,9 @@ Deno.serve(async (request) => {
   }
   if (request.method !== "POST") {
     return jsonResponse({ error: "Метод не поддерживается." }, 405);
+  }
+  if (!await isAuthenticated(request)) {
+    return jsonResponse({ error: "Требуется авторизация." }, 401);
   }
 
   const apiKey = Deno.env.get("GEMINI_API_KEY");
