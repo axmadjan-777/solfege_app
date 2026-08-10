@@ -27,4 +27,14 @@ void main() {
     expect(source, contains('thinkingLevel: "minimal"'));
     expect(source, isNot(contains('gemini-2.5-flash-lite')));
   });
+
+  test('edge function validates the caller with Supabase Auth', () {
+    final source = File(
+      'supabase/functions/gemini-chat/index.ts',
+    ).readAsStringSync();
+
+    expect(source, contains('/auth/v1/user'));
+    expect(source, contains('Требуется авторизация.'));
+    expect(source, contains('Authorization'));
+  });
 }
