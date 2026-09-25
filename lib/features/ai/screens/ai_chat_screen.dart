@@ -18,7 +18,36 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   late final AiChatService _chatService =
       widget.chatService ?? GeminiAiChatService();
-  final _messages = <AiChatMessage>[];
+  final _messages = <AiChatMessage>[
+    const AiChatMessage(
+      role: AiChatRole.user,
+      text: 'Welche Töne hat C-Dur?',
+    ),
+    const AiChatMessage(
+      role: AiChatRole.model,
+      text:
+          'C-Dur besteht aus C, D, E, F, G, A und H. Die stabilen Stufen sind I, III und V: C–E–G.',
+    ),
+    const AiChatMessage(
+      role: AiChatRole.user,
+      text:
+          'Worin unterscheidet sich harmonisches Moll von natürlichem Moll?',
+    ),
+    const AiChatMessage(
+      role: AiChatRole.model,
+      text:
+          'Im harmonischen Moll ist die VII. Stufe erhöht. Zwischen VI und VII entsteht eine übermäßige Sekunde, und die VII. Stufe zieht stark zur Tonika.',
+    ),
+    const AiChatMessage(
+      role: AiChatRole.user,
+      text: 'Wie übe ich eine Tonleiter nach Gehör?',
+    ),
+    const AiChatMessage(
+      role: AiChatRole.model,
+      text:
+          'Höre die Tonleiter aufwärts und dann abwärts. Singe jede Stufe und vergleiche danach Dur mit dem parallelen Moll derselben Vorzeichen.',
+    ),
+  ];
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
 
@@ -38,7 +67,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     if (question.length > _maxMessageLength) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Вопрос должен быть короче 2000 символов.'),
+          content: Text('Die Frage darf höchstens 2000 Zeichen haben.'),
         ),
       );
       return;
@@ -77,7 +106,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(
-        () => _errorDetails = 'Проверьте подключение и попробуйте снова.',
+        () => _errorDetails = 'Prüfe die Verbindung und versuche es erneut.',
       );
     } finally {
       if (mounted) {
@@ -159,7 +188,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Музыкальный ИИ',
+                  'Musik-KI',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ),
@@ -167,7 +196,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Спросите о теории музыки, сольфеджио, гармонии или практике.',
+            'Frag nach Musiktheorie, Solfège, Harmonie oder Übung.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
@@ -194,7 +223,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               maxLength: _maxMessageLength,
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
-                hintText: 'Задайте вопрос о музыке…',
+                hintText: 'Stell eine Frage zur Musik…',
                 counterText: '',
               ),
               onSubmitted: (_) => _send(),
@@ -204,7 +233,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           IconButton.filled(
             key: const Key('ai_chat_send'),
             onPressed: _isLoading ? null : _send,
-            tooltip: 'Отправить',
+            tooltip: 'Senden',
             icon: const Icon(Icons.arrow_upward_rounded),
           ),
         ],
@@ -231,13 +260,13 @@ class _EmptyChat extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Например: «Чем диез отличается от бемоля?»',
+              'Zum Beispiel: „Worin unterscheidet sich ein Kreuz von einem Be?“',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(height: 8),
             Text(
-              'Ассистент отвечает только на музыкальные вопросы.',
+              'Der Assistent beantwortet nur musikalische Fragen.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -317,13 +346,13 @@ class _ErrorBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Не удалось получить ответ',
+                'Antwort nicht möglich',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 4),
               Text(details, style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 8),
-              TextButton(onPressed: onRetry, child: const Text('Повторить')),
+              TextButton(onPressed: onRetry, child: const Text('Erneut versuchen')),
             ],
           ),
         ),

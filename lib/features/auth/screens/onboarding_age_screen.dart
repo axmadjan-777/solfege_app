@@ -42,8 +42,8 @@ class _OnboardingAgeScreenState extends State<OnboardingAgeScreen> {
   @override
   Widget build(BuildContext context) {
     return OnboardingScaffold(
-      title: 'Сколько вам лет?',
-      subtitle: 'Это поможет подобрать подходящий темп обучения',
+      title: 'Wie alt bist du?',
+      subtitle: 'So können wir das Lerntempo anpassen',
       currentStep: 2,
       totalSteps: 3,
       onBack: () => Navigator.of(context).pop(),
@@ -81,7 +81,7 @@ class _OnboardingAgeScreenState extends State<OnboardingAgeScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Выбранный возраст: $_selectedAge',
+            'Gewähltes Alter: $_selectedAge',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],

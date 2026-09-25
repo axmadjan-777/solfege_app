@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../models/scale.dart';
+import '../utils/german_pitch.dart';
 
 class ScaleHeaderCard extends StatelessWidget {
   const ScaleHeaderCard({super.key, required this.scale});
@@ -73,7 +74,7 @@ class ScaleHeaderCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              'Тоника: ${scale.tonic}',
+              'Tonika: ${germanPitch(scale.tonic)}',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: AppColors.primary,
                   ),

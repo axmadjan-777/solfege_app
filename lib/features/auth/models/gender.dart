@@ -1,8 +1,8 @@
 enum Gender {
-  male('male', 'Мужской'),
-  female('female', 'Женский'),
-  other('other', 'Другой'),
-  preferNotSay('prefer_not_say', 'Не указывать');
+  male('male', 'Männlich'),
+  female('female', 'Weiblich'),
+  other('other', 'Divers'),
+  preferNotSay('prefer_not_say', 'Keine Angabe');
 
   const Gender(this.dbValue, this.labelRu);
 

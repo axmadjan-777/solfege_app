@@ -18,7 +18,7 @@ class OnboardingProgress extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Шаг $currentStep из $totalSteps',
+          'Schritt $currentStep von $totalSteps',
           style: Theme.of(context).textTheme.labelMedium,
         ),
         const SizedBox(height: 8),

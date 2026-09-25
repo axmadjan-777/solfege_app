@@ -4,17 +4,17 @@ enum MusicianLevel {
   expert;
 
   String get labelRu => switch (this) {
-        MusicianLevel.beginner => 'Новичок',
-        MusicianLevel.pro => 'Профи',
-        MusicianLevel.expert => 'Эксперт',
+        MusicianLevel.beginner => 'Anfänger',
+        MusicianLevel.pro => 'Fortgeschritten',
+        MusicianLevel.expert => 'Experte',
       };
 
   String get descriptionRu => switch (this) {
         MusicianLevel.beginner =>
-          'Я только начинаю или давно не занимался',
-        MusicianLevel.pro => 'Я уверенно занимаюсь музыкой',
+          'Ich fange gerade an oder habe lange nicht geübt',
+        MusicianLevel.pro => 'Ich mache sicher Musik',
         MusicianLevel.expert =>
-          'Я преподаю, учусь профессионально или готовлюсь к экзаменам',
+          'Ich unterrichte, studiere professionell oder bereite mich auf Prüfungen vor',
       };
 
   String get dbValue => name;

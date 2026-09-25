@@ -84,9 +84,9 @@ class _EmailVerificationPendingScreenState
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
-                'Откройте ссылку из письма — подтверждение произойдёт '
-                'автоматически. Если письмо открыто на другом устройстве, '
-                'войдите в приложение заново.',
+                'Öffne den Link aus der E-Mail — die Bestätigung erfolgt '
+                'automatisch. Wenn du die E-Mail auf einem anderen Gerät '
+                'geöffnet hast, melde dich in der App erneut an.',
               ),
             ),
           );
@@ -106,7 +106,7 @@ class _EmailVerificationPendingScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Email ещё не подтверждён. Откройте ссылку в письме и попробуйте снова.',
+              'Die E-Mail ist noch nicht bestätigt. Öffne den Link und versuche es erneut.',
             ),
           ),
         );
@@ -129,7 +129,7 @@ class _EmailVerificationPendingScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Не знаем, на какой адрес отправлять. Зарегистрируйтесь заново.',
+            'Die Empfängeradresse fehlt. Registriere dich erneut.',
           ),
         ),
       );
@@ -142,7 +142,7 @@ class _EmailVerificationPendingScreenState
       if (!mounted) return;
       _startCooldown();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Новое письмо отправлено на $email.')),
+        SnackBar(content: Text('Eine neue E-Mail wurde an $email gesendet.')),
       );
     } on AuthException catch (error) {
       if (!mounted) return;
@@ -170,8 +170,8 @@ class _EmailVerificationPendingScreenState
   }
 
   String get _resendLabel => _resendSecondsLeft > 0
-      ? 'Отправить письмо снова ($_resendSecondsLeft)'
-      : 'Отправить письмо снова';
+      ? 'E-Mail erneut senden ($_resendSecondsLeft)'
+      : 'E-Mail erneut senden';
 
   @override
   Widget build(BuildContext context) {
@@ -192,22 +192,22 @@ class _EmailVerificationPendingScreenState
               ),
               const SizedBox(height: 24),
               Text(
-                'Подтвердите email',
+                'E-Mail bestätigen',
                 style: Theme.of(context).textTheme.displaySmall,
               ),
               const SizedBox(height: 12),
               Text(
                 widget.email.trim().isEmpty
-                    ? 'Откройте ссылку из письма, чтобы подтвердить почту.'
-                    : 'Мы отправили ссылку на ${widget.email}. '
-                        'Откройте её — подтверждение произойдёт автоматически.',
+                    ? 'Öffne den Link aus der E-Mail, um deine Adresse zu bestätigen.'
+                    : 'Wir haben einen Link an ${widget.email} gesendet. '
+                        'Öffne ihn — die Bestätigung erfolgt automatisch.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppColors.textSecondary,
                     ),
               ),
               const Spacer(),
               PrimaryAuthButton(
-                label: 'Я подтвердил email',
+                label: 'Ich habe die E-Mail bestätigt',
                 onPressed: _isChecking ? null : () => _checkConfirmed(),
                 isLoading: _isChecking,
               ),

@@ -28,19 +28,19 @@ class EmailVerifiedSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Email подтверждён',
+                'E-Mail bestätigt',
                 style: Theme.of(context).textTheme.displaySmall,
               ),
               const SizedBox(height: 12),
               Text(
-                'Аккаунт готов. Можно начинать заниматься сольфеджио.',
+                'Dein Konto ist bereit. Du kannst mit dem Solfège beginnen.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppColors.textSecondary,
                     ),
               ),
               const Spacer(),
               PrimaryAuthButton(
-                label: 'Старт',
+                label: 'Start',
                 onPressed: onStart,
               ),
             ],

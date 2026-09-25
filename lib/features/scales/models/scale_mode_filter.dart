@@ -5,9 +5,9 @@ enum ScaleModeFilter {
 
   String get label {
     return switch (this) {
-      ScaleModeFilter.all => 'Все',
-      ScaleModeFilter.major => 'Мажор',
-      ScaleModeFilter.minor => 'Минор',
+      ScaleModeFilter.all => 'Alle',
+      ScaleModeFilter.major => 'Dur',
+      ScaleModeFilter.minor => 'Moll',
     };
   }
 }

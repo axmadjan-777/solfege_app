@@ -2,6 +2,7 @@ import '../models/key_signature_category.dart';
 import '../models/key_signature_group.dart';
 import '../models/scale.dart';
 import '../models/scale_mode.dart';
+import '../utils/german_pitch.dart';
 import '../utils/solfege_notes.dart';
 
 class ScaleBuilder {
@@ -198,7 +199,8 @@ class ScaleBuilder {
     required int signCount,
     required List<String> signLabels,
   }) {
-    final title = '$majorTonicName мажор / $minorTonicName минор';
+    final title =
+        '${germanPitch(majorTonicName)}-Dur / ${germanPitch(minorTonicName)}-Moll';
 
     return KeySignatureGroup(
       id: id,
@@ -287,7 +289,8 @@ class ScaleBuilder {
       ];
     }
 
-    final name = '$tonicName ${mode.fullLabelRu}';
+    final pitch = germanPitch(tonicName);
+    final name = isMajor ? '$pitch-Dur' : '$pitch-Moll';
 
     return Scale(
       id: id,
@@ -312,42 +315,44 @@ class ScaleBuilder {
     required ScaleMode mode,
     required bool isMajor,
   }) {
+    final pitch = germanPitch(tonicName);
+    final kind = isMajor ? 'Dur' : 'Moll';
     return switch (mode) {
       ScaleMode.major =>
-        '$tonicName мажор натуральный — классическая мажорная гамма с устойчивыми I, III и V ступенями.',
+        '$pitch-$kind, natürlich — die klassische Dur-Tonleiter mit stabilen Stufen I, III und V.',
       ScaleMode.harmonicMajor =>
-        '$tonicName мажор гармонический — мажор с пониженной VI ступенью. '
-            'Реже встречается в учебных программах, но полезен для сравнения ладов.',
+        '$pitch-$kind, harmonisch — Dur mit erniedrigter VI. Stufe. '
+            'Seltener im Unterricht, aber nützlich zum Vergleich der Tongeschlechter.',
       ScaleMode.naturalMinor =>
-        '$tonicName минор натуральный — базовый минорный лад без повышенных ступеней.',
+        '$pitch-$kind, natürlich — das Grund-Moll ohne erhöhte Stufen.',
       ScaleMode.harmonicMinor =>
-        '$tonicName минор гармонический — минор с повышенной VII ступенью.',
+        '$pitch-$kind, harmonisch — Moll mit erhöhter VII. Stufe.',
       ScaleMode.melodicMinor =>
-        '$tonicName минор мелодический — вверх с повышенными VI и VII, вниз натуральный минор.',
+        '$pitch-$kind, melodisch — aufwärts mit erhöhten Stufen VI und VII, abwärts natürliches Moll.',
     };
   }
 
   List<String> _listeningTips(ScaleMode mode) {
     return switch (mode) {
       ScaleMode.major => const [
-          'Обратите внимание на устойчивое звучание I, III и V ступеней.',
-          'VII ступень тяготеет к тонике.',
+          'Achte auf den stabilen Klang der Stufen I, III und V.',
+          'Die VII. Stufe zieht zur Tonika.',
         ],
       ScaleMode.harmonicMajor => const [
-          'Обратите внимание на пониженную VI ступень по сравнению с натуральным мажором.',
-          'Гамма звучит мягче и менее «классически мажорно».',
+          'Achte auf die erniedrigte VI. Stufe im Vergleich zum natürlichen Dur.',
+          'Die Tonleiter klingt weicher und weniger klassisch durartig.',
         ],
       ScaleMode.naturalMinor => const [
-          'Сравните с параллельным мажором: общий состав звуков, другая тоника.',
-          'VII ступень не создаёт сильного ведущего тона.',
+          'Vergleiche mit dem parallelen Dur: gleiche Töne, andere Tonika.',
+          'Die VII. Stufe bildet keinen starken Leitton.',
         ],
       ScaleMode.harmonicMinor => const [
-          'Обратите внимание на увеличенную секунду между VI и VII ступенями.',
-          'VII ступень звучит как сильный вводный тон.',
+          'Achte auf die übermäßige Sekunde zwischen VI und VII.',
+          'Die VII. Stufe klingt als starker Leitton.',
         ],
       ScaleMode.melodicMinor => const [
-          'При восхождении сравните с гармоническим минором.',
-          'При спуске звучит как натуральный минор.',
+          'Vergleiche den Aufstieg mit dem harmonischen Moll.',
+          'Abwärts klingt es wie natürliches Moll.',
         ],
     };
   }

@@ -12,7 +12,7 @@ class OnboardingScaffold extends StatelessWidget {
     required this.child,
     required this.onBack,
     required this.onNext,
-    this.nextLabel = 'Далее',
+    this.nextLabel = 'Weiter',
     this.canGoNext = true,
     this.isLoading = false,
   });
@@ -60,7 +60,7 @@ class OnboardingScaffold extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: isLoading ? null : onBack,
-                        child: const Text('Назад'),
+                        child: const Text('Zurück'),
                       ),
                     ),
                   if (onBack != null) const SizedBox(width: 12),

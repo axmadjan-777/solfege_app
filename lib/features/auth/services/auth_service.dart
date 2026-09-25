@@ -111,7 +111,7 @@ class AuthService {
         if (response.session == null) {
           return const EmailLinkResult(
             EmailLinkOutcome.failed,
-            'Не удалось завершить подтверждение. Попробуйте войти заново.',
+            'Die Bestätigung konnte nicht abgeschlossen werden. Melde dich erneut an.',
           );
         }
         return const EmailLinkResult(EmailLinkOutcome.confirmed);
@@ -148,8 +148,8 @@ class AuthService {
         }
         return const EmailLinkResult(
           EmailLinkOutcome.failed,
-          'Почта подтверждена. Войдите в приложение по email и паролю '
-          '(ссылку открыли не в том браузере, где была регистрация).',
+          'Die E-Mail ist bestätigt. Melde dich in der App mit E-Mail und Passwort an '
+          '(der Link wurde nicht in dem Browser geöffnet, in dem du dich registriert hast).',
         );
       }
     }
@@ -198,14 +198,14 @@ class AuthService {
     required bool expired,
   }) {
     if (expired) {
-      return 'Ссылка подтверждения устарела или уже была использована. '
-          'Запросите новое письмо кнопкой ниже.';
+      return 'Der Bestätigungslink ist abgelaufen oder wurde schon verwendet. '
+          'Fordere unten eine neue E-Mail an.';
     }
     final detail = (description ?? '').trim();
     if (detail.isEmpty) {
-      return 'Не удалось подтвердить почту. Запросите новое письмо.';
+      return 'Die E-Mail konnte nicht bestätigt werden. Fordere eine neue E-Mail an.';
     }
-    return 'Не удалось подтвердить почту: $detail';
+    return 'Die E-Mail konnte nicht bestätigt werden: $detail';
   }
 
   OtpType _otpTypeFromString(String? raw) {
@@ -300,7 +300,7 @@ class AuthService {
     final message = error.message;
     final lowerMessage = message.toLowerCase();
     final accountState =
-        accountWasBeingCreated ? 'Запрос отклонён, аккаунт не создан. ' : '';
+        accountWasBeingCreated ? 'Die Anfrage wurde abgelehnt, das Konto wurde nicht erstellt. ' : '';
 
     final isEmailRateLimit = code == 'over_email_send_rate_limit' ||
         code == 'over_request_rate_limit' ||
@@ -310,10 +310,10 @@ class AuthService {
     if (isEmailRateLimit) {
       return AuthException(
         '$accountState'
-        'Supabase исчерпал лимит отправки email. Встроенный почтовый сервис '
-        'разрешает только 2 письма в час и предназначен для тестирования. '
-        'Подождите и повторите попытку; для обычных пользователей подключите '
-        'собственный SMTP в Supabase → Authentication → Emails → SMTP Settings.',
+        'Supabase hat das E-Mail-Limit erreicht. Der eingebaute Dienst '
+        'erlaubt nur 2 E-Mails pro Stunde und ist zum Testen gedacht. '
+        'Warte und versuche es erneut; für normale Nutzer verbinde '
+        'eigenes SMTP unter Supabase → Authentication → Emails → SMTP Settings.',
         statusCode: error.statusCode,
         code: code,
       );
@@ -325,9 +325,9 @@ class AuthService {
     if (isAddressNotAuthorized) {
       return AuthException(
         '$accountState'
-        'Встроенный SMTP Supabase отправляет письма только участникам команды '
-        'проекта. Добавьте адрес в команду для теста или подключите собственный '
-        'SMTP для регистрации пользователей.',
+        'Das eingebaute SMTP von Supabase sendet E-Mails nur an Mitglieder des '
+        'Projektteams. Füge die Adresse zum Test hinzu oder verbinde eigenes '
+        'SMTP für die Registrierung.',
         statusCode: error.statusCode,
         code: code,
       );
@@ -338,9 +338,9 @@ class AuthService {
     if (isDatabaseFailure) {
       return AuthException(
         '$accountState'
-        'Supabase не смог сохранить пользователя. Проверьте Auth logs и '
-        'триггер public.handle_new_user; затем повторно примените '
-        'supabase/schema.sql в SQL Editor.',
+        'Supabase konnte den Nutzer nicht speichern. Prüfe die Auth logs und '
+        'den Trigger public.handle_new_user; wende danach '
+        'supabase/schema.sql im SQL Editor erneut an.',
         statusCode: error.statusCode,
         code: code,
       );
@@ -352,8 +352,8 @@ class AuthService {
     if (isSignupDisabled) {
       return AuthException(
         '$accountState'
-        'Регистрация отключена в Supabase. Включите Allow new users to sign up '
-        'в Authentication → Sign In / Providers.',
+        'Die Registrierung ist in Supabase deaktiviert. Aktiviere Allow new users to sign up '
+        'unter Authentication → Sign In / Providers.',
         statusCode: error.statusCode,
         code: code,
       );

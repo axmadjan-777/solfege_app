@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       Navigator.of(context).popUntil((route) => route.isFirst);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Добро пожаловать!')),
+        const SnackBar(content: Text('Willkommen!')),
       );
     } on AuthException catch (error) {
       if (!mounted) return;
@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Вход')),
+      appBar: AppBar(title: const Text('Anmeldung')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -112,14 +112,14 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 AuthTextField(
                   controller: _emailController,
-                  label: 'Email',
+                  label: 'E-Mail',
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   validator: (value) {
                     final email = value?.trim() ?? '';
-                    if (email.isEmpty) return 'Введите email';
+                    if (email.isEmpty) return 'E-Mail eingeben';
                     if (!email.contains('@') || !email.contains('.')) {
-                      return 'Введите корректный email';
+                      return 'Gib eine gültige E-Mail ein';
                     }
                     return null;
                   },
@@ -127,12 +127,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 AuthTextField(
                   controller: _passwordController,
-                  label: 'Пароль',
+                  label: 'Passwort',
                   obscureText: true,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _login(),
                   validator: (value) {
-                    if ((value ?? '').isEmpty) return 'Введите пароль';
+                    if ((value ?? '').isEmpty) return 'Passwort eingeben';
                     return null;
                   },
                 ),
@@ -150,12 +150,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       );
                     },
-                    child: const Text('Забыли пароль?'),
+                    child: const Text('Passwort vergessen?'),
                   ),
                 ),
                 const SizedBox(height: 24),
                 PrimaryAuthButton(
-                  label: 'Войти',
+                  label: 'Anmelden',
                   isLoading: _isLoading,
                   onPressed: _login,
                 ),

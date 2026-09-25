@@ -18,22 +18,22 @@ class _MainShellScreenState extends State<MainShellScreen> {
 
   static const _tabs = [
     _ShellTab(
-      label: 'Гаммы',
+      label: 'Tonleitern',
       icon: Icons.music_note_rounded,
       screen: ScalesListScreen(),
     ),
     _ShellTab(
-      label: 'Практика',
+      label: 'Üben',
       icon: Icons.fitness_center_rounded,
       screen: PracticePlaceholderScreen(),
     ),
     _ShellTab(
-      label: 'ИИ',
+      label: 'KI',
       icon: Icons.auto_awesome_rounded,
       screen: AiChatScreen(),
     ),
     _ShellTab(
-      label: 'Профиль',
+      label: 'Profil',
       icon: Icons.person_rounded,
       screen: ProfileScreen(),
     ),

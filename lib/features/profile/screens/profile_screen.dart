@@ -81,11 +81,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final name = _nameController.text.trim();
     final age = int.tryParse(_ageController.text.trim());
     if (name.isEmpty) {
-      _showSnack('Введите имя');
+      _showSnack('Namen eingeben');
       return;
     }
     if (age == null || age < 6 || age > 90) {
-      _showSnack('Введите возраст от 6 до 90');
+      _showSnack('Gib ein Alter von 6 bis 90 ein');
       return;
     }
 
@@ -98,7 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       if (!mounted) return;
       setState(() => _profile = updated);
-      _showSnack('Профиль сохранён');
+      _showSnack('Profil gespeichert');
     } on StateError catch (error) {
       _showSnack(error.message);
     } finally {
@@ -109,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _changeEmail() async {
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
-      _showSnack('Введите корректный email');
+      _showSnack('Gib eine gültige E-Mail ein');
       return;
     }
 
@@ -118,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await _authService.updateEmail(email);
       if (!mounted) return;
       _showSnack(
-        'Запрос отправлен. Подтвердите новый email по ссылке из письма.',
+        'Anfrage gesendet. Bestätige die neue E-Mail über den Link.',
       );
     } on AuthException catch (error) {
       _showSnack(error.message);
@@ -131,11 +131,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final password = _newPasswordController.text;
     final confirm = _confirmPasswordController.text;
     if (password.length < 8) {
-      _showSnack('Пароль должен быть не короче 8 символов');
+      _showSnack('Das Passwort muss mindestens 8 Zeichen haben');
       return;
     }
     if (password != confirm) {
-      _showSnack('Пароли не совпадают');
+      _showSnack('Die Passwörter stimmen nicht überein');
       return;
     }
 
@@ -145,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _newPasswordController.clear();
       _confirmPasswordController.clear();
       if (!mounted) return;
-      _showSnack('Пароль обновлён');
+      _showSnack('Passwort aktualisiert');
     } on AuthException catch (error) {
       _showSnack(error.message);
     } finally {
@@ -183,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
                 children: [
                   Text(
-                    'Профиль',
+                    'Profil',
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
                   const SizedBox(height: 24),
@@ -191,28 +191,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        'Уровень: ${_profile!.musicianLevel!.labelRu}',
+                        'Niveau: ${_profile!.musicianLevel!.labelRu}',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   _SectionCard(
-                    title: 'Данные',
+                    title: 'Angaben',
                     children: [
                       AuthTextField(
                         controller: _nameController,
-                        label: 'Имя',
+                        label: 'Name',
                         textInputAction: TextInputAction.next,
                       ),
                       const SizedBox(height: 12),
                       AuthTextField(
                         controller: _ageController,
-                        label: 'Возраст',
+                        label: 'Alter',
                         keyboardType: TextInputType.number,
                         textInputAction: TextInputAction.done,
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Пол',
+                        'Geschlecht',
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                       const SizedBox(height: 8),
@@ -230,7 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 16),
                       PrimaryAuthButton(
-                        label: 'Сохранить',
+                        label: 'Speichern',
                         isLoading: _isSaving,
                         onPressed: _saveProfile,
                       ),
@@ -238,26 +238,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 16),
                   _SectionCard(
-                    title: 'Контакты',
+                    title: 'Kontakt',
                     children: [
                       _InfoRow(
-                        label: 'Email',
+                        label: 'E-Mail',
                         value: user?.email ?? '—',
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   _SectionCard(
-                    title: 'Смена email',
+                    title: 'E-Mail ändern',
                     children: [
                       AuthTextField(
                         controller: _emailController,
-                        label: 'Новый email',
+                        label: 'Neue E-Mail',
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 12),
                       PrimaryAuthButton(
-                        label: 'Сменить email',
+                        label: 'E-Mail ändern',
                         isLoading: _isSaving,
                         onPressed: _changeEmail,
                       ),
@@ -265,22 +265,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 16),
                   _SectionCard(
-                    title: 'Смена пароля',
+                    title: 'Passwort ändern',
                     children: [
                       AuthTextField(
                         controller: _newPasswordController,
-                        label: 'Новый пароль',
+                        label: 'Neues Passwort',
                         obscureText: true,
                       ),
                       const SizedBox(height: 12),
                       AuthTextField(
                         controller: _confirmPasswordController,
-                        label: 'Подтвердите пароль',
+                        label: 'Passwort bestätigen',
                         obscureText: true,
                       ),
                       const SizedBox(height: 12),
                       PrimaryAuthButton(
-                        label: 'Сменить пароль',
+                        label: 'Passwort ändern',
                         isLoading: _isSaving,
                         onPressed: _changePassword,
                       ),
@@ -288,7 +288,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 24),
                   PrimaryAuthButton(
-                    label: 'Выйти из аккаунта',
+                    label: 'Abmelden',
                     isLoading: _isLoggingOut,
                     onPressed: _logout,
                   ),
@@ -338,7 +338,7 @@ class _InfoRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 72,
+          width: 88,
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium,

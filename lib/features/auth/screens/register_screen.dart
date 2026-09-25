@@ -68,7 +68,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       Navigator.of(context).popUntil((route) => route.isFirst);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Аккаунт создан. Добро пожаловать!')),
+        const SnackBar(content: Text('Konto erstellt. Willkommen!')),
       );
     } on AuthException catch (error) {
       if (!mounted) return;
@@ -83,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Создать аккаунт')),
+      appBar: AppBar(title: const Text('Konto erstellen')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -93,14 +93,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 AuthTextField(
                   controller: _emailController,
-                  label: 'Email',
+                  label: 'E-Mail',
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   validator: (value) {
                     final email = value?.trim() ?? '';
-                    if (email.isEmpty) return 'Введите email';
+                    if (email.isEmpty) return 'E-Mail eingeben';
                     if (!email.contains('@') || !email.contains('.')) {
-                      return 'Введите корректный email';
+                      return 'Gib eine gültige E-Mail ein';
                     }
                     return null;
                   },
@@ -108,12 +108,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
                 AuthTextField(
                   controller: _passwordController,
-                  label: 'Пароль',
+                  label: 'Passwort',
                   obscureText: true,
                   textInputAction: TextInputAction.next,
                   validator: (value) {
                     if ((value ?? '').length < 8) {
-                      return 'Пароль должен быть не короче 8 символов';
+                      return 'Das Passwort muss mindestens 8 Zeichen haben';
                     }
                     return null;
                   },
@@ -121,20 +121,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
                 AuthTextField(
                   controller: _confirmPasswordController,
-                  label: 'Подтвердите пароль',
+                  label: 'Passwort bestätigen',
                   obscureText: true,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _register(),
                   validator: (value) {
                     if (value != _passwordController.text) {
-                      return 'Пароли не совпадают';
+                      return 'Die Passwörter stimmen nicht überein';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 32),
                 PrimaryAuthButton(
-                  label: 'Зарегистрироваться',
+                  label: 'Registrieren',
                   isLoading: _isLoading,
                   onPressed: _register,
                 ),

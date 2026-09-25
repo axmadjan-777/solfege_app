@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../models/key_signature_group.dart';
+import '../utils/german_pitch.dart';
 
 class KeySignatureGroupCard extends StatelessWidget {
   const KeySignatureGroupCard({
@@ -53,13 +54,13 @@ class KeySignatureGroupCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Ключевые знаки: ${group.signCountLabel}',
+                      'Vorzeichen: ${group.signCountLabel}',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     if (group.signLabels.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
-                        group.signLabels.join(', '),
+                        germanPitches(group.signLabels, separator: ', '),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: AppColors.textSecondary,
                             ),

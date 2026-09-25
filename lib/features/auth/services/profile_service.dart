@@ -33,10 +33,10 @@ class ProfileService {
   }) async {
     final user = SupabaseClientProvider.client.auth.currentUser;
     if (user == null) {
-      throw StateError('Пользователь не авторизован');
+      throw StateError('Nicht angemeldet');
     }
     if (authUserId != null && user.id != authUserId) {
-      throw StateError('Auth user id не совпадает с текущей сессией');
+      throw StateError('Die Nutzer-ID passt nicht zur aktuellen Sitzung');
     }
 
     if (!onboardingData.isComplete) {
@@ -68,10 +68,10 @@ class ProfileService {
   }) async {
     final user = SupabaseClientProvider.client.auth.currentUser;
     if (user == null) {
-      throw StateError('Пользователь не авторизован');
+      throw StateError('Nicht angemeldet');
     }
     if (authUserId != null && user.id != authUserId) {
-      throw StateError('Auth user id не совпадает с текущей сессией');
+      throw StateError('Die Nutzer-ID passt nicht zur aktuellen Sitzung');
     }
 
     final existing = await getCurrentProfile();
@@ -112,12 +112,12 @@ class ProfileService {
   }) async {
     final user = SupabaseClientProvider.client.auth.currentUser;
     if (user == null) {
-      throw StateError('Пользователь не авторизован');
+      throw StateError('Nicht angemeldet');
     }
 
     final existing = await getCurrentProfile();
     if (existing == null) {
-      throw StateError('Профиль не найден');
+      throw StateError('Profil nicht gefunden');
     }
 
     final payload = {

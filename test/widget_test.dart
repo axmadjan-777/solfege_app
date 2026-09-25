@@ -6,6 +6,6 @@ void main() {
     await tester.pumpWidget(const SolfegeApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('Supabase не настроен'), findsOneWidget);
+    expect(find.text('Supabase ist nicht eingerichtet'), findsOneWidget);
   });
 }

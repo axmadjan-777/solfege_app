@@ -44,7 +44,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       await widget.onPasswordUpdated();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Пароль обновлён')),
+        const SnackBar(content: Text('Passwort aktualisiert')),
       );
     } on AuthException catch (error) {
       if (!mounted) return;
@@ -59,7 +59,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Новый пароль')),
+      appBar: AppBar(title: const Text('Neues Passwort')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -69,18 +69,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Придумайте новый пароль для входа в аккаунт',
+                  'Lege ein neues Passwort für dein Konto fest',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),
                 AuthTextField(
                   controller: _passwordController,
-                  label: 'Новый пароль',
+                  label: 'Neues Passwort',
                   obscureText: true,
                   textInputAction: TextInputAction.next,
                   validator: (value) {
                     if ((value ?? '').length < 8) {
-                      return 'Пароль должен быть не короче 8 символов';
+                      return 'Das Passwort muss mindestens 8 Zeichen haben';
                     }
                     return null;
                   },
@@ -88,20 +88,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 const SizedBox(height: 16),
                 AuthTextField(
                   controller: _confirmPasswordController,
-                  label: 'Подтвердите пароль',
+                  label: 'Passwort bestätigen',
                   obscureText: true,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _updatePassword(),
                   validator: (value) {
                     if (value != _passwordController.text) {
-                      return 'Пароли не совпадают';
+                      return 'Die Passwörter stimmen nicht überein';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 32),
                 PrimaryAuthButton(
-                  label: 'Сохранить новый пароль',
+                  label: 'Neues Passwort speichern',
                   isLoading: _isLoading,
                   onPressed: _updatePassword,
                 ),

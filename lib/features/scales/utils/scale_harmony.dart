@@ -74,10 +74,10 @@ class ScaleHarmony {
   static List<TriadInversion> triadInversions(Scale scale, int rootIndex) {
     final root = triadNotes(scale, rootIndex);
     return [
-      TriadInversion(label: 'основной', notes: [root[0], root[1], root[2]]),
-      TriadInversion(label: 'секстаккорд', notes: [root[1], root[2], root[0]]),
+      TriadInversion(label: 'Grundstellung', notes: [root[0], root[1], root[2]]),
+      TriadInversion(label: 'Sextakkord', notes: [root[1], root[2], root[0]]),
       TriadInversion(
-        label: 'квартсекстаккорд',
+        label: 'Quartsextakkord',
         notes: [root[2], root[0], root[1]],
       ),
     ];

@@ -9,7 +9,7 @@ class SolfegeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Сольфеджио',
+      title: 'Solfège',
       theme: AppTheme.light,
       debugShowCheckedModeBanner: false,
       home: const AuthGate(),

@@ -19,14 +19,11 @@ class KeySignatureGroup {
   final List<Scale> scales;
 
   String get signCountLabel {
-    if (signCount == 0) return 'нет';
-    final word = category == KeySignatureCategory.sharps ? 'диез' : 'бемоль';
-    final suffix = switch (signCount) {
-      1 => '',
-      2 || 3 || 4 => 'а',
-      _ => 'ов',
-    };
-    return '$signCount $word$suffix';
+    if (signCount == 0) return 'keine';
+    if (category == KeySignatureCategory.sharps) {
+      return signCount == 1 ? '1 Kreuz' : '$signCount Kreuze';
+    }
+    return signCount == 1 ? '1 Be' : '$signCount Bes';
   }
 
   List<Scale> get majorScales =>

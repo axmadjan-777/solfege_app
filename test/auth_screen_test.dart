@@ -21,8 +21,8 @@ void main() {
       ),
     );
 
-    expect(find.text('Создать аккаунт'), findsOneWidget);
-    expect(find.text('Уже есть аккаунт? Войти'), findsOneWidget);
+    expect(find.text('Konto erstellen'), findsOneWidget);
+    expect(find.text('Du hast schon ein Konto? Anmelden'), findsOneWidget);
     expect(find.text('Регистрация по телефону'), findsNothing);
     expect(find.text('Вход по телефону'), findsNothing);
   });
@@ -32,11 +32,11 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: WelcomeScreen()));
 
-    await tester.tap(find.text('Уже есть аккаунт? Войти'));
+    await tester.tap(find.text('Du hast schon ein Konto? Anmelden'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Вход'), findsOneWidget);
-    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Anmeldung'), findsOneWidget);
+    expect(find.text('E-Mail'), findsOneWidget);
     expect(find.text('Регистрация по телефону'), findsNothing);
     expect(find.text('Вход по телефону'), findsNothing);
   });

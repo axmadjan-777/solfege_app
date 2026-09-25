@@ -32,7 +32,7 @@ class ScalePlayback extends ChangeNotifier {
   }
 
   String playbackMessage(Scale scale, ScaleDirection direction) {
-    return 'Проигрывается: ${scale.name} (${direction.labelRu})';
+    return 'Wiedergabe: ${scale.name} (${direction.labelRu})';
   }
 
   Future<void> disposePlayer() => _player.dispose();
