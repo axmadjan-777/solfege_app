@@ -11,12 +11,25 @@ abstract final class ToneGenerator {
     int durationMs = 420,
     double volume = 0.35,
   }) {
-    final frequency = 440 * pow(2, (midi - 69) / 12);
-    return _generateWav(frequency.toDouble(), durationMs, volume);
+    return wavFromChord([midi], durationMs: durationMs, volume: volume);
+  }
+
+  /// Несколько MIDI в одном буфере. Громкость делится поровну, чтобы аккорд
+  /// не становился громче одиночной ноты.
+  static Uint8List wavFromChord(
+    List<int> midi, {
+    int durationMs = 420,
+    double volume = 0.35,
+  }) {
+    final frequencies = [
+      for (final note in midi) 440 * pow(2, (note - 69) / 12).toDouble(),
+    ];
+    final voiceVolume = frequencies.isEmpty ? volume : volume / frequencies.length;
+    return _generateWav(frequencies, durationMs, voiceVolume);
   }
 
   static Uint8List _generateWav(
-    double frequency,
+    List<double> frequencies,
     int durationMs,
     double volume,
   ) {
@@ -56,7 +69,10 @@ abstract final class ToneGenerator {
     for (var i = 0; i < sampleCount; i++) {
       final t = i / _sampleRate;
       final envelope = min(1.0, i / 800) * max(0.0, 1 - (i / sampleCount));
-      final sample = sin(2 * pi * frequency * t) * volume * envelope;
+      var sample = 0.0;
+      for (final frequency in frequencies) {
+        sample += sin(2 * pi * frequency * t) * volume * envelope;
+      }
       final intSample = (sample * 32767).round().clamp(-32768, 32767);
       pcm.setInt16(i * 2, intSample, Endian.little);
     }
