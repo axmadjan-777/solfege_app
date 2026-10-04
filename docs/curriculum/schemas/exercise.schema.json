@@ -1,0 +1,396 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://solfeggio.app/schemas/exercise.schema.json",
+  "title": "Practice set (trainer)",
+  "description": "Тренажёр раздела «Практика». Состоит из стадий; стадии различаются только параметрами, а не UI-компонентом. Один тренажёр = один interaction_template (допускается второй как альтернативный формат ответа).",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "app_section",
+    "skill_track",
+    "competency_ids",
+    "interaction_template",
+    "entry_points",
+    "stages",
+    "review_rule",
+    "mvp_status",
+    "dev_complexity",
+    "teacher_review_status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^PR-[0-9]{2}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 5
+    },
+    "app_section": {
+      "enum": [
+        "practice",
+        "both"
+      ]
+    },
+    "skill_track": {
+      "enum": [
+        "perception",
+        "keyboard",
+        "rhythm",
+        "notation",
+        "scale_degree",
+        "interval",
+        "chord",
+        "harmony",
+        "reading",
+        "dictation",
+        "voice",
+        "analysis",
+        "mixed"
+      ]
+    },
+    "competency_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "interaction_template": {
+      "type": "string",
+      "pattern": "^T[0-9]{2}$"
+    },
+    "alt_interaction_template": {
+      "type": "string",
+      "pattern": "^T[0-9]{2}$"
+    },
+    "opened_by_lesson_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^L[0-9]{2}-[0-9]{2}$"
+      }
+    },
+    "prerequisite_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "entry_points": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": [
+          "lesson_followup",
+          "standalone_trainer",
+          "daily_mix",
+          "cold_review",
+          "level_exam",
+          "error_queue",
+          "diagnostic"
+        ]
+      },
+      "description": "Как пользователь попадает в тренажёр"
+    },
+    "anti_absolute_pitch": {
+      "type": "string",
+      "description": "Как исключается угадывание по абсолютной высоте (обязательно для слуховых тренажёров)"
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "stage",
+          "title",
+          "params",
+          "pass",
+          "mvp_status"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "stage": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3
+          },
+          "competency_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "params": {
+            "type": "object",
+            "description": "Параметры стадии. Для слуховых стадий обязательны context, replays, show_notation, answer_format",
+            "properties": {
+              "context": {
+                "type": "string"
+              },
+              "context_repeat_on_demand": {
+                "type": "boolean"
+              },
+              "replays": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              },
+              "replay_with_hint": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 3
+              },
+              "show_notation": {
+                "type": "boolean"
+              },
+              "show_keyboard": {
+                "type": "boolean"
+              },
+              "answer_format": {
+                "type": "string"
+              },
+              "answer_labels": {
+                "type": "string"
+              },
+              "options": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 12
+              },
+              "target_set": {
+                "type": "array",
+                "items": {}
+              },
+              "keys": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "midi_low": {
+                "type": "integer",
+                "minimum": 21,
+                "maximum": 108
+              },
+              "midi_high": {
+                "type": "integer",
+                "minimum": 21,
+                "maximum": 108
+              },
+              "register": {
+                "type": "string"
+              },
+              "timbre": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "note_duration_ms": {
+                "type": "integer",
+                "minimum": 200,
+                "maximum": 4000
+              },
+              "pause_before_answer_ms": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 3000
+              },
+              "tempo_bpm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "meter": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "bars": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 8
+              },
+              "durations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "sequence_length": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 8
+              },
+              "items_per_session": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 30
+              },
+              "difficulty_step": {
+                "type": "string"
+              },
+              "tolerance_ms": {
+                "type": "integer",
+                "minimum": 30,
+                "maximum": 400
+              },
+              "chord_types": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "inversions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "voicing": {
+                "type": "string"
+              },
+              "playback": {
+                "type": "string"
+              },
+              "self_assessment": {
+                "type": "boolean"
+              },
+              "notes": {
+                "type": "string"
+              }
+            }
+          },
+          "feedback": {
+            "type": "object",
+            "properties": {
+              "correct": {
+                "type": "string"
+              },
+              "first_error": {
+                "type": "string"
+              },
+              "repeat_error": {
+                "type": "string"
+              },
+              "confusion_pairs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "pair",
+                    "explanation"
+                  ],
+                  "properties": {
+                    "pair": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "explanation": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "pass": {
+            "type": "object",
+            "required": [
+              "min_accuracy",
+              "min_items"
+            ],
+            "properties": {
+              "min_accuracy": {
+                "type": "number",
+                "minimum": 0.5,
+                "maximum": 1
+              },
+              "min_items": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 40
+              },
+              "coverage": {
+                "type": "array",
+                "items": {}
+              },
+              "metric": {
+                "type": "string"
+              },
+              "threshold_ms": {
+                "type": "integer"
+              }
+            }
+          },
+          "cold_review": {
+            "type": "object"
+          },
+          "mvp_status": {
+            "enum": [
+              "mvp",
+              "v1.1",
+              "v1.2",
+              "v2"
+            ]
+          }
+        }
+      }
+    },
+    "review_rule": {
+      "type": "string"
+    },
+    "mvp_status": {
+      "enum": [
+        "mvp",
+        "v1.1",
+        "v1.2",
+        "v2"
+      ]
+    },
+    "dev_complexity": {
+      "enum": [
+        "S",
+        "M",
+        "L"
+      ]
+    },
+    "teacher_review_status": {
+      "enum": [
+        "ok",
+        "needs_review",
+        "blocking"
+      ]
+    },
+    "requires_microphone": {
+      "type": "boolean"
+    },
+    "requires_latency_calibration": {
+      "type": "boolean"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^S-[0-9]{2}$"
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

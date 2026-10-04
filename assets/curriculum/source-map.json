@@ -1,0 +1,166 @@
+{
+  "schema_version": "1.0",
+  "checked_at": "2026-08-11",
+  "sources": [
+    {
+      "id": "S-01",
+      "title": "ABRSM, Music Theory Qualification Specification, раздел Exam content, таблица Grades 1 to 5",
+      "version": "апрель 2023 (силлабус от 2020)",
+      "url": "https://www.abrsm.org/sites/default/files/2023-09/Music%20Theory%20Qual%20Spec%20April%202023%20%5B2023%20rebrand%5D.pdf",
+      "reliability": "A",
+      "used_for": "Момент введения интервалов по числу (Grade 1) и по качеству (Grade 3), ключевые знаки, размеры, длительности, ключи, триады"
+    },
+    {
+      "id": "S-02",
+      "title": "ABRSM, Music Theory Syllabus from 2020, Grades 1–5 (outline)",
+      "version": "2020, переиздание 2023",
+      "url": "https://www.abrsm.org/sites/default/files/2023-09/music-theory-syllabus-outline-grades-1-5-from-2020.pdf",
+      "reliability": "A",
+      "used_for": "Пункты Grade 1: длительности, размеры, стан, два ключа, знаки, строение мажорной гаммы, тоническое трезвучие"
+    },
+    {
+      "id": "S-03",
+      "title": "Trinity College London, Theory of Music Syllabus, Grades 1–8",
+      "version": "текущая редакция",
+      "url": "https://www.trinitycollege.com/resource?id=2886",
+      "reliability": "A",
+      "used_for": "Интервалы по числу (Grade 1), качество (Grade 2), сексты и септимы (Grade 3), тритон и составные (Grade 4), обращения (Grade 5), модуляции и pivot chords (Grade 6+)"
+    },
+    {
+      "id": "S-04",
+      "title": "The Royal Conservatory, Theory Syllabus",
+      "version": "2016 Edition",
+      "url": "https://files.rcmusic.com/sites/default/files/files/S44_TheorySyl_2016_ONLINE_RCM_V2_F.PDF",
+      "reliability": "A",
+      "used_for": "Интервалы: numerical size only (Level 1–2), качество над тоникой (Level 3), все интервалы над любым звуком (Level 6), обращения (Level 7), составные (Level 8); трезвучия, септаккорды, лады"
+    },
+    {
+      "id": "S-05",
+      "title": "The Royal Conservatory, Piano Syllabus, раздел Ear Tests",
+      "version": "2022 Edition",
+      "url": "https://rcmusic-kentico-cdn.s3.amazonaws.com/rcm/media/main/about%20us/rcm%20publishing/piano-syllabus-2022-edition.pdf",
+      "reliability": "A",
+      "used_for": "Level 1: определение м3/б3 на слух и качества трезвучия; Level 2–3: + ч5 и ч4; формат clapback и playback"
+    },
+    {
+      "id": "S-06",
+      "title": "e-MusicMaestro, руководства по ABRSM Aural Tests (Grades 1 и 5)",
+      "version": "2024–2026",
+      "url": "https://www.e-musicmaestro.com/auraltests/guides/abrsm-grade-1-guide",
+      "reliability": "B",
+      "used_for": "Формат слуховых заданий: ключевой аккорд, отсчёт, эхо-пение, пение с листа, хлопанье пульса против ритма"
+    },
+    {
+      "id": "S-07",
+      "title": "Karpinski G. S., A Cognitive Basis for Choosing a Solmization System, Music Theory Online 27.2",
+      "version": "2021",
+      "url": "https://mtosmt.org/issues/mto.21.27.2/mto.21.27.2.karpinski.html",
+      "reliability": "A",
+      "used_for": "Первичность tonic inference; аргумент в пользу do-based minor movable-do; обоснование ступеневого подхода и «прото-нотации» в диктанте"
+    },
+    {
+      "id": "S-08",
+      "title": "Chenette T., What Are the Truly Aural Skills?, Music Theory Online 27.2",
+      "version": "2021",
+      "url": "https://mtosmt.org/issues/mto.21.27.2/mto.21.27.2.chenette.html",
+      "reliability": "A",
+      "used_for": "Критика римских цифр как перцептивно абстрактных; приоритет перцептивных фундаментов над порядком теоретических тем"
+    },
+    {
+      "id": "S-09",
+      "title": "GIML, The MLT Approach; Gordon E., Quick and Easy Introductions to Music Learning Theory",
+      "version": "актуальная редакция",
+      "url": "https://giml.org/mlt/methodology/",
+      "reliability": "A",
+      "used_for": "Sound before symbol; раздельные tonal и rhythm sequences; movable-do с la-based minor как альтернатива; обязательность контекста"
+    },
+    {
+      "id": "S-10",
+      "title": "Cepeda N. et al., Spacing Effects in Learning: A Temporal Ridgeline of Optimal Retention, Psychological Science 19(11), 1095–1102",
+      "version": "2008",
+      "url": "https://doi.org/10.1111/j.1467-9280.2008.02209.x",
+      "reliability": "A",
+      "used_for": "Оптимальный интервал повторения 10–20% от целевого срока удержания; 1 день для проверки через неделю"
+    },
+    {
+      "id": "S-11",
+      "title": "Rawson K., Dunlosky J., Successive Relearning, Current Directions in Psychological Science 31(4), 362–368",
+      "version": "2022",
+      "url": "https://journals.sagepub.com/doi/full/10.1177/09637214221100484",
+      "reliability": "A",
+      "used_for": "Один верный ответ в каждой из трёх разнесённых сессий эффективнее трёх в одной (68% против 26%); правило перехода в stable"
+    },
+    {
+      "id": "S-12",
+      "title": "Carter C., Grahn J., Optimizing Music Learning: Blocked and Interleaved Practice Schedules, Frontiers in Psychology 7:1251",
+      "version": "2016",
+      "url": "https://doi.org/10.3389/fpsyg.2016.01251",
+      "reliability": "A",
+      "used_for": "Interleaving в музыке: N=10, эффект скромный; основание для комбинированной схемы blocked → interleaved"
+    },
+    {
+      "id": "S-13",
+      "title": "Kendüzler M. K. и др., Intervals as musical fingerprints: a scoping review, Frontiers in Psychology",
+      "version": "2026",
+      "url": "https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2026.1740840/full",
+      "reliability": "A",
+      "used_for": "Баланс blocked и interleaved; планируемое снятие внешних опор; преимущество movable-do рамки для переноса"
+    },
+    {
+      "id": "S-14",
+      "title": "Обзор ступеневого и интервального подходов (Telesco, Contextual Ear Training; данные о преимуществе ступеневого метода на обращениях)",
+      "version": "обзор 2023",
+      "url": "https://digitalcommons.liberty.edu/cgi/viewcontent.cgi?article=1595&context=masters",
+      "reliability": "B",
+      "used_for": "Аргумент за ступеневый слух; преимущество на обращениях трезвучий"
+    },
+    {
+      "id": "S-15",
+      "title": "Ponsatí I. и др., Students' performance when aurally identifying musical harmonic intervals (AIMHI), International Journal of Music Education",
+      "version": "2016",
+      "url": "https://doi.org/10.1177/0255761415619391",
+      "reliability": "A",
+      "used_for": "Трёхшаговая процедура определения интервала; систематическая путаница внутри пар интервалов"
+    },
+    {
+      "id": "S-16",
+      "title": "Программы «Сольфеджио» ДМШ: ФГТ-программа (годовые требования по классам) и программа-конспект Н. Н. Шаховой",
+      "version": "2023–2024",
+      "url": "https://musart22.ru/licey/op/2024/pppo02up01f.pdf",
+      "reliability": "A",
+      "used_for": "Пять форм работы на уроке; последовательность тем по классам; диктант с 1–2 класса; русская терминология"
+    },
+    {
+      "id": "S-17",
+      "title": "FSRS (Free Spaced Repetition Scheduler), open-spaced-repetition",
+      "version": "FSRS-6",
+      "url": "https://github.com/open-spaced-repetition/free-spaced-repetition-scheduler",
+      "reliability": "A",
+      "used_for": "DSR-модель планировщика; сокращение числа повторов на 20–30%; реализации под мобильные платформы"
+    },
+    {
+      "id": "S-18",
+      "title": "The Royal Conservatory, Piano Syllabus, раздел Sight Reading",
+      "version": "2022 Edition",
+      "url": "https://rcmusic-kentico-cdn.s3.amazonaws.com/rcm/media/main/about%20us/rcm%20publishing/piano-syllabus-2022-edition.pdf",
+      "reliability": "A",
+      "used_for": "Формат чтения с листа: раздельная оценка ритма и игры"
+    },
+    {
+      "id": "S-19",
+      "title": "Документ A (Cursor): программа сольфеджио, версия 1",
+      "version": "11.08.2026",
+      "url": "docs/solfeggio-app-program/build/solfeggio-program-full.md",
+      "reliability": "C",
+      "used_for": "Микро-компетенции как единица прогресса; правила работы со звуком; система статусов; каталог механик"
+    },
+    {
+      "id": "S-20",
+      "title": "Документ B (ChatGPT): полная программа обучения сольфеджио, версия 1.0",
+      "version": "11.08.2026",
+      "url": "docs/solfeggio-app-program/input/chatgpt-solfege-program.pdf",
+      "reliability": "C",
+      "used_for": "Разделение «Теория/Практика»; ступеневый диктант как отдельная механика; четыре вида трезвучий отдельными уроками; типология ошибок; политика повторения 1/3/7/14/30; состав ежедневного микса"
+    }
+  ]
+}
