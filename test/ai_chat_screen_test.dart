@@ -58,7 +58,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Что такое бемоль?'), findsOneWidget);
-    expect(find.text('Не удалось получить ответ'), findsOneWidget);
-    expect(find.text('Повторить'), findsOneWidget);
+    expect(find.text('Antwort nicht möglich'), findsOneWidget);
+    expect(find.text('Erneut versuchen'), findsOneWidget);
   });
 }

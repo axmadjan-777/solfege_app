@@ -38,11 +38,11 @@ class _OnboardingLevelScreenState extends State<OnboardingLevelScreen> {
   @override
   Widget build(BuildContext context) {
     return OnboardingScaffold(
-      title: 'Ваш уровень',
-      subtitle: 'Выберите вариант, который лучше всего описывает ваш опыт',
+      title: 'Dein Niveau',
+      subtitle: 'Wähle die Beschreibung, die am besten zu dir passt',
       currentStep: 3,
       totalSteps: 3,
-      nextLabel: 'Продолжить',
+      nextLabel: 'Weiter',
       onBack: () => Navigator.of(context).pop(),
       onNext: _goNext,
       canGoNext: _selectedLevel != null,

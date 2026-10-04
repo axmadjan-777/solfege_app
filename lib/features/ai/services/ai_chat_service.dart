@@ -29,7 +29,7 @@ class GeminiAiChatService implements AiChatService {
     final accessToken = _client.auth.currentSession?.accessToken;
     if (accessToken == null || accessToken.isEmpty) {
       throw const AiChatException(
-        'Войдите в аккаунт, чтобы пользоваться ИИ-ассистентом.',
+        'Melde dich an, um den KI-Assistenten zu nutzen.',
       );
     }
 
@@ -47,11 +47,11 @@ class GeminiAiChatService implements AiChatService {
       );
       final data = response.data;
       if (data is! Map) {
-        throw const AiChatException('Gemini вернул некорректный ответ.');
+        throw const AiChatException('Gemini hat eine ungültige Antwort geliefert.');
       }
       final answer = data['answer'];
       if (answer is! String || answer.trim().isEmpty) {
-        throw const AiChatException('Gemini не вернул текст ответа.');
+        throw const AiChatException('Gemini hat keinen Antworttext geliefert.');
       }
       return answer.trim();
     } on FunctionException catch (error) {
@@ -60,18 +60,18 @@ class GeminiAiChatService implements AiChatService {
           details is Map ? details['error']?.toString().trim() : null;
       if (error.status == 401) {
         throw const AiChatException(
-          'Сессия истекла. Войдите в аккаунт снова.',
+          'Die Sitzung ist abgelaufen. Melde dich erneut an.',
         );
       }
       if (error.status == 429) {
         throw const AiChatException(
-          'Достигнут лимит Gemini. Попробуйте немного позже.',
+          'Das Gemini-Limit ist erreicht. Versuche es etwas später erneut.',
         );
       }
       throw AiChatException(
         serverMessage?.isNotEmpty == true
             ? serverMessage!
-            : 'Не удалось получить ответ Gemini.',
+            : 'Die Antwort von Gemini ist fehlgeschlagen.',
       );
     }
   }

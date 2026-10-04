@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../utils/german_pitch.dart';
 
 class ScaleDegreeChip extends StatelessWidget {
   const ScaleDegreeChip({
@@ -44,7 +45,7 @@ class ScaleDegreeChip extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              note,
+              germanPitch(note),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,

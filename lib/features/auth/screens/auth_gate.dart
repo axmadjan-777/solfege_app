@@ -249,7 +249,7 @@ class _AuthGateState extends State<AuthGate> {
               children: [
                 CircularProgressIndicator(),
                 SizedBox(height: 16),
-                Text('Подтверждаем почту…'),
+                Text('E-Mail wird bestätigt…'),
               ],
             ),
           ),

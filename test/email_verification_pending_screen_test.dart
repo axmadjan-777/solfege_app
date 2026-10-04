@@ -39,9 +39,9 @@ void main() {
       ),
     );
 
-    expect(find.text('Подтвердите email'), findsOneWidget);
+    expect(find.text('E-Mail bestätigen'), findsOneWidget);
     expect(find.textContaining('user@example.com'), findsOneWidget);
-    expect(find.text('Отправить письмо снова'), findsOneWidget);
+    expect(find.text('E-Mail erneut senden'), findsOneWidget);
   });
 
   testWidgets('resend triggers email and starts a countdown cooldown',
@@ -56,14 +56,14 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Отправить письмо снова'));
+    await tester.tap(find.text('E-Mail erneut senden'));
     await tester.pump();
     await tester.pump();
 
     expect(auth.resendCount, 1);
     expect(auth.lastResendEmail, 'user@example.com');
     // После отправки кнопка показывает отсчёт и заблокирована.
-    expect(find.textContaining('Отправить письмо снова ('), findsOneWidget);
+    expect(find.textContaining('E-Mail erneut senden ('), findsOneWidget);
 
     // Досчитываем таймер до конца, чтобы тест не оставил активный Timer.
     await tester.pump(const Duration(seconds: 61));
@@ -81,11 +81,11 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Я подтвердил email'));
+    await tester.tap(find.text('Ich habe die E-Mail bestätigt'));
     await tester.pump();
 
     expect(
-      find.textContaining('войдите в приложение заново'),
+      find.textContaining('melde dich in der App erneut an'),
       findsOneWidget,
     );
   });

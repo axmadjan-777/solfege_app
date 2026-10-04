@@ -189,7 +189,7 @@ void main() {
     );
 
     expect(result.outcome, EmailLinkOutcome.failed);
-    expect(result.message, contains('Войдите'));
+    expect(result.message, contains('Melde dich'));
     expect(auth.getCurrentSession(), isNull);
   });
 

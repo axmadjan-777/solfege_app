@@ -121,7 +121,7 @@ void main() {
     final fields = find.byType(TextFormField);
     await tester.enterText(fields.at(0), 'NewPassword123!');
     await tester.enterText(fields.at(1), 'NewPassword123!');
-    await tester.tap(find.text('Сохранить новый пароль'));
+    await tester.tap(find.text('Neues Passwort speichern'));
     await tester.pumpAndSettle();
 
     expect(completed, isTrue);
@@ -129,6 +129,6 @@ void main() {
       capturedUris.any((uri) => uri.path.endsWith('/user')),
       isTrue,
     );
-    expect(find.text('Пароль обновлён'), findsOneWidget);
+    expect(find.text('Passwort aktualisiert'), findsOneWidget);
   });
 }

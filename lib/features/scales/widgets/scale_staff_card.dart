@@ -5,6 +5,7 @@ import '../models/scale.dart';
 import '../utils/key_signature_lookup.dart';
 import '../utils/scale_harmony.dart';
 import '../utils/staff_paint_helpers.dart';
+import '../utils/german_pitch.dart';
 import '../utils/treble_staff_layout.dart';
 
 class ScaleStaffCard extends StatelessWidget {
@@ -31,15 +32,15 @@ class ScaleStaffCard extends StatelessWidget {
 
     final triadBlocks = [
       _TriadBlockData(
-        title: 'Тоника (I)',
+        title: 'Tonika (I)',
         rootIndex: ScaleHarmony.tonicIndex(scale),
       ),
       _TriadBlockData(
-        title: 'Субдоминанта (IV)',
+        title: 'Subdominante (IV)',
         rootIndex: ScaleHarmony.subdominantIndex(scale),
       ),
       _TriadBlockData(
-        title: 'Доминанта (V)',
+        title: 'Dominante (V)',
         rootIndex: ScaleHarmony.dominantIndex(scale),
       ),
     ];
@@ -51,12 +52,12 @@ class ScaleStaffCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Нотный стан',
+              'Notensystem',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Устойчивые — контур, неустойчивые — заливка. Дуги — разрешения.',
+              'Stabile Töne als Kontur, instabile gefüllt. Bögen zeigen Auflösungen.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
@@ -77,7 +78,7 @@ class ScaleStaffCard extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Трезвучия и обращения',
+              'Dreiklänge und Umkehrungen',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
@@ -309,7 +310,7 @@ class _TriadStaffPainter extends CustomPainter {
 
       final label = TextPainter(
         text: TextSpan(
-          text: labels[i],
+          text: germanPitch(labels[i]),
           style: const TextStyle(fontSize: 8, color: AppColors.textMuted),
         ),
         textDirection: TextDirection.ltr,

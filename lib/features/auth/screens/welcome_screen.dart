@@ -33,12 +33,12 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Сольфеджио',
+                'Solfège',
                 style: Theme.of(context).textTheme.displaySmall,
               ),
               const SizedBox(height: 12),
               Text(
-                'Тренируй слух, изучай гаммы и развивай музыкальное мышление',
+                'Trainiere dein Gehör, lerne Tonleitern und entwickle musikalisches Denken',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -56,7 +56,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text('Начать'),
+                  child: const Text('Loslegen'),
                 ),
               ),
               const SizedBox(height: 12),
@@ -72,7 +72,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text('Уже есть аккаунт? Войти'),
+                  child: const Text('Du hast schon ein Konto? Anmelden'),
                 ),
               ),
             ],

@@ -29,12 +29,12 @@ class AuthScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 16),
               Text(
-                'Почти готово, ${onboardingData.displayName}!',
+                'Fast geschafft, ${onboardingData.displayName}!',
                 style: Theme.of(context).textTheme.displaySmall,
               ),
               const SizedBox(height: 12),
               Text(
-                'Создайте аккаунт или войдите, чтобы сохранить прогресс',
+                'Erstelle ein Konto oder melde dich an, um deinen Fortschritt zu speichern',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -53,7 +53,7 @@ class AuthScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text('Создать аккаунт'),
+                  child: const Text('Konto erstellen'),
                 ),
               ),
               const SizedBox(height: 12),
@@ -70,7 +70,7 @@ class AuthScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text('Уже есть аккаунт? Войти'),
+                  child: const Text('Du hast schon ein Konto? Anmelden'),
                 ),
               ),
               // Телефонная авторизация временно отключена. Экран намеренно

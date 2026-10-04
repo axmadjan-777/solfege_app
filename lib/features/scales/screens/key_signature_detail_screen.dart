@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../models/key_signature_group.dart';
 import '../models/scale.dart';
+import '../utils/german_pitch.dart';
 import '../widgets/scale_card.dart';
 import 'scale_detail_screen.dart';
 
@@ -27,12 +28,12 @@ class KeySignatureDetailScreen extends StatelessWidget {
             _InfoCard(group: group),
             const SizedBox(height: 28),
             _ScaleSection(
-              title: 'Мажорные варианты',
+              title: 'Dur-Varianten',
               scales: group.majorScales,
             ),
             const SizedBox(height: 28),
             _ScaleSection(
-              title: 'Минорные варианты',
+              title: 'Moll-Varianten',
               scales: group.minorScales,
             ),
           ],
@@ -61,13 +62,13 @@ class _InfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Ключевые знаки: ${group.signCountLabel}',
+              'Vorzeichen: ${group.signCountLabel}',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             if (group.signLabels.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
-                group.signLabels.join(', '),
+                germanPitches(group.signLabels, separator: ', '),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),

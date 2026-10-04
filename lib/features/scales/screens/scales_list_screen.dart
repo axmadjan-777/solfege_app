@@ -35,12 +35,12 @@ class _ScalesListScreenState extends State<ScalesListScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Гаммы',
+                    'Tonleitern',
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Слушай, запоминай и сравнивай звучание разных ладов',
+                    'Höre zu, merke dir den Klang und vergleiche die Tongeschlechter',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: AppColors.textSecondary,
                         ),

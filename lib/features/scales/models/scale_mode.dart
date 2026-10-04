@@ -7,43 +7,46 @@ enum ScaleMode {
 
   String get badgeLabel {
     return switch (this) {
-      ScaleMode.major => 'Мажор',
-      ScaleMode.harmonicMajor => 'Гарм. мажор',
-      ScaleMode.naturalMinor => 'Нат. минор',
-      ScaleMode.harmonicMinor => 'Гарм. минор',
-      ScaleMode.melodicMinor => 'Мел. минор',
+      ScaleMode.major => 'Dur',
+      ScaleMode.harmonicMajor => 'Harm. Dur',
+      ScaleMode.naturalMinor => 'Nat. Moll',
+      ScaleMode.harmonicMinor => 'Harm. Moll',
+      ScaleMode.melodicMinor => 'Mel. Moll',
     };
   }
 
   String get fullLabelRu {
     return switch (this) {
-      ScaleMode.major => 'Мажор натуральный',
-      ScaleMode.harmonicMajor => 'Мажор гармонический',
-      ScaleMode.naturalMinor => 'Минор натуральный',
-      ScaleMode.harmonicMinor => 'Минор гармонический',
-      ScaleMode.melodicMinor => 'Минор мелодический',
+      ScaleMode.major => 'Natürliches Dur',
+      ScaleMode.harmonicMajor => 'Harmonisches Dur',
+      ScaleMode.naturalMinor => 'Natürliches Moll',
+      ScaleMode.harmonicMinor => 'Harmonisches Moll',
+      ScaleMode.melodicMinor => 'Melodisches Moll',
     };
   }
 
   String get typeLabelRu {
     return switch (this) {
-      ScaleMode.major => 'Мажор',
-      ScaleMode.harmonicMajor => 'Мажор гарм.',
-      ScaleMode.naturalMinor => 'Минор нат.',
-      ScaleMode.harmonicMinor => 'Минор гарм.',
-      ScaleMode.melodicMinor => 'Минор мел.',
+      ScaleMode.major => 'Dur',
+      ScaleMode.harmonicMajor => 'Dur harm.',
+      ScaleMode.naturalMinor => 'Moll nat.',
+      ScaleMode.harmonicMinor => 'Moll harm.',
+      ScaleMode.melodicMinor => 'Moll mel.',
     };
   }
 
   String get educationalHintRu {
     return switch (this) {
-      ScaleMode.major => 'Классический мажорный лад без изменённых ступеней.',
-      ScaleMode.harmonicMajor => 'Мажор гармонический: пониженная VI ступень.',
-      ScaleMode.naturalMinor => 'Минор натуральный: без повышенных ступеней.',
+      ScaleMode.major =>
+        'Klassisches Dur ohne veränderte Stufen.',
+      ScaleMode.harmonicMajor =>
+        'Harmonisches Dur: erniedrigte VI. Stufe.',
+      ScaleMode.naturalMinor =>
+        'Natürliches Moll: ohne erhöhte Stufen.',
       ScaleMode.harmonicMinor =>
-        'Минор гармонический: повышенная VII ступень.',
+        'Harmonisches Moll: erhöhte VII. Stufe.',
       ScaleMode.melodicMinor =>
-        'Минор мелодический: вверх повышаются VI и VII, вниз — натуральный минор.',
+        'Melodisches Moll: aufwärts sind VI und VII erhöht, abwärts klingt natürliches Moll.',
     };
   }
 

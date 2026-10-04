@@ -55,8 +55,8 @@ void main() {
     }
 
     expect(thrown, isNotNull);
-    expect(thrown!.message, contains('аккаунт не создан'));
-    expect(thrown.message, contains('2 письма в час'));
+    expect(thrown!.message, contains('Konto wurde nicht erstellt'));
+    expect(thrown.message, contains('2 E-Mails pro Stunde'));
     expect(thrown.message, contains('SMTP'));
   });
 
@@ -93,7 +93,7 @@ void main() {
     }
 
     expect(thrown, isNotNull);
-    expect(thrown!.message, contains('аккаунт не создан'));
+    expect(thrown!.message, contains('Konto wurde nicht erstellt'));
     expect(thrown.message, contains('Auth logs'));
     expect(thrown.message, contains('handle_new_user'));
   });

@@ -29,7 +29,7 @@ class ScaleListeningTipsCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                'Что важно услышать',
+                'Worauf du hören solltest',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),

@@ -4,9 +4,9 @@ enum KeySignatureCategory {
   flats;
 
   String get labelRu => switch (this) {
-        KeySignatureCategory.none => 'Без знаков',
-        KeySignatureCategory.sharps => 'Диезные',
-        KeySignatureCategory.flats => 'Бемольные',
+        KeySignatureCategory.none => 'Ohne Vorzeichen',
+        KeySignatureCategory.sharps => 'Kreuze',
+        KeySignatureCategory.flats => 'Bes',
       };
 }
 
@@ -17,9 +17,9 @@ enum KeySignatureFilter {
   flats;
 
   String get labelRu => switch (this) {
-        KeySignatureFilter.all => 'Все',
-        KeySignatureFilter.none => 'Без знаков',
-        KeySignatureFilter.sharps => 'Диезные',
-        KeySignatureFilter.flats => 'Бемольные',
+        KeySignatureFilter.all => 'Alle',
+        KeySignatureFilter.none => 'Ohne',
+        KeySignatureFilter.sharps => 'Kreuze',
+        KeySignatureFilter.flats => 'Bes',
       };
 }

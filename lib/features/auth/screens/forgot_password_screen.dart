@@ -42,7 +42,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Письмо для восстановления пароля отправлено. Проверьте почту.',
+            'Die E-Mail zum Zurücksetzen wurde gesendet. Prüfe dein Postfach.',
           ),
         ),
       );
@@ -60,7 +60,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Восстановление пароля')),
+      appBar: AppBar(title: const Text('Passwort zurücksetzen')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -70,28 +70,28 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Введите email, и мы отправим ссылку для сброса пароля',
+                  'Gib deine E-Mail ein. Wir senden dir einen Link zum Zurücksetzen.',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),
                 AuthTextField(
                   controller: _emailController,
-                  label: 'Email',
+                  label: 'E-Mail',
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _sendResetEmail(),
                   validator: (value) {
                     final email = value?.trim() ?? '';
-                    if (email.isEmpty) return 'Введите email';
+                    if (email.isEmpty) return 'E-Mail eingeben';
                     if (!email.contains('@') || !email.contains('.')) {
-                      return 'Введите корректный email';
+                      return 'Gib eine gültige E-Mail ein';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 32),
                 PrimaryAuthButton(
-                  label: 'Отправить письмо для восстановления',
+                  label: 'Link senden',
                   isLoading: _isLoading,
                   onPressed: _sendResetEmail,
                 ),

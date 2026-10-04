@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../utils/german_pitch.dart';
 
 class ScaleNotesRow extends StatelessWidget {
   const ScaleNotesRow({
@@ -16,7 +17,7 @@ class ScaleNotesRow extends StatelessWidget {
   Widget build(BuildContext context) {
     if (compact) {
       return Text(
-        notes.join(' · '),
+        germanPitches(notes),
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
               letterSpacing: 0.5,
@@ -65,7 +66,7 @@ class _NotePill extends StatelessWidget {
         border: Border.all(color: AppColors.divider),
       ),
       child: Text(
-        note,
+        germanPitch(note),
         style: (large
                 ? Theme.of(context).textTheme.titleLarge
                 : Theme.of(context).textTheme.titleMedium)

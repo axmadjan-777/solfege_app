@@ -87,14 +87,14 @@ class _ScaleDetailScreenState extends State<ScaleDetailScreen> {
             ScaleStaffCard(scale: scale),
             const SizedBox(height: 28),
             Text(
-              'Ступени',
+              'Stufen',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
             ScaleDegreesGrid(scale: scale),
             const SizedBox(height: 32),
             Text(
-              'Описание',
+              'Beschreibung',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),

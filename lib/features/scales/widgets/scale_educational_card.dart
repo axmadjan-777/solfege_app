@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../models/scale.dart';
 import '../models/scale_mode.dart';
+import '../utils/german_pitch.dart';
 
 class ScaleEducationalCard extends StatelessWidget {
   const ScaleEducationalCard({super.key, required this.scale});
@@ -18,7 +19,7 @@ class ScaleEducationalCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Что важно в этом ладе',
+              'Worauf es in diesem Tongeschlecht ankommt',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
@@ -31,7 +32,7 @@ class ScaleEducationalCard extends StatelessWidget {
             if (scale.mode == ScaleMode.melodicMinor) ...[
               const SizedBox(height: 12),
               Text(
-                'Вниз: ${scale.descendingNotes?.join(' · ') ?? 'натуральный минор'}',
+                'Abwärts: ${scale.descendingNotes == null ? 'natürliches Moll' : germanPitches(scale.descendingNotes!)}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],

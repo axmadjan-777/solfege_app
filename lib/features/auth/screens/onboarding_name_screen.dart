@@ -43,8 +43,8 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
   @override
   Widget build(BuildContext context) {
     return OnboardingScaffold(
-      title: 'Как вас зовут?',
-      subtitle: 'Мы будем обращаться к вам по имени в приложении',
+      title: 'Wie heißt du?',
+      subtitle: 'So sprechen wir dich in der App an',
       currentStep: 1,
       totalSteps: 3,
       onBack: () => Navigator.of(context).pop(),
@@ -55,8 +55,8 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
         autofocus: true,
         textCapitalization: TextCapitalization.words,
         decoration: const InputDecoration(
-          labelText: 'Имя',
-          hintText: 'Например, Анна',
+          labelText: 'Name',
+          hintText: 'Zum Beispiel Anna',
         ),
         onChanged: (_) => setState(() {}),
         onSubmitted: (_) => _goNext(),

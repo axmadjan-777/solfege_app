@@ -90,7 +90,7 @@ void main() {
     );
 
     expect(result.outcome, EmailLinkOutcome.expired);
-    expect(result.message, contains('устарела'));
+    expect(result.message, contains('abgelaufen'));
     expect(capturedVerifyBodies, isEmpty);
   });
 

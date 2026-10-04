@@ -33,27 +33,27 @@ abstract final class SupabaseConfig {
 
   static String get diagnosticMessage {
     if (publishableKey == 'YOUR_PUBLISHABLE_KEY') {
-      return 'В dart_defines.json остался шаблон YOUR_PUBLISHABLE_KEY. '
-          'Вставьте настоящий publishable key из Supabase Dashboard → API.';
+      return 'In dart_defines.json steht noch die Vorlage YOUR_PUBLISHABLE_KEY. '
+          'Trage den echten Publishable Key aus dem Supabase Dashboard → API ein.';
     }
     final missing = <String>[
       if (url.isEmpty) 'SUPABASE_URL',
       if (publishableKey.isEmpty) 'SUPABASE_PUBLISHABLE_KEY',
     ];
-    if (missing.isEmpty) return 'Переменные переданы, но конфигурация неполная.';
-    return 'Не получены: ${missing.join(', ')}. '
-        'Скорее всего --dart-define не попали в сборку '
-        '(нужен полный перезапуск flutter run, без пустых строк в команде).';
+    if (missing.isEmpty) return 'Die Variablen sind gesetzt, die Konfiguration ist aber unvollständig.';
+    return 'Nicht erhalten: ${missing.join(', ')}. '
+        'Vermutlich sind die --dart-define-Werte nicht in den Build gelangt '
+        '(flutter run vollständig neu starten, ohne Leerzeilen im Befehl).';
   }
 
   static String get configurationHint =>
-      'Рекомендуемый способ — файл dart_defines.json:\n'
+      'Empfohlen: die Datei dart_defines.json:\n'
       '1. cp dart_defines.example.json dart_defines.json\n'
-      '2. Вставьте publishable key в dart_defines.json\n'
+      '2. Publishable Key in dart_defines.json eintragen\n'
       '3. flutter run -d chrome --dart-define-from-file=dart_defines.json\n\n'
-      'Или одной строкой (без пустых строк между \\\\):\n'
-      'Передайте SUPABASE_URL и SUPABASE_PUBLISHABLE_KEY через --dart-define.\n'
-      'Пример:\n'
+      'Oder in einer Zeile (ohne Leerzeilen zwischen \\\\):\n'
+      'SUPABASE_URL und SUPABASE_PUBLISHABLE_KEY per --dart-define übergeben.\n'
+      'Beispiel:\n'
       'flutter run -d chrome \\\n'
       '  --dart-define=SUPABASE_URL=$defaultProjectUrl \\\n'
       '  --dart-define=SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY';

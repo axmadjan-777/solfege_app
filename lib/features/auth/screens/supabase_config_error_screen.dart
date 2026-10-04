@@ -23,7 +23,7 @@ class SupabaseConfigErrorScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Supabase не настроен',
+                'Supabase ist nicht eingerichtet',
                 style: Theme.of(context).textTheme.displaySmall,
               ),
               const SizedBox(height: 12),
