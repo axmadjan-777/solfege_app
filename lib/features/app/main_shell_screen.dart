@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../ai/screens/ai_chat_screen.dart';
-import '../practice/screens/practice_placeholder_screen.dart';
+import '../practice/screens/practice_map_screen.dart';
 import '../profile/screens/profile_screen.dart';
 import '../scales/screens/scales_list_screen.dart';
+import '../theory/screens/theory_home_screen.dart';
 
 class MainShellScreen extends StatefulWidget {
   const MainShellScreen({super.key});
@@ -23,9 +24,14 @@ class _MainShellScreenState extends State<MainShellScreen> {
       screen: ScalesListScreen(),
     ),
     _ShellTab(
+      label: 'Теория',
+      icon: Icons.menu_book_rounded,
+      screen: TheoryHomeScreen(),
+    ),
+    _ShellTab(
       label: 'Практика',
       icon: Icons.fitness_center_rounded,
-      screen: PracticePlaceholderScreen(),
+      screen: PracticeMapScreen(),
     ),
     _ShellTab(
       label: 'ИИ',
