@@ -1,5 +1,4 @@
 import '../models/competency.dart';
-import '../models/lesson.dart';
 import '../models/practice_set.dart';
 import '../theory/music_formulas.dart';
 import 'curriculum_catalog.dart';
@@ -567,13 +566,6 @@ extension CompetencyLookup on CurriculumCatalog {
   Competency? findCompetency(String id) {
     for (final competency in competencies) {
       if (competency.id == id) return competency;
-    }
-    return null;
-  }
-
-  Lesson? findLesson(String id) {
-    for (final lesson in lessons) {
-      if (lesson.id == id) return lesson;
     }
     return null;
   }

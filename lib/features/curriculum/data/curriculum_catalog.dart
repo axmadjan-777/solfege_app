@@ -71,6 +71,13 @@ class CurriculumCatalog {
 
   Lesson lesson(String id) => lessons.firstWhere((lesson) => lesson.id == id);
 
+  Lesson? findLesson(String id) {
+    for (final lesson in lessons) {
+      if (lesson.id == id) return lesson;
+    }
+    return null;
+  }
+
   Competency competency(String id) =>
       competencies.firstWhere((competency) => competency.id == id);
 
