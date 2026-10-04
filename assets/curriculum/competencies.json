@@ -1,0 +1,6924 @@
+{
+  "schema_version": "1.0",
+  "count": 162,
+  "competencies": [
+    {
+      "id": "chd.triad_structure",
+      "title": "Понимает трезвучие как две терции: основной, терцовый и квинтовый тон",
+      "skill_track": "chord",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L08-01",
+      "prerequisites": [
+        "int.thirds"
+      ],
+      "practice_set_ids": [
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.major_triad",
+      "title": "Строит большое (мажорное) трезвучие 0–4–7",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L08-02",
+      "prerequisites": [
+        "chd.triad_structure"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "chd.minor_triad",
+        "chd.aug_triad"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "chd.minor_triad",
+      "title": "Строит малое (минорное) трезвучие 0–3–7",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L08-03",
+      "prerequisites": [
+        "chd.major_triad"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "chd.major_triad",
+        "chd.dim_triad"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "ear.triad.major",
+      "title": "Узнаёт большое трезвучие на слух",
+      "skill_track": "chord",
+      "skill_type": "aural",
+      "first_lesson_id": "L08-02",
+      "prerequisites": [
+        "chd.major_triad"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.triad.minor",
+        "ear.triad.aug"
+      ],
+      "error_tags": [
+        "quality_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "ear.triad.minor",
+      "title": "Узнаёт малое трезвучие на слух",
+      "skill_track": "chord",
+      "skill_type": "aural",
+      "first_lesson_id": "L08-03",
+      "prerequisites": [
+        "chd.minor_triad"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.triad.major",
+        "ear.triad.dim"
+      ],
+      "error_tags": [
+        "quality_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "chd.compare_major_minor",
+      "title": "Сравнивает большое и малое трезвучие на слух и в записи, исправляет неверное",
+      "skill_track": "chord",
+      "skill_type": "integration",
+      "first_lesson_id": "L08-04",
+      "prerequisites": [
+        "ear.triad.major",
+        "ear.triad.minor"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.dim_triad",
+      "title": "Строит уменьшённое трезвучие 0–3–6",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L08-05",
+      "prerequisites": [
+        "chd.minor_triad"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "chd.minor_triad"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "ear.triad.dim",
+      "title": "Узнаёт уменьшённое трезвучие на слух",
+      "skill_track": "chord",
+      "skill_type": "aural",
+      "first_lesson_id": "L08-05",
+      "prerequisites": [
+        "chd.dim_triad"
+      ],
+      "practice_set_ids": [
+        "PR-06"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.triad.minor"
+      ],
+      "error_tags": [
+        "quality_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "chd.aug_triad",
+      "title": "Строит увеличенное трезвучие 0–4–8",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L08-06",
+      "prerequisites": [
+        "chd.dim_triad"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "chd.major_triad"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "ear.triad.aug",
+      "title": "Узнаёт увеличенное трезвучие на слух",
+      "skill_track": "chord",
+      "skill_type": "aural",
+      "first_lesson_id": "L08-06",
+      "prerequisites": [
+        "chd.aug_triad"
+      ],
+      "practice_set_ids": [
+        "PR-06"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.triad.major"
+      ],
+      "error_tags": [
+        "quality_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "chd.compare_four_types",
+      "title": "Различает все четыре вида трезвучий и находит ошибку в построении",
+      "skill_track": "chord",
+      "skill_type": "integration",
+      "first_lesson_id": "L08-07",
+      "prerequisites": [
+        "ear.triad.dim",
+        "ear.triad.aug",
+        "chd.compare_major_minor"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.inversion_first",
+      "title": "Строит и узнаёт секстаккорд (первое обращение)",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L08-08",
+      "prerequisites": [
+        "chd.compare_four_types",
+        "int.sixths_sevenths"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "v1.1",
+      "sibling_ids": [
+        "chd.inversion_second"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "chd.inversion_second",
+      "title": "Строит и узнаёт квартсекстаккорд (второе обращение)",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L08-09",
+      "prerequisites": [
+        "chd.inversion_first"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "v1.1",
+      "sibling_ids": [
+        "chd.inversion_first"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "ear.triad.inversion",
+      "title": "Отличает основной вид от обращения и слышит звук в басу",
+      "skill_track": "chord",
+      "skill_type": "aural",
+      "first_lesson_id": "L08-09",
+      "prerequisites": [
+        "chd.inversion_second"
+      ],
+      "practice_set_ids": [
+        "PR-06"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "v1.1",
+      "error_tags": [
+        "bass_note_missed"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.triads_on_degrees_major",
+      "title": "Строит трезвучия на всех ступенях мажора и знает их качество",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L08-10",
+      "prerequisites": [
+        "chd.compare_four_types",
+        "sca.degree_numbers"
+      ],
+      "practice_set_ids": [
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.roman_numerals",
+      "title": "Читает и записывает римскую нумерацию аккордов",
+      "skill_track": "chord",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L08-10",
+      "prerequisites": [
+        "chd.triads_on_degrees_major"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "v1.1",
+      "notes": "В слуховых заданиях появляется только после функций (Chenette 2021)",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.triads_on_degrees_minor",
+      "title": "Строит трезвучия на ступенях минора",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L08-11",
+      "prerequisites": [
+        "chd.triads_on_degrees_major",
+        "sca.minor_harmonic"
+      ],
+      "practice_set_ids": [
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.chord_symbols",
+      "title": "Читает буквенно-цифровые обозначения аккордов (C, Am, Bdim, F/A)",
+      "skill_track": "chord",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L08-11",
+      "prerequisites": [
+        "kbd.letter_names",
+        "chd.triads_on_degrees_major"
+      ],
+      "practice_set_ids": [
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L08",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "fun.tsd",
+      "title": "Понимает функции тоники, субдоминанты и доминанты",
+      "skill_track": "harmony",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L09-01",
+      "prerequisites": [
+        "chd.triads_on_degrees_major"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.function.tsd",
+      "title": "Определяет функцию аккорда на слух",
+      "skill_track": "harmony",
+      "skill_type": "aural",
+      "first_lesson_id": "L09-01",
+      "prerequisites": [
+        "fun.tsd",
+        "ear.triad.major"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "error_tags": [
+        "s_vs_d"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "fun.dominant_leading_tone",
+      "title": "Понимает роль доминанты и вводного тона VII→I",
+      "skill_track": "harmony",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L09-02",
+      "prerequisites": [
+        "fun.tsd",
+        "sca.tendency"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "fun.cadence_authentic_half",
+      "title": "Различает автентическую и половинную каденции",
+      "skill_track": "harmony",
+      "skill_type": "aural",
+      "first_lesson_id": "L09-03",
+      "prerequisites": [
+        "fun.dominant_leading_tone"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "sibling_ids": [
+        "fun.cadence_plagal_interrupted"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "fun.cadence_plagal_interrupted",
+      "title": "Различает плагальную и прерванную каденции",
+      "skill_track": "harmony",
+      "skill_type": "aural",
+      "first_lesson_id": "L09-04",
+      "prerequisites": [
+        "fun.cadence_authentic_half"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "sibling_ids": [
+        "fun.cadence_authentic_half"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "ear.cadence.type",
+      "title": "Определяет тип каденции на слух",
+      "skill_track": "harmony",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "fun.cadence_plagal_interrupted"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "fun.progressions_basic",
+      "title": "Знает и слышит последовательности I–IV–V–I и I–V–vi–IV",
+      "skill_track": "harmony",
+      "skill_type": "aural",
+      "first_lesson_id": "L09-05",
+      "prerequisites": [
+        "ear.function.tsd"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "fun.progressions_predominant",
+      "title": "Знает обороты ii–V–I и минорные последовательности",
+      "skill_track": "harmony",
+      "skill_type": "aural",
+      "first_lesson_id": "L09-06",
+      "prerequisites": [
+        "fun.progressions_basic",
+        "chd.triads_on_degrees_minor"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.progression.4chords",
+      "title": "Записывает последовательность из 4 аккордов по слуху",
+      "skill_track": "harmony",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "fun.progressions_predominant"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "error_tags": [
+        "order_error",
+        "inversion_missed"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "fun.harmonize_melody",
+      "title": "Подбирает функции к мелодии",
+      "skill_track": "harmony",
+      "skill_type": "production",
+      "first_lesson_id": "L09-07",
+      "prerequisites": [
+        "fun.progressions_basic"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "notes": "Правила приёмки — вопрос Q-09",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "fun.harmonic_dictation_method",
+      "title": "Применяет метод гармонического диктанта: бас, качество, функция",
+      "skill_track": "harmony",
+      "skill_type": "integration",
+      "first_lesson_id": "L09-08",
+      "prerequisites": [
+        "ear.progression.4chords",
+        "not.read_bass_c3_c4"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L09",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.seventh_structure",
+      "title": "Понимает септаккорд как четыре звука по терциям",
+      "skill_track": "chord",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L11-01",
+      "prerequisites": [
+        "chd.compare_four_types",
+        "int.sixths_sevenths"
+      ],
+      "practice_set_ids": [
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.dom7",
+      "title": "Строит доминантсептаккорд и разрешает его",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L11-02",
+      "prerequisites": [
+        "chd.seventh_structure",
+        "fun.dominant_leading_tone"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.seventh.dom7",
+      "title": "Узнаёт доминантсептаккорд на слух",
+      "skill_track": "chord",
+      "skill_type": "aural",
+      "first_lesson_id": "L11-02",
+      "prerequisites": [
+        "chd.dom7"
+      ],
+      "practice_set_ids": [
+        "PR-06"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "sibling_ids": [
+        "ear.triad.major"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "chd.dom7_inversions",
+      "title": "Строит обращения V7 и знает их обозначения",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L11-03",
+      "prerequisites": [
+        "chd.dom7",
+        "chd.inversion_second"
+      ],
+      "practice_set_ids": [
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.seventh_types",
+      "title": "Различает maj7, m7, dominant 7, m7♭5 и dim7",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L11-04",
+      "prerequisites": [
+        "chd.dom7"
+      ],
+      "practice_set_ids": [
+        "PR-06",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.seventh.types",
+      "title": "Узнаёт пять видов септаккордов на слух",
+      "skill_track": "chord",
+      "skill_type": "aural",
+      "first_lesson_id": "L11-04",
+      "prerequisites": [
+        "chd.seventh_types",
+        "ear.seventh.dom7"
+      ],
+      "practice_set_ids": [
+        "PR-06"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "error_tags": [
+        "quality_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "chd.leading_tone_sevenths",
+      "title": "Строит вводные септаккорды и разрешает их",
+      "skill_track": "chord",
+      "skill_type": "production",
+      "first_lesson_id": "L11-05",
+      "prerequisites": [
+        "chd.seventh_types"
+      ],
+      "practice_set_ids": [
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "fun.secondary_dominants",
+      "title": "Понимает вторичные доминанты V/x",
+      "skill_track": "harmony",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L11-10",
+      "prerequisites": [
+        "chd.dom7",
+        "fun.progressions_predominant"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "fun.modulation",
+      "title": "Отличает отклонение от модуляции",
+      "skill_track": "harmony",
+      "skill_type": "aural",
+      "first_lesson_id": "L11-11",
+      "prerequisites": [
+        "fun.secondary_dominants",
+        "ear.cadence.type"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.modulation.detect",
+      "title": "Находит момент модуляции на слух",
+      "skill_track": "harmony",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "fun.modulation"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "fun.pivot_chord",
+      "title": "Находит общий (пивот) аккорд между родственными тональностями",
+      "skill_track": "harmony",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L11-12",
+      "prerequisites": [
+        "fun.modulation",
+        "sca.related_keys"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rea.prehearing",
+      "title": "Предслышит запись до исполнения: тональность, размер, каркас",
+      "skill_track": "reading",
+      "skill_type": "integration",
+      "first_lesson_id": "L10-01",
+      "prerequisites": [
+        "not.read_with_rhythm",
+        "sca.key_identification"
+      ],
+      "practice_set_ids": [
+        "PR-13"
+      ],
+      "level_exam_id": "EX-L10",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rea.read_by_degrees",
+      "title": "Читает мелодию по ступеням, а не по отдельным нотам",
+      "skill_track": "reading",
+      "skill_type": "integration",
+      "first_lesson_id": "L10-02",
+      "prerequisites": [
+        "rea.prehearing",
+        "sca.degree_method"
+      ],
+      "practice_set_ids": [
+        "PR-13"
+      ],
+      "level_exam_id": "EX-L10",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rea.triad_leaps",
+      "title": "Читает скачки по тонам трезвучия",
+      "skill_track": "reading",
+      "skill_type": "integration",
+      "first_lesson_id": "L10-03",
+      "prerequisites": [
+        "rea.read_by_degrees",
+        "chd.major_triad"
+      ],
+      "practice_set_ids": [
+        "PR-13"
+      ],
+      "level_exam_id": "EX-L10",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rea.sight_reading",
+      "title": "Читает с листа незнакомую мелодию 8 тактов",
+      "skill_track": "reading",
+      "skill_type": "integration",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "rea.triad_leaps",
+        "rhy.compound_68"
+      ],
+      "practice_set_ids": [
+        "PR-13"
+      ],
+      "level_exam_id": "EX-L10",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.melody_memory",
+      "title": "Повторяет услышанную мелодию 4–8 нот по памяти",
+      "skill_track": "dictation",
+      "skill_type": "aural",
+      "first_lesson_id": "L10-04",
+      "prerequisites": [
+        "ear.degree.sequence"
+      ],
+      "practice_set_ids": [
+        "PR-11",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L10",
+      "mvp_status": "v1.2",
+      "error_tags": [
+        "last_note_only",
+        "contour_reversal"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "wrt.rhythm_dictation",
+      "title": "Записывает услышанный ритм",
+      "skill_track": "dictation",
+      "skill_type": "integration",
+      "first_lesson_id": "L10-05",
+      "prerequisites": [
+        "ear.rhythm.pattern",
+        "rhy.beaming"
+      ],
+      "practice_set_ids": [
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L10",
+      "mvp_status": "mvp",
+      "notes": "Первая стадия (1 такт, четверти и восьмые) входит в MVP",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "wrt.melodic_dictation",
+      "title": "Записывает услышанную мелодию ступенями, затем нотами",
+      "skill_track": "dictation",
+      "skill_type": "integration",
+      "first_lesson_id": "L10-06",
+      "prerequisites": [
+        "ear.degree.sequence",
+        "wrt.rhythm_dictation"
+      ],
+      "practice_set_ids": [
+        "PR-11"
+      ],
+      "level_exam_id": "EX-L10",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rea.error_detection",
+      "title": "Находит расхождение между звучанием и записью",
+      "skill_track": "reading",
+      "skill_type": "integration",
+      "first_lesson_id": "L10-07",
+      "prerequisites": [
+        "not.read_with_rhythm",
+        "ear.melody_memory"
+      ],
+      "practice_set_ids": [
+        "PR-13",
+        "PR-11"
+      ],
+      "level_exam_id": "EX-L10",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "vox.sing_self_assessment",
+      "title": "Поёт ступень или мотив и честно оценивает совпадение с эталоном",
+      "skill_track": "voice",
+      "skill_type": "integration",
+      "first_lesson_id": "L10-08",
+      "prerequisites": [
+        "sca.degree_method"
+      ],
+      "practice_set_ids": [
+        "PR-14"
+      ],
+      "level_exam_id": "EX-L10",
+      "mvp_status": "v1.2",
+      "notes": "Без микрофона: listen–sing–reveal с самооценкой",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ana.form_analysis",
+      "title": "Анализирует фрагмент по чек-листу: форма, тональность, гармония, фактура",
+      "skill_track": "analysis",
+      "skill_type": "integration",
+      "first_lesson_id": "L11-13",
+      "prerequisites": [
+        "ear.cadence.type",
+        "fun.modulation"
+      ],
+      "practice_set_ids": [
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "snd.tone_vs_noise",
+      "title": "Отличает музыкальный тон от шума",
+      "skill_track": "perception",
+      "skill_type": "aural",
+      "first_lesson_id": "L00-01",
+      "prerequisites": [],
+      "practice_set_ids": [],
+      "level_exam_id": "EX-L00",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "timbre_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "snd.pitch_direction",
+      "title": "Определяет, второй звук выше, ниже или тот же",
+      "skill_track": "perception",
+      "skill_type": "aural",
+      "first_lesson_id": "L00-02",
+      "prerequisites": [],
+      "practice_set_ids": [
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L00",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "loudness_for_pitch",
+        "narrow_interval"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "snd.duration_contrast",
+      "title": "Сравнивает длительность двух звуков",
+      "skill_track": "perception",
+      "skill_type": "aural",
+      "first_lesson_id": "L00-03",
+      "prerequisites": [],
+      "level_exam_id": "EX-L00",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "practice_set_ids": [],
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "snd.timbre_dynamics",
+      "title": "Отличает громкость от тембра при одной высоте",
+      "skill_track": "perception",
+      "skill_type": "aural",
+      "first_lesson_id": "L00-04",
+      "prerequisites": [
+        "snd.pitch_direction"
+      ],
+      "level_exam_id": "EX-L00",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "loudness_for_pitch",
+        "timbre_for_pitch"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "practice_set_ids": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "snd.contour",
+      "title": "Слышит контур мелодии: вверх, вниз, на месте",
+      "skill_track": "perception",
+      "skill_type": "aural",
+      "first_lesson_id": "L00-05",
+      "prerequisites": [
+        "snd.pitch_direction"
+      ],
+      "practice_set_ids": [
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L00",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "contour_reversal"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.pulse_tap",
+      "title": "Удерживает ровный пульс касаниями",
+      "skill_track": "rhythm",
+      "skill_type": "motor",
+      "first_lesson_id": "L00-06",
+      "prerequisites": [],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L00",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "double_time_tap",
+        "drift",
+        "device_latency"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "metric": "onset_accuracy_ms",
+        "threshold_ms": 110
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-motor"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "register"
+      },
+      "review_policy_id": "RP-motor",
+      "demotion": {
+        "rule": "Выход за допуск более чем в 40% атак в двух сессиях подряд",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.meter.simple_compound",
+      "title": "Определяет на слух 2-, 3- и 4-дольный метр, позже простое против составного",
+      "skill_track": "rhythm",
+      "skill_type": "aural",
+      "first_lesson_id": "L00-07",
+      "prerequisites": [
+        "rhy.pulse_tap"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L00",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "2_vs_4",
+        "3_vs_6"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "kbd.layout_groups",
+      "title": "Ориентируется в группах чёрных клавиш 2+3",
+      "skill_track": "keyboard",
+      "skill_type": "recognition",
+      "first_lesson_id": "L00-08",
+      "prerequisites": [],
+      "practice_set_ids": [
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L00",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "kbd.find_c",
+      "title": "Находит любую До на клавиатуре",
+      "skill_track": "keyboard",
+      "skill_type": "production",
+      "first_lesson_id": "L00-08",
+      "prerequisites": [
+        "kbd.layout_groups"
+      ],
+      "practice_set_ids": [
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L00",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "kbd.names_cde",
+      "title": "Находит и называет До, Ре, Ми",
+      "skill_track": "keyboard",
+      "skill_type": "production",
+      "first_lesson_id": "L01-01",
+      "prerequisites": [
+        "kbd.find_c"
+      ],
+      "practice_set_ids": [
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L01",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "kbd.names_fgab",
+      "title": "Находит и называет Фа, Соль, Ля, Си и весь звукоряд",
+      "skill_track": "keyboard",
+      "skill_type": "production",
+      "first_lesson_id": "L01-02",
+      "prerequisites": [
+        "kbd.names_cde"
+      ],
+      "practice_set_ids": [
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L01",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "group_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "kbd.letter_names",
+      "title": "Переводит слоговые названия в буквенные C–B и обратно",
+      "skill_track": "keyboard",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L01-03",
+      "prerequisites": [
+        "kbd.names_fgab"
+      ],
+      "level_exam_id": "EX-L01",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "a_vs_c_offset",
+        "b_vs_h"
+      ],
+      "notes": "Вопрос B/H — Q-01",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "practice_set_ids": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "kbd.octaves",
+      "title": "Определяет октаву звука и находит C4",
+      "skill_track": "keyboard",
+      "skill_type": "recognition",
+      "first_lesson_id": "L01-04",
+      "prerequisites": [
+        "kbd.names_fgab"
+      ],
+      "practice_set_ids": [
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L01",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "octave_error"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "kbd.register",
+      "title": "Различает низкий, средний и высокий регистр на слух",
+      "skill_track": "keyboard",
+      "skill_type": "aural",
+      "first_lesson_id": "L01-04",
+      "prerequisites": [
+        "kbd.octaves"
+      ],
+      "level_exam_id": "EX-L01",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "practice_set_ids": [],
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "kbd.semitone",
+      "title": "Строит полутон вверх и вниз от любой клавиши",
+      "skill_track": "keyboard",
+      "skill_type": "production",
+      "first_lesson_id": "L01-05",
+      "prerequisites": [
+        "kbd.names_fgab"
+      ],
+      "practice_set_ids": [
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L01",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "skipped_black_key"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "kbd.tone",
+      "title": "Строит тон вверх и вниз, помнит естественные полутоны Ми–Фа и Си–До",
+      "skill_track": "keyboard",
+      "skill_type": "production",
+      "first_lesson_id": "L01-06",
+      "prerequisites": [
+        "kbd.semitone"
+      ],
+      "practice_set_ids": [
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L01",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "tone_from_e_or_b"
+      ],
+      "sibling_ids": [
+        "kbd.semitone"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "kbd.accidentals",
+      "title": "Называет чёрные клавиши через диез и бемоль",
+      "skill_track": "keyboard",
+      "skill_type": "production",
+      "first_lesson_id": "L01-07",
+      "prerequisites": [
+        "kbd.semitone"
+      ],
+      "practice_set_ids": [
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L01",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "kbd.enharmonic",
+      "title": "Понимает, что одна клавиша имеет два названия",
+      "skill_track": "keyboard",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L01-07",
+      "prerequisites": [
+        "kbd.accidentals"
+      ],
+      "level_exam_id": "EX-L01",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "practice_set_ids": [],
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.beat_tempo",
+      "title": "Различает долю и темп, тапает под метроном на разных BPM",
+      "skill_track": "rhythm",
+      "skill_type": "motor",
+      "first_lesson_id": "L02-01",
+      "prerequisites": [
+        "rhy.pulse_tap"
+      ],
+      "practice_set_ids": [
+        "PR-09"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "drift",
+        "double_time_tap"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "metric": "onset_accuracy_ms",
+        "threshold_ms": 110
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-motor"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "register"
+      },
+      "review_policy_id": "RP-motor",
+      "demotion": {
+        "rule": "Выход за допуск более чем в 40% атак в двух сессиях подряд",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.bar_time_sig_simple",
+      "title": "Понимает такт и размеры 2/4 и 3/4",
+      "skill_track": "rhythm",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L02-02",
+      "prerequisites": [
+        "rhy.beat_tempo",
+        "ear.meter.simple_compound"
+      ],
+      "practice_set_ids": [
+        "PR-09"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.metric_accent",
+      "title": "Слышит метрический акцент и расставляет тактовые черты, работает в 4/4",
+      "skill_track": "rhythm",
+      "skill_type": "aural",
+      "first_lesson_id": "L02-03",
+      "prerequisites": [
+        "rhy.bar_time_sig_simple"
+      ],
+      "practice_set_ids": [
+        "PR-09"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "2_vs_4"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.dur_basic",
+      "title": "Читает и воспроизводит четверть, половинную и целую",
+      "skill_track": "rhythm",
+      "skill_type": "recognition",
+      "first_lesson_id": "L02-04",
+      "prerequisites": [
+        "rhy.bar_time_sig_simple"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.eighths",
+      "title": "Делит долю на две восьмые и понимает вязку",
+      "skill_track": "rhythm",
+      "skill_type": "motor",
+      "first_lesson_id": "L02-05",
+      "prerequisites": [
+        "rhy.dur_basic"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "uneven_subdivision"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "metric": "onset_accuracy_ms",
+        "threshold_ms": 110
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-motor"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "register"
+      },
+      "review_policy_id": "RP-motor",
+      "demotion": {
+        "rule": "Выход за допуск более чем в 40% атак в двух сессиях подряд",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.beaming",
+      "title": "Группирует восьмые и шестнадцатые по долям",
+      "skill_track": "rhythm",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L02-05",
+      "prerequisites": [
+        "rhy.eighths"
+      ],
+      "practice_set_ids": [
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.rests",
+      "title": "Считает паузы как полноценные длительности",
+      "skill_track": "rhythm",
+      "skill_type": "motor",
+      "first_lesson_id": "L02-06",
+      "prerequisites": [
+        "rhy.eighths"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "tap_on_rest",
+        "lost_count_in_silence"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "metric": "onset_accuracy_ms",
+        "threshold_ms": 110
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-motor"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "register"
+      },
+      "review_policy_id": "RP-motor",
+      "demotion": {
+        "rule": "Выход за допуск более чем в 40% атак в двух сессиях подряд",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.dot",
+      "title": "Понимает, что точка добавляет половину длительности",
+      "skill_track": "rhythm",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L02-07",
+      "prerequisites": [
+        "rhy.rests"
+      ],
+      "practice_set_ids": [
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "dot_as_double"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.tie",
+      "title": "Читает лигу как продление звука, в том числе через тактовую черту",
+      "skill_track": "rhythm",
+      "skill_type": "recognition",
+      "first_lesson_id": "L02-07",
+      "prerequisites": [
+        "rhy.dot"
+      ],
+      "practice_set_ids": [
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "tie_as_two_attacks"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.anacrusis",
+      "title": "Определяет затакт и находит первую сильную долю",
+      "skill_track": "rhythm",
+      "skill_type": "aural",
+      "first_lesson_id": "L02-08",
+      "prerequisites": [
+        "rhy.metric_accent"
+      ],
+      "practice_set_ids": [
+        "PR-09"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.rhythm.pattern",
+      "title": "Узнаёт и повторяет ритмический рисунок по слуху",
+      "skill_track": "rhythm",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "rhy.eighths",
+        "rhy.rests"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-10",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L02",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "pattern_order",
+        "extra_attack",
+        "missing_attack"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "not.staff",
+      "title": "Понимает стан: пять линий, четыре промежутка, высота по вертикали",
+      "skill_track": "notation",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L03-01",
+      "prerequisites": [
+        "snd.pitch_direction",
+        "kbd.names_fgab"
+      ],
+      "practice_set_ids": [
+        "PR-08"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "line_vs_space"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "not.clef_treble",
+      "title": "Знает скрипичный ключ и опорную Соль (G4)",
+      "skill_track": "notation",
+      "skill_type": "recognition",
+      "first_lesson_id": "L03-02",
+      "prerequisites": [
+        "not.staff"
+      ],
+      "practice_set_ids": [
+        "PR-08"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "not.anchors_treble",
+      "title": "Использует опоры C4, G4, C5 вместо счёта линий",
+      "skill_track": "notation",
+      "skill_type": "recognition",
+      "first_lesson_id": "L03-03",
+      "prerequisites": [
+        "not.clef_treble"
+      ],
+      "practice_set_ids": [
+        "PR-08"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "not.read_treble_c4_g4",
+      "title": "Читает ноты C4–G4 в скрипичном ключе",
+      "skill_track": "notation",
+      "skill_type": "recognition",
+      "first_lesson_id": "L03-04",
+      "prerequisites": [
+        "not.anchors_treble"
+      ],
+      "practice_set_ids": [
+        "PR-08",
+        "PR-13"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "off_by_one_step",
+        "line_vs_space"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "not.read_treble_a4_g5",
+      "title": "Читает ноты A4–G5, включая ноту над станом",
+      "skill_track": "notation",
+      "skill_type": "recognition",
+      "first_lesson_id": "L03-05",
+      "prerequisites": [
+        "not.read_treble_c4_g4"
+      ],
+      "practice_set_ids": [
+        "PR-08",
+        "PR-13"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "off_by_one_step",
+        "octave_error"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "not.ledger_lines",
+      "title": "Читает добавочные линии вниз (A3, B3)",
+      "skill_track": "notation",
+      "skill_type": "recognition",
+      "first_lesson_id": "L03-05",
+      "prerequisites": [
+        "not.read_treble_c4_g4"
+      ],
+      "practice_set_ids": [
+        "PR-08"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "not.stem_rules",
+      "title": "Пишет ноты по правилам: направление штиля, положение головки",
+      "skill_track": "notation",
+      "skill_type": "production",
+      "first_lesson_id": "L03-06",
+      "prerequisites": [
+        "not.read_treble_a4_g5"
+      ],
+      "practice_set_ids": [
+        "PR-08"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "wrong_stem",
+        "note_between_positions"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "not.clef_bass",
+      "title": "Знает басовый ключ и опорную Фа (F3)",
+      "skill_track": "notation",
+      "skill_type": "recognition",
+      "first_lesson_id": "L03-07",
+      "prerequisites": [
+        "not.read_treble_a4_g5"
+      ],
+      "practice_set_ids": [
+        "PR-08"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "treble_reading_in_bass"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "not.read_bass_c3_c4",
+      "title": "Читает ноты C3–C4 в басовом ключе",
+      "skill_track": "notation",
+      "skill_type": "recognition",
+      "first_lesson_id": "L03-08",
+      "prerequisites": [
+        "not.clef_bass"
+      ],
+      "practice_set_ids": [
+        "PR-08",
+        "PR-13"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "treble_reading_in_bass",
+        "off_by_one_step"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "not.grand_staff",
+      "title": "Читает большой стан и понимает среднее До в двух ключах",
+      "skill_track": "notation",
+      "skill_type": "recognition",
+      "first_lesson_id": "L03-09",
+      "prerequisites": [
+        "not.read_bass_c3_c4"
+      ],
+      "practice_set_ids": [
+        "PR-08",
+        "PR-13"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "octave_error"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "not.read_with_rhythm",
+      "title": "Играет записанную мелодию, соблюдая высоту и ритм",
+      "skill_track": "notation",
+      "skill_type": "integration",
+      "first_lesson_id": "L03-10",
+      "prerequisites": [
+        "not.read_treble_a4_g5",
+        "rhy.eighths"
+      ],
+      "practice_set_ids": [
+        "PR-13"
+      ],
+      "level_exam_id": "EX-L03",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "rhythm_ok_pitch_wrong",
+        "pitch_ok_rhythm_wrong"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "not.semitone_notation",
+      "title": "Различает диатонический и хроматический полутон в записи",
+      "skill_track": "notation",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L04-01",
+      "prerequisites": [
+        "kbd.tone",
+        "not.read_treble_a4_g5"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "practice_set_ids": [],
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "not.accidentals_notation",
+      "title": "Читает и ставит диез, бемоль, бекар в записи",
+      "skill_track": "notation",
+      "skill_type": "production",
+      "first_lesson_id": "L04-02",
+      "prerequisites": [
+        "kbd.accidentals",
+        "not.semitone_notation"
+      ],
+      "practice_set_ids": [
+        "PR-05",
+        "PR-08"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "not.accidental_scope",
+      "title": "Знает, что случайный знак действует до конца такта",
+      "skill_track": "notation",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L04-02",
+      "prerequisites": [
+        "not.accidentals_notation"
+      ],
+      "practice_set_ids": [
+        "PR-08"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "accidental_forgotten_in_bar"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "not.enharmonic_notation",
+      "title": "Записывает энгармонически равные звуки и понимает дубль-знаки",
+      "skill_track": "notation",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L04-03",
+      "prerequisites": [
+        "kbd.enharmonic",
+        "not.accidentals_notation"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "practice_set_ids": [],
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "not.double_accidentals",
+      "title": "Узнаёт дубль-диез и дубль-бемоль",
+      "skill_track": "notation",
+      "skill_type": "recognition",
+      "first_lesson_id": "L04-03",
+      "prerequisites": [
+        "not.enharmonic_notation"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "practice_set_ids": [],
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.sixteenths",
+      "title": "Делит долю на четыре шестнадцатые",
+      "skill_track": "rhythm",
+      "skill_type": "motor",
+      "first_lesson_id": "L07-01",
+      "prerequisites": [
+        "rhy.eighths"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L07",
+      "mvp_status": "v1.2",
+      "error_tags": [
+        "uneven_subdivision"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "metric": "onset_accuracy_ms",
+        "threshold_ms": 110
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-motor"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "register"
+      },
+      "review_policy_id": "RP-motor",
+      "demotion": {
+        "rule": "Выход за допуск более чем в 40% атак в двух сессиях подряд",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.mixed_subdivision",
+      "title": "Играет комбинации восьмая + две шестнадцатые и наоборот",
+      "skill_track": "rhythm",
+      "skill_type": "motor",
+      "first_lesson_id": "L07-02",
+      "prerequisites": [
+        "rhy.sixteenths"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L07",
+      "mvp_status": "v1.2",
+      "error_tags": [
+        "pattern_order"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "metric": "onset_accuracy_ms",
+        "threshold_ms": 110
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-motor"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "register"
+      },
+      "review_policy_id": "RP-motor",
+      "demotion": {
+        "rule": "Выход за допуск более чем в 40% атак в двух сессиях подряд",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.dotted_rhythm",
+      "title": "Читает и воспроизводит пунктирный ритм",
+      "skill_track": "rhythm",
+      "skill_type": "motor",
+      "first_lesson_id": "L07-03",
+      "prerequisites": [
+        "rhy.dot",
+        "rhy.sixteenths"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L07",
+      "mvp_status": "v1.2",
+      "sibling_ids": [
+        "rhy.triplet"
+      ],
+      "error_tags": [
+        "dotted_as_triplet"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "metric": "onset_accuracy_ms",
+        "threshold_ms": 110
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-motor"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "register"
+      },
+      "review_policy_id": "RP-motor",
+      "demotion": {
+        "rule": "Выход за допуск более чем в 40% атак в двух сессиях подряд",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "rhy.syncopation",
+      "title": "Слышит и воспроизводит синкопу",
+      "skill_track": "rhythm",
+      "skill_type": "motor",
+      "first_lesson_id": "L07-04",
+      "prerequisites": [
+        "rhy.tie",
+        "rhy.dotted_rhythm"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L07",
+      "mvp_status": "v1.2",
+      "error_tags": [
+        "accent_flattened"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "metric": "onset_accuracy_ms",
+        "threshold_ms": 110
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-motor"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "register"
+      },
+      "review_policy_id": "RP-motor",
+      "demotion": {
+        "rule": "Выход за допуск более чем в 40% атак в двух сессиях подряд",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.triplet",
+      "title": "Делит долю на три (триоль)",
+      "skill_track": "rhythm",
+      "skill_type": "motor",
+      "first_lesson_id": "L07-05",
+      "prerequisites": [
+        "rhy.sixteenths"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L07",
+      "mvp_status": "v1.2",
+      "sibling_ids": [
+        "rhy.dotted_rhythm"
+      ],
+      "error_tags": [
+        "triplet_as_dotted"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "metric": "onset_accuracy_ms",
+        "threshold_ms": 110
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-motor"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "register"
+      },
+      "review_policy_id": "RP-motor",
+      "demotion": {
+        "rule": "Выход за допуск более чем в 40% атак в двух сессиях подряд",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "rhy.compound_68",
+      "title": "Работает в составном размере 6/8",
+      "skill_track": "rhythm",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L07-06",
+      "prerequisites": [
+        "rhy.triplet",
+        "rhy.dot"
+      ],
+      "practice_set_ids": [
+        "PR-09",
+        "PR-10"
+      ],
+      "level_exam_id": "EX-L07",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.compound_vs_simple",
+      "title": "Отличает 6/8 от 3/4 на слух и по группировке",
+      "skill_track": "rhythm",
+      "skill_type": "aural",
+      "first_lesson_id": "L07-07",
+      "prerequisites": [
+        "rhy.compound_68"
+      ],
+      "practice_set_ids": [
+        "PR-09"
+      ],
+      "level_exam_id": "EX-L07",
+      "mvp_status": "v1.2",
+      "error_tags": [
+        "3_vs_6"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "rhy.other_meters",
+      "title": "Узнаёт 9/8, 12/8, 3/8, 2/2 и несимметричные 5/4, 7/8",
+      "skill_track": "rhythm",
+      "skill_type": "recognition",
+      "first_lesson_id": "L07-08",
+      "prerequisites": [
+        "rhy.compound_vs_simple"
+      ],
+      "practice_set_ids": [
+        "PR-09"
+      ],
+      "level_exam_id": "EX-L07",
+      "mvp_status": "v1.2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 10,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.tonic",
+      "title": "Слышит тонику как центр и завершённость фразы",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L04-04",
+      "prerequisites": [
+        "snd.contour"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "unfinished_accepted"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.major_formula",
+      "title": "Знает формулу мажорной гаммы Т-Т-П-Т-Т-Т-П",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L04-05",
+      "prerequisites": [
+        "kbd.tone",
+        "not.semitone_notation"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "semitone_position"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.c_major",
+      "title": "Строит гамму До мажор и знает её тетрахорды",
+      "skill_track": "scale_degree",
+      "skill_type": "production",
+      "first_lesson_id": "L04-06",
+      "prerequisites": [
+        "sca.major_formula"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.degree_numbers",
+      "title": "Называет ступени I–VII по номерам",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L04-07",
+      "prerequisites": [
+        "sca.c_major"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.degree_names",
+      "title": "Знает названия ступеней: тоника, доминанта, субдоминанта и остальные",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L04-07",
+      "prerequisites": [
+        "sca.degree_numbers"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "notes": "В ABRSM technical names появляются на Grade 4, поэтому в MVP только тоника/доминанта/субдоминанта",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "practice_set_ids": [],
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.stable_135",
+      "title": "Понимает устойчивость I, III, V и тоническое трезвучие",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L04-08",
+      "prerequisites": [
+        "sca.degree_numbers"
+      ],
+      "practice_set_ids": [
+        "PR-01"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.tendency",
+      "title": "Знает тяготения неустойчивых ступеней: 2→1/3, 4→3, 6→5, 7→1",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L04-09",
+      "prerequisites": [
+        "sca.stable_135"
+      ],
+      "practice_set_ids": [
+        "PR-01"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "wrong_resolution"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.major_g_f",
+      "title": "Строит Соль и Фа мажор и понимает первые ключевые знаки",
+      "skill_track": "scale_degree",
+      "skill_type": "production",
+      "first_lesson_id": "L04-10",
+      "prerequisites": [
+        "sca.c_major",
+        "not.accidentals_notation"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.degree_method",
+      "title": "Применяет метод определения ступени: сравнить с тоникой и посчитать шаги",
+      "skill_track": "scale_degree",
+      "skill_type": "integration",
+      "first_lesson_id": "L04-11",
+      "prerequisites": [
+        "sca.stable_135",
+        "sca.tendency"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-02"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.degree.major.1",
+      "title": "Слышит I ступень в мажоре",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L04-11",
+      "prerequisites": [
+        "sca.degree_method"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-11",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.degree.major.5",
+        "ear.degree.major.3"
+      ],
+      "error_tags": [
+        "degree_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "ear.degree.major.5",
+      "title": "Слышит V ступень в мажоре",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L04-11",
+      "prerequisites": [
+        "sca.degree_method"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-11",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.degree.major.1",
+        "ear.degree.major.3"
+      ],
+      "error_tags": [
+        "degree_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "ear.degree.major.3",
+      "title": "Слышит III ступень в мажоре",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L04-11",
+      "prerequisites": [
+        "ear.degree.major.1",
+        "ear.degree.major.5"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-11",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.degree.major.5"
+      ],
+      "error_tags": [
+        "degree_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "ear.degree.major.2",
+      "title": "Слышит II ступень в мажоре",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L04-11",
+      "prerequisites": [
+        "ear.degree.major.3"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-11",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.degree.major.7",
+        "ear.degree.major.1"
+      ],
+      "error_tags": [
+        "degree_confusion",
+        "2_vs_7"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "ear.degree.major.4",
+      "title": "Слышит IV ступень в мажоре",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L04-11",
+      "prerequisites": [
+        "ear.degree.major.2"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-11",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.degree.major.6",
+        "ear.degree.major.3"
+      ],
+      "error_tags": [
+        "degree_confusion",
+        "4_vs_6"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "ear.degree.major.6",
+      "title": "Слышит VI ступень в мажоре",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L04-11",
+      "prerequisites": [
+        "ear.degree.major.4"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-11",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.degree.major.4",
+        "ear.degree.major.5"
+      ],
+      "error_tags": [
+        "degree_confusion",
+        "4_vs_6"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "ear.degree.major.7",
+      "title": "Слышит VII ступень в мажоре",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L04-11",
+      "prerequisites": [
+        "ear.degree.major.6"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-11",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.degree.major.2",
+        "ear.degree.major.1"
+      ],
+      "error_tags": [
+        "degree_confusion",
+        "2_vs_7"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "ear.degree.sequence",
+      "title": "Записывает последовательность из 2–4 ступеней по слуху",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "ear.degree.major.7"
+      ],
+      "practice_set_ids": [
+        "PR-01",
+        "PR-11"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "order_error",
+        "last_note_only"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.degree.transfer_keys",
+      "title": "Определяет ступени в тональностях, кроме До мажора",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "ear.degree.sequence"
+      ],
+      "practice_set_ids": [
+        "PR-01"
+      ],
+      "level_exam_id": "EX-L04",
+      "mvp_status": "mvp",
+      "notes": "Ключевая защита от запоминания абсолютных высот",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "int.number",
+      "title": "Считает ступеневую величину интервала (число)",
+      "skill_track": "interval",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L05-01",
+      "prerequisites": [
+        "sca.degree_numbers",
+        "not.read_treble_a4_g5"
+      ],
+      "practice_set_ids": [
+        "PR-04"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "mvp",
+      "error_tags": [
+        "off_by_one_count"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "int.perfect_5_4",
+      "title": "Строит и узнаёт чистую квинту и чистую кварту",
+      "skill_track": "interval",
+      "skill_type": "production",
+      "first_lesson_id": "L05-02",
+      "prerequisites": [
+        "int.number",
+        "kbd.semitone"
+      ],
+      "practice_set_ids": [
+        "PR-03",
+        "PR-04"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "int.thirds"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "int.seconds",
+      "title": "Различает большую и малую секунду",
+      "skill_track": "interval",
+      "skill_type": "production",
+      "first_lesson_id": "L05-03",
+      "prerequisites": [
+        "int.number",
+        "kbd.tone"
+      ],
+      "practice_set_ids": [
+        "PR-03",
+        "PR-04"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "mvp",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "int.thirds",
+      "title": "Различает большую и малую терцию",
+      "skill_track": "interval",
+      "skill_type": "production",
+      "first_lesson_id": "L05-04",
+      "prerequisites": [
+        "int.seconds"
+      ],
+      "practice_set_ids": [
+        "PR-03",
+        "PR-04",
+        "PR-07"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "mvp",
+      "notes": "Обязательная предпосылка трезвучий",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "int.sixths_sevenths",
+      "title": "Строит и различает сексты и септимы",
+      "skill_track": "interval",
+      "skill_type": "production",
+      "first_lesson_id": "L05-05",
+      "prerequisites": [
+        "int.thirds",
+        "int.perfect_5_4"
+      ],
+      "practice_set_ids": [
+        "PR-03",
+        "PR-04"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "int.unison_octave",
+      "title": "Знает приму и октаву и таблицу интервалов в полутонах",
+      "skill_track": "interval",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L05-06",
+      "prerequisites": [
+        "int.sixths_sevenths"
+      ],
+      "practice_set_ids": [
+        "PR-04"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "int.build_up",
+      "title": "Строит любой простой интервал вверх от заданного звука",
+      "skill_track": "interval",
+      "skill_type": "production",
+      "first_lesson_id": "L05-07",
+      "prerequisites": [
+        "int.unison_octave"
+      ],
+      "practice_set_ids": [
+        "PR-04"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "error_tags": [
+        "wrong_quality",
+        "wrong_number"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "int.build_down",
+      "title": "Строит интервал вниз, считая от нижнего звука",
+      "skill_track": "interval",
+      "skill_type": "production",
+      "first_lesson_id": "L05-08",
+      "prerequisites": [
+        "int.build_up"
+      ],
+      "practice_set_ids": [
+        "PR-04"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "error_tags": [
+        "direction_error"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "int.inversion",
+      "title": "Обращает интервал и знает правило суммы 9",
+      "skill_track": "interval",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L05-09",
+      "prerequisites": [
+        "int.build_down"
+      ],
+      "practice_set_ids": [
+        "PR-04"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "int.mel_vs_harm",
+      "title": "Различает мелодический и гармонический интервал",
+      "skill_track": "interval",
+      "skill_type": "aural",
+      "first_lesson_id": "L05-10",
+      "prerequisites": [
+        "int.thirds"
+      ],
+      "practice_set_ids": [
+        "PR-03"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "int.consonance",
+      "title": "Различает консонанс и диссонанс",
+      "skill_track": "interval",
+      "skill_type": "aural",
+      "first_lesson_id": "L05-10",
+      "prerequisites": [
+        "int.mel_vs_harm"
+      ],
+      "practice_set_ids": [
+        "PR-03"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "int.tritone",
+      "title": "Строит и узнаёт тритон, знает его положение в мажоре",
+      "skill_track": "interval",
+      "skill_type": "production",
+      "first_lesson_id": "L05-11",
+      "prerequisites": [
+        "int.inversion",
+        "sca.tendency"
+      ],
+      "practice_set_ids": [
+        "PR-03",
+        "PR-04"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.interval.m3_M3",
+      "title": "Различает малую и большую терцию на слух",
+      "skill_track": "interval",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "snd.pitch_direction"
+      ],
+      "practice_set_ids": [
+        "PR-03",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.interval.m2_M2"
+      ],
+      "error_tags": [
+        "quality_confusion"
+      ],
+      "notes": "RCM Level 1 Ear Tests требует именно эту пару",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "ear.interval.p4_p5",
+      "title": "Различает чистую кварту и чистую квинту на слух",
+      "skill_track": "interval",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "ear.interval.m3_M3"
+      ],
+      "practice_set_ids": [
+        "PR-03",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "mvp",
+      "sibling_ids": [
+        "ear.interval.m6_M6"
+      ],
+      "error_tags": [
+        "number_confusion"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both"
+    },
+    {
+      "id": "ear.interval.m2_M2",
+      "title": "Различает малую и большую секунду на слух",
+      "skill_track": "interval",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "ear.interval.m3_M3"
+      ],
+      "practice_set_ids": [
+        "PR-03"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "sibling_ids": [
+        "ear.interval.m3_M3"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "ear.interval.m6_M6",
+      "title": "Различает малую и большую сексту на слух",
+      "skill_track": "interval",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "ear.interval.p4_p5"
+      ],
+      "practice_set_ids": [
+        "PR-03"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "sibling_ids": [
+        "ear.interval.p4_p5"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "ear.interval.m7_M7",
+      "title": "Различает малую и большую септиму на слух",
+      "skill_track": "interval",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "ear.interval.m6_M6"
+      ],
+      "practice_set_ids": [
+        "PR-03"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.interval.tritone",
+      "title": "Узнаёт тритон на слух",
+      "skill_track": "interval",
+      "skill_type": "aural",
+      "first_lesson_id": "L05-11",
+      "prerequisites": [
+        "ear.interval.p4_p5"
+      ],
+      "practice_set_ids": [
+        "PR-03"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.interval.all_melodic",
+      "title": "Определяет любой простой интервал мелодически",
+      "skill_track": "interval",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "ear.interval.m7_M7",
+        "ear.interval.tritone"
+      ],
+      "practice_set_ids": [
+        "PR-03"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.interval.harmonic",
+      "title": "Определяет интервал при одновременном звучании",
+      "skill_track": "interval",
+      "skill_type": "aural",
+      "first_lesson_id": "L05-10",
+      "prerequisites": [
+        "ear.interval.all_melodic"
+      ],
+      "practice_set_ids": [
+        "PR-03"
+      ],
+      "level_exam_id": "EX-L05",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.major_minor_third",
+      "title": "Понимает, что мажор и минор различаются III ступенью",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L06-01",
+      "prerequisites": [
+        "int.thirds",
+        "sca.degree_numbers"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.scale.major_minor",
+      "title": "Определяет мажор и минор на слух в мелодии и аккорде",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L06-01",
+      "prerequisites": [
+        "sca.major_minor_third"
+      ],
+      "practice_set_ids": [
+        "PR-05",
+        "PR-06",
+        "PR-15"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "mvp",
+      "notes": "Слуховая часть доступна в MVP как стадия PR-06 (RCM Level 1)",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.minor_natural",
+      "title": "Строит натуральный минор по формуле",
+      "skill_track": "scale_degree",
+      "skill_type": "production",
+      "first_lesson_id": "L06-02",
+      "prerequisites": [
+        "sca.major_minor_third"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.minor_degrees",
+      "title": "Называет и слышит ступени в миноре",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L06-03",
+      "prerequisites": [
+        "sca.minor_natural",
+        "sca.degree_method"
+      ],
+      "practice_set_ids": [
+        "PR-02"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.degree.minor.core",
+      "title": "Слышит ступени I, III, V в миноре",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L06-03",
+      "prerequisites": [
+        "sca.minor_degrees"
+      ],
+      "practice_set_ids": [
+        "PR-02"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "sibling_ids": [
+        "ear.degree.major.1"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": []
+    },
+    {
+      "id": "ear.degree.minor.tendency",
+      "title": "Слышит ступени II, IV, VI, VII в миноре",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "ear.degree.minor.core"
+      ],
+      "practice_set_ids": [
+        "PR-02"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.relative_keys",
+      "title": "Находит параллельную тональность по общим знакам",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L06-04",
+      "prerequisites": [
+        "sca.minor_natural",
+        "int.thirds"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "error_tags": [
+        "relative_vs_parallel"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.parallel_keys",
+      "title": "Понимает одноимённые тональности (одна тоника, разный лад)",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L06-04",
+      "prerequisites": [
+        "sca.relative_keys"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "error_tags": [
+        "relative_vs_parallel"
+      ],
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "practice_set_ids": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.minor_harmonic",
+      "title": "Строит гармонический минор с повышенной VII",
+      "skill_track": "scale_degree",
+      "skill_type": "production",
+      "first_lesson_id": "L06-05",
+      "prerequisites": [
+        "sca.minor_natural",
+        "sca.tendency"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.minor_melodic",
+      "title": "Строит мелодический минор (вверх VI и VII повышены)",
+      "skill_track": "scale_degree",
+      "skill_type": "production",
+      "first_lesson_id": "L06-06",
+      "prerequisites": [
+        "sca.minor_harmonic"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "notes": "Нисходящая форма — вопрос Q-07",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.key_signatures",
+      "title": "Читает ключевые знаки и знает порядок диезов и бемолей",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L06-07",
+      "prerequisites": [
+        "sca.major_g_f"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.circle_of_fifths",
+      "title": "Пользуется квинтовым кругом для мажора и параллельного минора",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L06-08",
+      "prerequisites": [
+        "sca.key_signatures",
+        "sca.relative_keys"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.key_identification",
+      "title": "Определяет тональность по знакам, окончанию и устойчивым оборотам",
+      "skill_track": "scale_degree",
+      "skill_type": "integration",
+      "first_lesson_id": "L06-09",
+      "prerequisites": [
+        "sca.circle_of_fifths",
+        "ear.scale.major_minor"
+      ],
+      "practice_set_ids": [
+        "PR-05",
+        "PR-12"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.75,
+        "min_items": 3,
+        "policy_id": "RP-integration"
+      },
+      "mastery_threshold": {
+        "immediate": 0.8,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-integration",
+      "demotion": {
+        "rule": "Провал двух интеграционных заданий подряд на новом материале",
+        "window": 4,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.transpose_by_interval",
+      "title": "Транспонирует мелодию на заданный интервал",
+      "skill_track": "scale_degree",
+      "skill_type": "production",
+      "first_lesson_id": "L06-10",
+      "prerequisites": [
+        "int.build_up",
+        "sca.key_signatures"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.transpose_by_degrees",
+      "title": "Транспонирует мелодию, сохраняя ступени",
+      "skill_track": "scale_degree",
+      "skill_type": "production",
+      "first_lesson_id": "L06-11",
+      "prerequisites": [
+        "sca.transpose_by_interval",
+        "sca.degree_method"
+      ],
+      "practice_set_ids": [
+        "PR-05",
+        "PR-01"
+      ],
+      "level_exam_id": "EX-L06",
+      "mvp_status": "v1.1",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.modes",
+      "title": "Строит и узнаёт диатонические лады",
+      "skill_track": "scale_degree",
+      "skill_type": "production",
+      "first_lesson_id": "L11-06",
+      "prerequisites": [
+        "sca.minor_melodic",
+        "sca.degree_method"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.mode_characteristic",
+      "title": "Определяет лад по характерной ступени",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": "L11-07",
+      "prerequisites": [
+        "sca.modes"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "ear.mode.recognition",
+      "title": "Узнаёт лад на слух",
+      "skill_track": "scale_degree",
+      "skill_type": "aural",
+      "first_lesson_id": null,
+      "prerequisites": [
+        "sca.mode_characteristic"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.8,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 6,
+        "policy_id": "RP-aural"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-aural",
+      "demotion": {
+        "rule": "Точность по последним 6 ответам ниже 0.6 или провал плановой проверки",
+        "window": 6,
+        "accuracy_below": 0.6
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.pentatonic_blues",
+      "title": "Строит мажорную и минорную пентатонику и блюзовую гамму",
+      "skill_track": "scale_degree",
+      "skill_type": "production",
+      "first_lesson_id": "L11-08",
+      "prerequisites": [
+        "sca.modes"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.chromatic",
+      "title": "Записывает хроматическую гамму и понимает проходящие хроматизмы",
+      "skill_track": "scale_degree",
+      "skill_type": "production",
+      "first_lesson_id": "L11-09",
+      "prerequisites": [
+        "not.enharmonic_notation",
+        "int.tritone"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "no_critical_error": true,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "key"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 6 построениям ниже 0.7",
+        "window": 6,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    },
+    {
+      "id": "sca.related_keys",
+      "title": "Определяет родственные тональности первой степени",
+      "skill_track": "scale_degree",
+      "skill_type": "knowledge",
+      "first_lesson_id": "L11-12",
+      "prerequisites": [
+        "sca.circle_of_fifths"
+      ],
+      "practice_set_ids": [
+        "PR-05"
+      ],
+      "level_exam_id": "EX-L11",
+      "mvp_status": "v2",
+      "initial_pass": {
+        "min_accuracy": 0.85,
+        "min_items": 8,
+        "metric": "accuracy"
+      },
+      "cold_review": {
+        "min_accuracy": 0.8,
+        "min_items": 4,
+        "policy_id": "RP-knowledge"
+      },
+      "mastery_threshold": {
+        "immediate": 0.85,
+        "delayed": 0.8,
+        "transfer": 0.75,
+        "transfer_dimension": "representation"
+      },
+      "review_policy_id": "RP-knowledge",
+      "demotion": {
+        "rule": "Точность по последним 8 ответам ниже 0.7",
+        "window": 8,
+        "accuracy_below": 0.7
+      },
+      "app_section": "both",
+      "error_tags": [],
+      "sibling_ids": []
+    }
+  ]
+}

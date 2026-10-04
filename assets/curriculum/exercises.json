@@ -1,0 +1,4264 @@
+{
+  "schema_version": "1.0",
+  "content_version": 1,
+  "interaction_templates": [
+    {
+      "id": "T01",
+      "title": "Single choice",
+      "description": "Один вопрос, 2–7 текстовых или графических вариантов",
+      "input": "кнопки",
+      "mvp_status": "mvp",
+      "dev_complexity": "S",
+      "used_for": [
+        "теория",
+        "термины",
+        "определение по записи"
+      ]
+    },
+    {
+      "id": "T02",
+      "title": "Audio single choice",
+      "description": "Проигрывание стимула + выбор варианта; включает A/B-сравнение как случай с 2 вариантами",
+      "input": "кнопки + плеер",
+      "mvp_status": "mvp",
+      "dev_complexity": "S",
+      "used_for": [
+        "ступени",
+        "интервалы",
+        "аккорды",
+        "метр",
+        "лады",
+        "каденции"
+      ]
+    },
+    {
+      "id": "T03",
+      "title": "Multiple select",
+      "description": "Выбор нескольких верных вариантов из набора",
+      "input": "чекбоксы",
+      "mvp_status": "mvp",
+      "dev_complexity": "S",
+      "used_for": [
+        "найди все До",
+        "какие ступени устойчивы"
+      ]
+    },
+    {
+      "id": "T04",
+      "title": "Ordering / sorting",
+      "description": "Расставить элементы в правильном порядке или разложить по категориям",
+      "input": "drag",
+      "mvp_status": "mvp",
+      "dev_complexity": "S",
+      "used_for": [
+        "звукоряд",
+        "порядок диезов",
+        "квинтовый круг",
+        "тон vs шум"
+      ]
+    },
+    {
+      "id": "T05",
+      "title": "Staff drag-and-drop",
+      "description": "Постановка нот, знаков и пауз на стан с квантованием по линиям и промежуткам",
+      "input": "стан",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "used_for": [
+        "запись нот",
+        "знаки альтерации",
+        "интервалы",
+        "гаммы",
+        "аккорды"
+      ]
+    },
+    {
+      "id": "T06",
+      "title": "Virtual keyboard",
+      "description": "Экранная клавиатура 1–2 октавы с прокруткой, подписями по настройке и блокировкой лишнего диапазона",
+      "input": "клавиатура",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "used_for": [
+        "найди клавишу",
+        "услышал → нажми",
+        "тон/полутон",
+        "построение аккорда",
+        "эхо-мелодия"
+      ]
+    },
+    {
+      "id": "T07",
+      "title": "Scale / chord builder",
+      "description": "Палитра элементов и целевые слоты: собрать гамму, интервал, аккорд; проигрывание результата",
+      "input": "палитра + слоты",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "used_for": [
+        "гаммы",
+        "интервалы",
+        "четыре вида трезвучий",
+        "обращения",
+        "септаккорды"
+      ]
+    },
+    {
+      "id": "T08",
+      "title": "Rhythm grid",
+      "description": "Сетка долей и палитра длительностей и пауз; проверка суммы в такте",
+      "input": "палитра + сетка",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "used_for": [
+        "сборка такта",
+        "ритмический диктант",
+        "группировка"
+      ]
+    },
+    {
+      "id": "T09",
+      "title": "Tap rhythm",
+      "description": "Тэппинг по площадке с окном допуска и калибровкой задержки устройства",
+      "input": "тап",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "used_for": [
+        "пульс",
+        "эхо-ритм",
+        "чтение ритма"
+      ],
+      "requires_latency_calibration": true,
+      "fallback": "T02 (выбор записи) или T08 (сборка) при неудачной калибровке"
+    },
+    {
+      "id": "T10",
+      "title": "Sequence input",
+      "description": "Ввод последовательности элементов: ступеней, нот, функций, римских цифр",
+      "input": "палитра + строка ответа",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "used_for": [
+        "ступеневый диктант из 2–4 ступеней",
+        "гармонический диктант",
+        "мелодический диктант ступенями"
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "Matching",
+      "description": "Соединение пар: имя ↔ клавиша ↔ запись ↔ звук",
+      "input": "тап-тап или drag",
+      "mvp_status": "mvp",
+      "dev_complexity": "S",
+      "used_for": [
+        "слоговые и буквенные имена",
+        "тональность и знаки",
+        "аккорд и обозначение"
+      ]
+    },
+    {
+      "id": "T12",
+      "title": "Find the error",
+      "description": "Поиск расхождения: звук против записи, две записи, неверно построенный аккорд или переполненный такт",
+      "input": "тап по объекту",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "used_for": [
+        "корректура записи",
+        "исправление аккорда",
+        "диктант"
+      ]
+    },
+    {
+      "id": "T13",
+      "title": "Listen–sing–reveal",
+      "description": "Пользователь слушает, поёт про себя или вслух, затем слышит эталон и оценивает совпадение сам; автоматической оценки нет",
+      "input": "самооценка",
+      "mvp_status": "v1.2",
+      "dev_complexity": "S",
+      "used_for": [
+        "сольфеджирование без микрофона"
+      ],
+      "requires_microphone": false
+    }
+  ],
+  "practice_sets": [
+    {
+      "id": "PR-01",
+      "title": "Ступеневый диктант в одной тональности (мажор)",
+      "app_section": "practice",
+      "skill_track": "scale_degree",
+      "competency_ids": [
+        "sca.tonic",
+        "sca.degree_method",
+        "ear.degree.major.1",
+        "ear.degree.major.2",
+        "ear.degree.major.3",
+        "ear.degree.major.4",
+        "ear.degree.major.5",
+        "ear.degree.major.6",
+        "ear.degree.major.7",
+        "ear.degree.sequence",
+        "ear.degree.transfer_keys"
+      ],
+      "interaction_template": "T02",
+      "alt_interaction_template": "T10",
+      "opened_by_lesson_ids": [
+        "L04-04",
+        "L04-11"
+      ],
+      "prerequisite_ids": [
+        "C:sca.degree_method"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam",
+        "error_queue"
+      ],
+      "anti_absolute_pitch": "Тональность и октава меняются от задания к заданию (ротация по keys стадии; для стадий 1–8 в MVP это До мажор в трёх регистрах, начиная со стадии 12 — G, F, D). Каденция играется в 3–5 разных voicing, чтобы не запоминался один файл. Целевая ступень берётся из двух октав. При двух верных ответах подряд в одном регистре следующий пример обязательно в другом.",
+      "review_rule": "RP-aural",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "teacher_review_status": "needs_review",
+      "requires_microphone": false,
+      "sources": [
+        "S-05",
+        "S-06",
+        "S-07",
+        "S-14",
+        "S-20"
+      ],
+      "notes": "Центральный слуховой тренажёр продукта. Ноты всегда скрыты до ответа: иначе упражнение проверяет чтение, а не слух.",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Установление тоники: закончено или нет",
+          "competency_ids": [
+            "sca.tonic"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I в До мажоре, 84 BPM, затем пауза 500 мс",
+            "context_repeat_on_demand": true,
+            "replays": 3,
+            "replay_with_hint": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_2",
+            "answer_labels": "«вернулось домой» / «висит в воздухе»",
+            "options": 2,
+            "target_set": [
+              1,
+              2,
+              4,
+              7
+            ],
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "register": "средний",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1200,
+            "pause_before_answer_ms": 300,
+            "difficulty_step": "От I и V (явно устойчивых) к II и VII (явно неустойчивым)",
+            "items_per_session": 10
+          },
+          "feedback": {
+            "correct": "Верно: фраза закончилась на тонике, ощущение завершённости.",
+            "first_error": "Послушай ещё раз и обрати внимание на последний звук: он просит продолжения или уже стоит на месте?",
+            "repeat_error": "Прозвучала VII ступень — она тянет вверх, в тонику. Сейчас проиграю два варианта подряд: с окончанием на VII и с окончанием на I."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 10
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 4
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "I и V",
+          "competency_ids": [
+            "ear.degree.major.1",
+            "ear.degree.major.5"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I, затем пауза 500 мс, затем одна ступень",
+            "context_repeat_on_demand": true,
+            "replays": 2,
+            "replay_with_hint": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_2",
+            "answer_labels": "номера ступеней: 1, 5",
+            "options": 2,
+            "target_set": [
+              1,
+              5
+            ],
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "register": "средний",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1200,
+            "pause_before_answer_ms": 300,
+            "difficulty_step": "Сначала целевая нота выше тоники, затем добавляется V ниже тоники (G3)",
+            "items_per_session": 10
+          },
+          "feedback": {
+            "correct": "Верно, это V ступень. Слышишь, как она образует с тоникой широкую опору?",
+            "first_error": "Сравни с тоникой: нажми «дать тонику» и послушай целевой звук ещё раз.",
+            "repeat_error": "Это была I ступень — тот же звук, что тоника каденции. Проигрываю: тоника, твой вариант, правильный ответ."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 10,
+            "coverage": [
+              1,
+              5
+            ]
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 4
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 3,
+          "title": "I, III, V — устойчивые ступени",
+          "competency_ids": [
+            "ear.degree.major.1",
+            "ear.degree.major.3",
+            "ear.degree.major.5"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I, пауза 500 мс",
+            "context_repeat_on_demand": true,
+            "replays": 2,
+            "replay_with_hint": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_3",
+            "answer_labels": "1, 3, 5",
+            "options": 3,
+            "target_set": [
+              1,
+              3,
+              5
+            ],
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "register": "средний",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1200,
+            "pause_before_answer_ms": 300,
+            "difficulty_step": "Три ступени тонического трезвучия; после 6 верных ответов подряд убирается кнопка «дать тонику»",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, III ступень. Это средний звук тонического трезвучия.",
+            "first_error": "Послушай снова: спой про себя от тоники вверх — до, ре, ми — и останови на нужном звуке.",
+            "repeat_error": "Ты выбрал V, прозвучала III. Разница — терция. Проигрываю тонику, затем III, затем V, чтобы ты услышал разницу в ширине.",
+            "confusion_pairs": [
+              {
+                "pair": [
+                  "3",
+                  "5"
+                ],
+                "explanation": "III ближе к тонике, V шире и звучит как «пустая» опора"
+              },
+              {
+                "pair": [
+                  "1",
+                  "3"
+                ],
+                "explanation": "I ощущается как точка покоя, III светлее и чуть «выше по напряжению»"
+              }
+            ]
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12,
+            "coverage": [
+              1,
+              3,
+              5
+            ]
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 6
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 4,
+          "title": "I, II, III, V",
+          "competency_ids": [
+            "ear.degree.major.2"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I, пауза 500 мс",
+            "context_repeat_on_demand": true,
+            "replays": 2,
+            "replay_with_hint": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_4",
+            "answer_labels": "1, 2, 3, 5",
+            "options": 4,
+            "target_set": [
+              1,
+              2,
+              3,
+              5
+            ],
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "register": "средний",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1200,
+            "pause_before_answer_ms": 300,
+            "difficulty_step": "Добавлена первая неустойчивая ступень; доля II в выборке 30%",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, II ступень: она стоит рядом с тоникой и тянет к ней вниз.",
+            "first_error": "Проверь: этот звук хочет опуститься в тонику на один шаг или стоит на месте?",
+            "repeat_error": "Прозвучала II, ты выбрал I. Слушай разрешение: II → I. Теперь то же задание ещё раз.",
+            "confusion_pairs": [
+              {
+                "pair": [
+                  "2",
+                  "1"
+                ],
+                "explanation": "II требует продолжения, I — уже дома"
+              },
+              {
+                "pair": [
+                  "2",
+                  "3"
+                ],
+                "explanation": "II на шаг выше тоники, III — на два шага"
+              }
+            ]
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 12,
+            "coverage": [
+              1,
+              2,
+              3,
+              5
+            ]
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 6
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 5,
+          "title": "Добавляем IV",
+          "competency_ids": [
+            "ear.degree.major.4"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I, пауза 500 мс",
+            "context_repeat_on_demand": true,
+            "replays": 2,
+            "replay_with_hint": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_5",
+            "answer_labels": "1, 2, 3, 4, 5",
+            "options": 5,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "register": "средний",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1200,
+            "pause_before_answer_ms": 300,
+            "difficulty_step": "IV подаётся вперемешку с III, потому что это типовая путаница",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно, IV ступень: тянет вниз, в III.",
+            "first_error": "Послушай ещё раз: этот звук разрешается вниз на шаг или вверх?",
+            "repeat_error": "Прозвучала IV, ты выбрал III. IV на шаг выше и требует движения вниз. Проигрываю IV → III, затем задание снова.",
+            "confusion_pairs": [
+              {
+                "pair": [
+                  "4",
+                  "3"
+                ],
+                "explanation": "IV неустойчива и тянет в III; III устойчива"
+              },
+              {
+                "pair": [
+                  "4",
+                  "5"
+                ],
+                "explanation": "V — широкая опора, IV на шаг ниже и напряжённее"
+              }
+            ]
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 14,
+            "coverage": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 6
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 6,
+          "title": "Добавляем VI",
+          "competency_ids": [
+            "ear.degree.major.6"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I, пауза 500 мс",
+            "context_repeat_on_demand": true,
+            "replays": 2,
+            "replay_with_hint": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_6",
+            "answer_labels": "1, 2, 3, 4, 5, 6",
+            "options": 6,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "register": "средний",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1200,
+            "pause_before_answer_ms": 300,
+            "difficulty_step": "VI обязательно чередуется с IV (пара 4/6 — главная путаница этого тренажёра)",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно, VI ступень: разрешается вниз, в V.",
+            "first_error": "Сравни с тоникой: этот звук ближе к V сверху или к III сверху?",
+            "repeat_error": "Ты выбрал IV, прозвучала VI. Обе неустойчивы, но IV тянет в III, а VI — в V. Проигрываю оба разрешения подряд.",
+            "confusion_pairs": [
+              {
+                "pair": [
+                  "6",
+                  "4"
+                ],
+                "explanation": "Разные разрешения: VI → V, IV → III"
+              },
+              {
+                "pair": [
+                  "6",
+                  "1"
+                ],
+                "explanation": "VI на терцию ниже верхней тоники, легко принять за I в другой октаве"
+              }
+            ]
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 14,
+            "coverage": [
+              4,
+              6
+            ]
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 6
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 7,
+          "title": "Добавляем VII",
+          "competency_ids": [
+            "ear.degree.major.7"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I, пауза 500 мс",
+            "context_repeat_on_demand": true,
+            "replays": 2,
+            "replay_with_hint": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_7",
+            "answer_labels": "1, 2, 3, 4, 5, 6, 7",
+            "options": 7,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "register": "средний",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1200,
+            "pause_before_answer_ms": 300,
+            "difficulty_step": "VII чередуется с II: обе на шаг от тоники, но в разные стороны",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно, VII ступень: самое сильное тяготение вверх, в тонику.",
+            "first_error": "Послушай снова: звук просит движения вверх в тонику или вниз?",
+            "repeat_error": "Прозвучала VII, ты выбрал II. VII разрешается вверх, II — вниз, и обе на шаг от тоники. Проигрываю VII → I и II → I.",
+            "confusion_pairs": [
+              {
+                "pair": [
+                  "7",
+                  "2"
+                ],
+                "explanation": "Обе рядом с тоникой; направление разрешения противоположное"
+              },
+              {
+                "pair": [
+                  "7",
+                  "5"
+                ],
+                "explanation": "VII звучит напряжённо и неустойчиво, V — устойчиво"
+              }
+            ]
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 14,
+            "coverage": [
+              2,
+              7
+            ]
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 6
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 8,
+          "title": "Все семь ступеней",
+          "competency_ids": [
+            "ear.degree.major.1",
+            "ear.degree.major.2",
+            "ear.degree.major.3",
+            "ear.degree.major.4",
+            "ear.degree.major.5",
+            "ear.degree.major.6",
+            "ear.degree.major.7"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I один раз в начале сессии, далее только по кнопке",
+            "context_repeat_on_demand": true,
+            "replays": 2,
+            "replay_with_hint": 0,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_7",
+            "answer_labels": "1–7",
+            "options": 7,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "keys": [
+              "C"
+            ],
+            "midi_low": 55,
+            "midi_high": 76,
+            "register": "две октавы вокруг тоники",
+            "timbre": [
+              "acoustic_grand",
+              "electric_piano"
+            ],
+            "note_duration_ms": 1000,
+            "pause_before_answer_ms": 200,
+            "difficulty_step": "Расширен диапазон до двух октав; тембр меняется в блоке закрепления",
+            "items_per_session": 16
+          },
+          "feedback": {
+            "correct": "Верно. Диапазон расширен — ты определяешь ступень независимо от октавы.",
+            "first_error": "Ступень та же в любой октаве. Мысленно перенеси звук в октаву тоники и сравни.",
+            "repeat_error": "Ошибка в октаве, а не в ступени: ты назвал I, прозвучала I октавой выше — это верная ступень. Считаю ответ верным и объясняю правило."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 16,
+            "coverage": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 7
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 9,
+          "title": "Пары ступеней",
+          "competency_ids": [
+            "ear.degree.sequence"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I, пауза 500 мс, затем две ступени подряд",
+            "context_repeat_on_demand": true,
+            "replays": 2,
+            "replay_with_hint": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "sequence_input_2",
+            "answer_labels": "две плитки с номерами ступеней",
+            "options": 7,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "sequence_length": 2,
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "register": "средний",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 900,
+            "pause_before_answer_ms": 300,
+            "difficulty_step": "Сначала пары с шагом (1–2, 3–4), затем со скачком (1–5, 3–6)",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно: 5 → 3. Ты услышал и порядок, и обе ступени.",
+            "first_error": "Обе ступени названы, но порядок другой. Послушай ещё раз, какой звук был первым.",
+            "repeat_error": "Первая ступень верна, вторая нет: прозвучало 5 → 6, а не 5 → 4. Проигрываю по одной ступени с паузой."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 12
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 5
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 10,
+          "title": "Цепочки из 3–4 ступеней",
+          "competency_ids": [
+            "ear.degree.sequence"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I, пауза 500 мс",
+            "context_repeat_on_demand": true,
+            "replays": 3,
+            "replay_with_hint": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "sequence_input_4",
+            "answer_labels": "плитки 1–7",
+            "options": 7,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "sequence_length": 4,
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "register": "средний",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 800,
+            "pause_before_answer_ms": 400,
+            "difficulty_step": "3 ступени → 4 ступени; сначала только шаги, затем один скачок",
+            "items_per_session": 10
+          },
+          "feedback": {
+            "correct": "Верно: 1 → 2 → 3 → 1. Каркас услышан целиком.",
+            "first_error": "Часть цепочки верна. Запиши сначала первый и последний звук, потом середину.",
+            "repeat_error": "Третий звук: прозвучала IV, а не III. Проигрываю цепочку по одному звуку с остановками."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 10
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 4
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 11,
+          "title": "Ступени с простым ритмом",
+          "competency_ids": [
+            "ear.degree.sequence",
+            "ear.rhythm.pattern"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I + отсчёт одного такта метронома",
+            "context_repeat_on_demand": true,
+            "replays": 3,
+            "replay_with_hint": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "sequence_input_with_rhythm",
+            "answer_labels": "плитки ступеней + сетка долей",
+            "options": 7,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "sequence_length": 4,
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "register": "средний",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 600,
+            "pause_before_answer_ms": 400,
+            "tempo_bpm": [
+              72,
+              84
+            ],
+            "meter": [
+              "4/4"
+            ],
+            "bars": 1,
+            "durations": [
+              "q",
+              "e",
+              "h"
+            ],
+            "difficulty_step": "Сначала ровные четверти, затем четверть + две восьмые",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Верно: ступени и ритм совпали.",
+            "first_error": "Ступени верны, ритм — нет. Послушай ещё раз и сначала простучи ритм, потом расставь ступени.",
+            "repeat_error": "Вторая доля была разделена на две восьмые: 3–3, а не одна четверть. Проигрываю только ритм на одном звуке."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 8
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 4
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 12,
+          "title": "Перенос в другие тональности",
+          "competency_ids": [
+            "ear.degree.transfer_keys"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I в объявляемой тональности; тональность меняется каждые 2 задания",
+            "context_repeat_on_demand": true,
+            "replays": 2,
+            "replay_with_hint": 0,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_7",
+            "answer_labels": "1–7",
+            "options": 7,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "keys": [
+              "G",
+              "F",
+              "D",
+              "Bb",
+              "A"
+            ],
+            "midi_low": 53,
+            "midi_high": 79,
+            "register": "средний и высокий",
+            "timbre": [
+              "acoustic_grand",
+              "strings",
+              "electric_piano"
+            ],
+            "note_duration_ms": 1000,
+            "pause_before_answer_ms": 200,
+            "difficulty_step": "Одна новая тональность за сессию; после 80% — смешивание тональностей внутри сессии",
+            "items_per_session": 16
+          },
+          "feedback": {
+            "correct": "Верно. Ступень определена в новой тональности — навык перенесён.",
+            "first_error": "Тоника изменилась. Нажми «дать тонику» и сравни целевой звук именно с ней, а не с До.",
+            "repeat_error": "Похоже, ты считал ступени от До, а тональность — Соль мажор. Проигрываю тонику Соль, затем гамму, затем задание."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 16,
+            "coverage": [
+              "G",
+              "F"
+            ]
+          },
+          "cold_review": {
+            "policy_id": "RP-aural",
+            "min_items": 7
+          },
+          "mvp_status": "mvp"
+        }
+      ]
+    },
+    {
+      "id": "PR-02",
+      "title": "Ступеневый диктант в миноре",
+      "app_section": "practice",
+      "skill_track": "scale_degree",
+      "competency_ids": [
+        "sca.minor_degrees",
+        "ear.degree.minor.core",
+        "ear.degree.minor.tendency",
+        "sca.degree_method"
+      ],
+      "interaction_template": "T02",
+      "alt_interaction_template": "T10",
+      "opened_by_lesson_ids": [
+        "L06-03"
+      ],
+      "prerequisite_ids": [
+        "C:ear.degree.major.7",
+        "C:sca.minor_degrees"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam"
+      ],
+      "anti_absolute_pitch": "Ротация тональностей a, e, d, g; целевая ступень из двух октав; 3 voicing каденции i–iv–V–i",
+      "review_rule": "RP-aural",
+      "mvp_status": "v1.1",
+      "dev_complexity": "S",
+      "teacher_review_status": "needs_review",
+      "notes": "Отдельный тренажёр, потому что VI и VII в миноре меняются в зависимости от вида",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Тоника минора и завершённость",
+          "competency_ids": [
+            "sca.minor_degrees"
+          ],
+          "params": {
+            "context": "cadence_i_iv_V_i в ля миноре",
+            "replays": 3,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_2",
+            "options": 2,
+            "target_set": [
+              1,
+              7
+            ],
+            "keys": [
+              "Am"
+            ],
+            "midi_low": 57,
+            "midi_high": 69,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1200,
+            "difficulty_step": "От явных контрастов к близким ступеням",
+            "items_per_session": 10
+          },
+          "feedback": {
+            "correct": "Верно, фраза пришла в минорную тонику.",
+            "first_error": "Послушай ещё раз последний звук: он просит продолжения?",
+            "repeat_error": "Это была VII ступень гармонического минора — она тянет в тонику вверх. Проигрываю оба окончания."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 10
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 2,
+          "title": "I, III, V минора",
+          "competency_ids": [
+            "ear.degree.minor.core"
+          ],
+          "params": {
+            "context": "cadence_i_iv_V_i",
+            "replays": 2,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_3",
+            "options": 3,
+            "target_set": [
+              1,
+              3,
+              5
+            ],
+            "keys": [
+              "Am"
+            ],
+            "midi_low": 57,
+            "midi_high": 69,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1200,
+            "difficulty_step": "Как в мажоре, но III на полтона ниже",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, III ступень минора — она ниже, чем в мажоре.",
+            "first_error": "Сравни с тоникой: расстояние до III в миноре меньше, чем в мажоре.",
+            "repeat_error": "Ты назвал III как в мажоре. Проигрываю подряд минорную и мажорную III от одной тоники."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12,
+            "coverage": [
+              1,
+              3,
+              5
+            ]
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 3,
+          "title": "Добавляем II и IV",
+          "competency_ids": [
+            "ear.degree.minor.tendency"
+          ],
+          "params": {
+            "context": "cadence_i_iv_V_i",
+            "replays": 2,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_5",
+            "options": 5,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "keys": [
+              "Am",
+              "Em"
+            ],
+            "midi_low": 57,
+            "midi_high": 69,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1100,
+            "difficulty_step": "Добавляется вторая тональность",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно, IV ступень минора.",
+            "first_error": "Проверь направление разрешения этого звука.",
+            "repeat_error": "IV разрешается в III, а II — в I. Проигрываю оба разрешения."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 14
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 4,
+          "title": "VI и VII в натуральном миноре",
+          "competency_ids": [
+            "ear.degree.minor.tendency"
+          ],
+          "params": {
+            "context": "cadence_i_iv_v_i (натуральный минор)",
+            "replays": 2,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_7",
+            "options": 7,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "keys": [
+              "Am",
+              "Em",
+              "Dm"
+            ],
+            "midi_low": 57,
+            "midi_high": 69,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1100,
+            "difficulty_step": "Полный набор натурального минора",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно. В натуральном миноре VII не тянет в тонику так сильно, как в мажоре.",
+            "first_error": "Послушай ещё раз: VII натурального минора звучит мягче, без острого тяготения.",
+            "repeat_error": "Ты выбрал VII гармонического минора — она на полтона выше. Проигрываю оба варианта VII."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 14,
+            "coverage": [
+              6,
+              7
+            ]
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 5,
+          "title": "Повышенная VII гармонического минора",
+          "competency_ids": [
+            "ear.degree.minor.tendency"
+          ],
+          "params": {
+            "context": "cadence_i_iv_V_i (гармонический минор)",
+            "replays": 2,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_8",
+            "options": 8,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              "7#"
+            ],
+            "keys": [
+              "Am",
+              "Em",
+              "Dm"
+            ],
+            "midi_low": 57,
+            "midi_high": 69,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 1100,
+            "difficulty_step": "Натуральная и повышенная VII в одной выборке",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно, повышенная VII: острое тяготение в тонику.",
+            "first_error": "Сравни: тянет ли звук в тонику остро или мягко?",
+            "repeat_error": "Это натуральная VII, а не повышенная. Проигрываю обе подряд, затем разрешение каждой."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 14
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 6,
+          "title": "Цепочки ступеней в миноре",
+          "competency_ids": [
+            "ear.degree.sequence"
+          ],
+          "params": {
+            "context": "cadence_i_iv_V_i",
+            "replays": 3,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "sequence_input_4",
+            "options": 8,
+            "sequence_length": 4,
+            "keys": [
+              "Am",
+              "Em",
+              "Dm"
+            ],
+            "midi_low": 57,
+            "midi_high": 69,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 800,
+            "difficulty_step": "3 → 4 ступени",
+            "items_per_session": 10
+          },
+          "feedback": {
+            "correct": "Верно, цепочка записана целиком.",
+            "first_error": "Начни с первого и последнего звука, потом заполни середину.",
+            "repeat_error": "Третий звук: прозвучала VI, не V. Проигрываю по одному звуку."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 10
+          },
+          "mvp_status": "v1.1"
+        }
+      ]
+    },
+    {
+      "id": "PR-03",
+      "title": "Интервалы на слух",
+      "app_section": "practice",
+      "skill_track": "interval",
+      "competency_ids": [
+        "ear.interval.m3_M3",
+        "ear.interval.p4_p5",
+        "ear.interval.m2_M2",
+        "ear.interval.m6_M6",
+        "ear.interval.m7_M7",
+        "ear.interval.tritone",
+        "ear.interval.all_melodic",
+        "ear.interval.harmonic",
+        "int.mel_vs_harm",
+        "int.consonance"
+      ],
+      "interaction_template": "T02",
+      "opened_by_lesson_ids": [
+        "L05-02",
+        "L05-03",
+        "L05-04",
+        "L05-10"
+      ],
+      "prerequisite_ids": [
+        "C:snd.pitch_direction"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam",
+        "error_queue"
+      ],
+      "anti_absolute_pitch": "Нижний звук выбирается случайно в диапазоне C3–C5; направление и тембр варьируются; один и тот же интервал не повторяется от той же ноты в пределах сессии",
+      "review_rule": "RP-aural",
+      "mvp_status": "mvp",
+      "dev_complexity": "S",
+      "teacher_review_status": "ok",
+      "sources": [
+        "S-05",
+        "S-15"
+      ],
+      "notes": "Стадии 1–3 открываются в MVP параллельно уровню 2: RCM требует различения м3/б3 уже на Level 1",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Шире или уже",
+          "competency_ids": [
+            "ear.interval.m3_M3"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 3,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_2",
+            "answer_labels": "«первый шире» / «второй шире»",
+            "options": 2,
+            "midi_low": 48,
+            "midi_high": 72,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 800,
+            "difficulty_step": "Разница между интервалами от квинты до терции",
+            "items_per_session": 10
+          },
+          "feedback": {
+            "correct": "Верно, второй интервал шире.",
+            "first_error": "Слушай расстояние между звуками, а не громкость.",
+            "repeat_error": "Первый интервал был квинтой, второй — терцией. Проигрываю оба ещё раз с визуальной шкалой."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 10
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "Малая и большая терция",
+          "competency_ids": [
+            "ear.interval.m3_M3"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 2,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_2",
+            "answer_labels": "м3 / б3",
+            "options": 2,
+            "midi_low": 48,
+            "midi_high": 72,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 800,
+            "difficulty_step": "Только вверх → вверх и вниз",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, большая терция — на полутон шире малой.",
+            "first_error": "Спой про себя оба звука и заполни расстояние между ними.",
+            "repeat_error": "Прозвучала м3. Проигрываю подряд м3 и б3 от одной ноты — разница ровно в один полутон."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 12
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 3,
+          "title": "Плюс чистая квинта",
+          "competency_ids": [
+            "ear.interval.p4_p5"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 2,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_3",
+            "answer_labels": "м3 / б3 / ч5",
+            "options": 3,
+            "midi_low": 48,
+            "midi_high": 72,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 800,
+            "difficulty_step": "Добавляется вниз-направление",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, чистая квинта: открытое, «пустое» звучание.",
+            "first_error": "Квинта заметно шире терции. Послушай ещё раз.",
+            "repeat_error": "Ты выбрал б3, прозвучала ч5. Проигрываю б3, затем ч5 от одной ноты."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 12
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 4,
+          "title": "Плюс чистая кварта",
+          "competency_ids": [
+            "ear.interval.p4_p5"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 2,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_4",
+            "answer_labels": "м3 / б3 / ч4 / ч5",
+            "options": 4,
+            "midi_low": 48,
+            "midi_high": 72,
+            "timbre": [
+              "acoustic_grand",
+              "electric_piano"
+            ],
+            "note_duration_ms": 800,
+            "difficulty_step": "Пара ч4/ч5 подаётся подряд",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно, чистая кварта.",
+            "first_error": "Кварта уже квинты на один тон. Сравни с эталоном квинты.",
+            "repeat_error": "Ты выбрал ч5, прозвучала ч4. Проигрываю ч4 и ч5 подряд от одной ноты."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 14
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 5,
+          "title": "Секунды и септимы",
+          "competency_ids": [
+            "ear.interval.m2_M2",
+            "ear.interval.m7_M7"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 2,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_6",
+            "options": 6,
+            "midi_low": 48,
+            "midi_high": 72,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 800,
+            "difficulty_step": "Сначала секунды, затем септимы как их обращения",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно. Секунда и септима — обращения друг друга.",
+            "first_error": "Определи сначала: интервал узкий или широкий?",
+            "repeat_error": "Прозвучала м7, ты выбрал б7. Проигрываю обе подряд."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 14
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 6,
+          "title": "Сексты и тритон",
+          "competency_ids": [
+            "ear.interval.m6_M6",
+            "ear.interval.tritone"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 2,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_8",
+            "options": 8,
+            "midi_low": 48,
+            "midi_high": 72,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "note_duration_ms": 800,
+            "difficulty_step": "Тритон против ч4 и ч5",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно, тритон: напряжённое звучание, требует разрешения.",
+            "first_error": "Сравни с квинтой: этот интервал чуть уже.",
+            "repeat_error": "Ты выбрал ч5, прозвучал тритон (ув4/ум5) — на полутон уже. Проигрываю подряд."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 14
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 7,
+          "title": "Все простые интервалы",
+          "competency_ids": [
+            "ear.interval.all_melodic"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 1,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_11",
+            "options": 11,
+            "midi_low": 48,
+            "midi_high": 76,
+            "timbre": [
+              "acoustic_grand",
+              "strings",
+              "electric_piano"
+            ],
+            "note_duration_ms": 700,
+            "difficulty_step": "Одно проигрывание, смешанные направления и тембры",
+            "items_per_session": 16
+          },
+          "feedback": {
+            "correct": "Верно.",
+            "first_error": "Определи сначала число (шире или уже квинты), потом качество.",
+            "repeat_error": "Разбор: прозвучала м6. Твой ответ б6 отличается на полутон. Слушай пару подряд."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 16
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 8,
+          "title": "Гармонические интервалы",
+          "competency_ids": [
+            "ear.interval.harmonic",
+            "int.consonance"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 3,
+            "show_notation": false,
+            "show_keyboard": false,
+            "answer_format": "single_choice_11",
+            "options": 11,
+            "midi_low": 48,
+            "midi_high": 72,
+            "register": "средний, тесное расположение",
+            "timbre": [
+              "acoustic_grand",
+              "strings"
+            ],
+            "note_duration_ms": 1500,
+            "difficulty_step": "Сначала консонанс/диссонанс, затем точное название; по кнопке доступно «разложить» (считается подсказкой)",
+            "items_per_session": 16
+          },
+          "feedback": {
+            "correct": "Верно. Гармонический интервал определён без разложения.",
+            "first_error": "Нажми «разложить», чтобы услышать звуки по очереди, — но это подсказка.",
+            "repeat_error": "Прозвучала б3, ты выбрал м3. Проигрываю оба гармонически, затем мелодически."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 16
+          },
+          "mvp_status": "v1.1"
+        }
+      ]
+    },
+    {
+      "id": "PR-04",
+      "title": "Интервалы: построение",
+      "app_section": "practice",
+      "skill_track": "interval",
+      "competency_ids": [
+        "int.number",
+        "int.perfect_5_4",
+        "int.seconds",
+        "int.thirds",
+        "int.sixths_sevenths",
+        "int.build_up",
+        "int.build_down",
+        "int.inversion",
+        "int.tritone",
+        "int.unison_octave"
+      ],
+      "interaction_template": "T07",
+      "alt_interaction_template": "T05",
+      "opened_by_lesson_ids": [
+        "L05-01",
+        "L05-07",
+        "L05-08",
+        "L05-09"
+      ],
+      "prerequisite_ids": [
+        "C:int.number"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam"
+      ],
+      "review_rule": "RP-knowledge",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "teacher_review_status": "ok",
+      "notes": "В MVP только стадии 1–2 (число и терции/квинты на клавиатуре), остальное в v1.1",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Посчитай число ступеней",
+          "competency_ids": [
+            "int.number"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "single_choice_8",
+            "options": 8,
+            "difficulty_step": "От белых клавиш к записи со знаками",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно: считаем обе крайние ступени.",
+            "first_error": "Считай ступени, включая нижнюю и верхнюю ноту.",
+            "repeat_error": "Ты посчитал шаги между нотами (3), а интервал считается по ступеням и равен 4 — это кварта."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "Построй терцию и квинту на клавиатуре",
+          "competency_ids": [
+            "int.thirds",
+            "int.perfect_5_4"
+          ],
+          "params": {
+            "context": "none",
+            "show_keyboard": true,
+            "answer_format": "keyboard_input",
+            "difficulty_step": "От белых клавиш к чёрным",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно: 4 полутона — большая терция.",
+            "first_error": "Посчитай полутоны от нижнего звука.",
+            "repeat_error": "Ты построил 3 полутона — это малая терция. Большая терция — 4 полутона."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 3,
+          "title": "Построй любой интервал вверх на стане",
+          "competency_ids": [
+            "int.build_up"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "staff_drag",
+            "difficulty_step": "От тональностей без знаков к тональностям с 2 знаками",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно: и число, и качество.",
+            "first_error": "Проверь сначала число ступеней, потом качество.",
+            "repeat_error": "Число верное (секста), качество нет: ты построил м6 вместо б6 — не хватает одного полутона."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 4,
+          "title": "Построй интервал вниз",
+          "competency_ids": [
+            "int.build_down"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "staff_drag",
+            "difficulty_step": "Вниз от белых, затем от чёрных клавиш",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно: считали от нижнего звука.",
+            "first_error": "При построении вниз качество считается от нижнего звука.",
+            "repeat_error": "Ты отложил интервал вверх. Проигрываю правильный и твой вариант."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 12
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 5,
+          "title": "Обращение интервала",
+          "competency_ids": [
+            "int.inversion"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "staff_drag",
+            "difficulty_step": "Сначала таблица сумма=9, затем без опоры",
+            "items_per_session": 10
+          },
+          "feedback": {
+            "correct": "Верно: сумма чисел равна 9, качество сменилось на противоположное.",
+            "first_error": "Вспомни правило суммы 9.",
+            "repeat_error": "Обращение б3 — это м6, а не б6: при обращении большая становится малой."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 10
+          },
+          "mvp_status": "v1.1"
+        }
+      ]
+    },
+    {
+      "id": "PR-05",
+      "title": "Гаммы, лады, знаки и тональности: построение",
+      "app_section": "practice",
+      "skill_track": "scale_degree",
+      "competency_ids": [
+        "sca.c_major",
+        "sca.major_g_f",
+        "sca.minor_natural",
+        "sca.minor_harmonic",
+        "sca.minor_melodic",
+        "sca.key_signatures",
+        "sca.circle_of_fifths",
+        "sca.key_identification",
+        "sca.transpose_by_interval",
+        "sca.transpose_by_degrees",
+        "sca.modes",
+        "sca.pentatonic_blues",
+        "sca.chromatic",
+        "ear.scale.major_minor",
+        "sca.mode_characteristic",
+        "ear.mode.recognition",
+        "sca.relative_keys",
+        "not.accidentals_notation",
+        "sca.major_formula",
+        "sca.related_keys"
+      ],
+      "interaction_template": "T07",
+      "alt_interaction_template": "T04",
+      "opened_by_lesson_ids": [
+        "L04-05",
+        "L04-06",
+        "L04-10",
+        "L06-02",
+        "L06-07",
+        "L06-08"
+      ],
+      "prerequisite_ids": [
+        "C:sca.major_formula"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam"
+      ],
+      "review_rule": "RP-knowledge",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "teacher_review_status": "ok",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Собери мажорную гамму по формуле",
+          "competency_ids": [
+            "sca.c_major",
+            "sca.major_formula"
+          ],
+          "params": {
+            "context": "none",
+            "show_keyboard": true,
+            "answer_format": "builder",
+            "difficulty_step": "C → G → F → D",
+            "items_per_session": 10,
+            "playback": "гамма проигрывается после сборки"
+          },
+          "feedback": {
+            "correct": "Верно: полутоны между 3–4 и 7–8 ступенями.",
+            "first_error": "Проверь, где в твоей гамме оказались полутоны.",
+            "repeat_error": "Между III и IV ступенями у тебя тон, а должен быть полутон — послушай, как это звучит."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 10
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "Мажор или минор на слух",
+          "competency_ids": [
+            "ear.scale.major_minor"
+          ],
+          "params": {
+            "context": "5 звуков гаммы вверх + тоническое трезвучие блоком",
+            "replays": 2,
+            "show_notation": false,
+            "answer_format": "single_choice_2",
+            "options": 2,
+            "keys": [
+              "C",
+              "G",
+              "F",
+              "D",
+              "A",
+              "Am",
+              "Em",
+              "Dm"
+            ],
+            "midi_low": 55,
+            "midi_high": 79,
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "difficulty_step": "От трезвучия к мелодии",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно. Разница — в третьей ступени.",
+            "first_error": "Слушай третий звук гаммы: он выше или ниже?",
+            "repeat_error": "Проигрываю мажорное и минорное трезвучие от одной тоники подряд, затем задание снова."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 3,
+          "title": "Ключевые знаки и порядок",
+          "competency_ids": [
+            "sca.key_signatures"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "ordering",
+            "difficulty_step": "До 2 знаков → до 4 знаков",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, порядок диезов: фа-до-соль-ре-ля-ми-си.",
+            "first_error": "Знаки при ключе ставятся в строгом порядке.",
+            "repeat_error": "Ты поставил соль-диез перед до-диезом. Порядок диезов — по квинтам вверх от фа."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 4,
+          "title": "Три вида минора",
+          "competency_ids": [
+            "sca.minor_natural",
+            "sca.minor_harmonic",
+            "sca.minor_melodic"
+          ],
+          "params": {
+            "context": "none",
+            "show_keyboard": true,
+            "answer_format": "builder",
+            "difficulty_step": "Натуральный → гармонический → мелодический",
+            "items_per_session": 12,
+            "playback": "гамма вверх и вниз"
+          },
+          "feedback": {
+            "correct": "Верно: в гармоническом миноре повышена только VII.",
+            "first_error": "Проверь VI и VII ступени.",
+            "repeat_error": "Ты повысил и VI, и VII — это мелодический минор. В гармоническом повышается только VII."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 5,
+          "title": "Квинтовый круг и параллельные тональности",
+          "competency_ids": [
+            "sca.circle_of_fifths",
+            "sca.relative_keys",
+            "sca.related_keys"
+          ],
+          "params": {
+            "context": "none",
+            "answer_format": "matching",
+            "difficulty_step": "Диезная половина → бемольная → обе",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно: параллельный минор — малая терция вниз при тех же знаках.",
+            "first_error": "Параллельные тональности имеют одинаковые знаки.",
+            "repeat_error": "Ты назвал одноимённую тональность (та же тоника, другой лад), а нужна параллельная — та же тональность знаков."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 6,
+          "title": "Лады, пентатоника и хроматическая гамма",
+          "competency_ids": [
+            "sca.modes",
+            "sca.mode_characteristic",
+            "ear.mode.recognition",
+            "sca.pentatonic_blues",
+            "sca.chromatic"
+          ],
+          "params": {
+            "context": "тоника лада",
+            "replays": 2,
+            "show_notation": false,
+            "answer_format": "single_choice_7",
+            "options": 7,
+            "difficulty_step": "Два лада → четыре → все семь; затем пентатоника и блюз",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно: характерная ступень определила лад.",
+            "first_error": "Слушай ступень, которая отличается от мажора или минора.",
+            "repeat_error": "Ты выбрал дорийский, прозвучал миксолидийский: в дорийском изменена III, в миксолидийском — VII."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 14
+          },
+          "mvp_status": "v2"
+        }
+      ],
+      "anti_absolute_pitch": "Слуховая стадия «мажор или минор» ротирует 8 тональностей и два регистра; тоника каждый раз новая, поэтому ответ нельзя дать по запомненной высоте"
+    },
+    {
+      "id": "PR-06",
+      "title": "Аккорды на слух",
+      "app_section": "practice",
+      "skill_track": "chord",
+      "competency_ids": [
+        "ear.triad.major",
+        "ear.triad.minor",
+        "ear.triad.dim",
+        "ear.triad.aug",
+        "ear.triad.inversion",
+        "ear.seventh.dom7",
+        "ear.seventh.types",
+        "chd.compare_major_minor",
+        "chd.compare_four_types",
+        "ear.scale.major_minor"
+      ],
+      "interaction_template": "T02",
+      "opened_by_lesson_ids": [
+        "L08-02",
+        "L08-03",
+        "L08-04",
+        "L08-05",
+        "L08-06",
+        "L08-07",
+        "L08-09"
+      ],
+      "prerequisite_ids": [
+        "C:chd.major_triad"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam",
+        "error_queue"
+      ],
+      "anti_absolute_pitch": "Основной тон случайный в C3–C5; ротация тембров; аккорд не повторяется от той же ноты в сессии",
+      "review_rule": "RP-aural",
+      "mvp_status": "mvp",
+      "dev_complexity": "S",
+      "teacher_review_status": "ok",
+      "sources": [
+        "S-05"
+      ],
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Большое или малое",
+          "competency_ids": [
+            "ear.triad.major",
+            "ear.triad.minor"
+          ],
+          "params": {
+            "context": "5 звуков гаммы + тоническое трезвучие (формат RCM Level 1) либо только аккорд",
+            "replays": 2,
+            "show_notation": false,
+            "answer_format": "single_choice_2",
+            "options": 2,
+            "chord_types": [
+              "major",
+              "minor"
+            ],
+            "inversions": [
+              "root"
+            ],
+            "midi_low": 48,
+            "midi_high": 72,
+            "voicing": "тесное",
+            "playback": "арпеджио, затем блок",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "difficulty_step": "Арпеджио + блок → только блок",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, малое трезвучие: нижняя терция малая.",
+            "first_error": "Слушай средний звук: он ближе к нижнему или к верхнему?",
+            "repeat_error": "Проигрываю большое и малое трезвучие от одного основного тона подряд, затем задание снова."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "Плюс уменьшённое",
+          "competency_ids": [
+            "ear.triad.dim"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 2,
+            "show_notation": false,
+            "answer_format": "single_choice_3",
+            "options": 3,
+            "chord_types": [
+              "major",
+              "minor",
+              "dim"
+            ],
+            "inversions": [
+              "root"
+            ],
+            "midi_low": 48,
+            "midi_high": 72,
+            "playback": "блок",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "difficulty_step": "Уменьшённое чередуется с малым",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, уменьшённое: две малые терции, звучит напряжённо.",
+            "first_error": "Сравни с малым трезвучием: верхний звук уже или шире?",
+            "repeat_error": "Ты выбрал малое, прозвучало уменьшённое — верхний звук на полутон ниже. Проигрываю подряд."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 12
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 3,
+          "title": "Плюс увеличенное — все четыре вида",
+          "competency_ids": [
+            "ear.triad.aug",
+            "chd.compare_four_types"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 2,
+            "show_notation": false,
+            "answer_format": "single_choice_4",
+            "options": 4,
+            "chord_types": [
+              "major",
+              "minor",
+              "dim",
+              "aug"
+            ],
+            "inversions": [
+              "root"
+            ],
+            "midi_low": 48,
+            "midi_high": 72,
+            "playback": "блок, по кнопке арпеджио",
+            "timbre": [
+              "acoustic_grand",
+              "strings"
+            ],
+            "difficulty_step": "Увеличенное чередуется с большим; в конце добавляется смена тембра",
+            "items_per_session": 16
+          },
+          "feedback": {
+            "correct": "Верно, увеличенное: две большие терции.",
+            "first_error": "Сравни с большим трезвучием: верхний звук выше или тот же?",
+            "repeat_error": "Ты выбрал большое, прозвучало увеличенное — верхний звук на полутон выше. Проигрываю подряд, затем арпеджио."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 16,
+            "coverage": [
+              "major",
+              "minor",
+              "dim",
+              "aug"
+            ]
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 4,
+          "title": "Основной вид или обращение",
+          "competency_ids": [
+            "ear.triad.inversion"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 3,
+            "show_notation": false,
+            "answer_format": "single_choice_3",
+            "options": 3,
+            "chord_types": [
+              "major",
+              "minor"
+            ],
+            "inversions": [
+              "root",
+              "first",
+              "second"
+            ],
+            "midi_low": 48,
+            "midi_high": 72,
+            "playback": "блок",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "difficulty_step": "Основной вид против секстаккорда → добавляется квартсекстаккорд",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно: в басу терцовый тон — это секстаккорд.",
+            "first_error": "Слушай самый нижний звук аккорда.",
+            "repeat_error": "Качество ты определил верно, но бас другой: прозвучал квартсекстаккорд. Проигрываю три положения подряд."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 14
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 5,
+          "title": "Доминантсептаккорд среди трезвучий",
+          "competency_ids": [
+            "ear.seventh.dom7"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I",
+            "replays": 2,
+            "show_notation": false,
+            "answer_format": "single_choice_4",
+            "options": 4,
+            "chord_types": [
+              "major",
+              "minor",
+              "dom7"
+            ],
+            "midi_low": 48,
+            "midi_high": 72,
+            "playback": "блок",
+            "timbre": [
+              "acoustic_grand"
+            ],
+            "difficulty_step": "D7 против мажорного трезвучия",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, доминантсептаккорд: к трезвучию добавлена малая септима.",
+            "first_error": "Слушай, есть ли четвёртый звук, создающий напряжение.",
+            "repeat_error": "Ты выбрал большое трезвучие, прозвучал D7. Проигрываю трезвучие, затем D7, затем разрешение в тонику."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 12
+          },
+          "mvp_status": "v2"
+        },
+        {
+          "stage": 6,
+          "title": "Пять видов септаккордов",
+          "competency_ids": [
+            "ear.seventh.types"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 3,
+            "show_notation": false,
+            "answer_format": "single_choice_5",
+            "options": 5,
+            "chord_types": [
+              "maj7",
+              "min7",
+              "dom7",
+              "m7b5",
+              "dim7"
+            ],
+            "midi_low": 48,
+            "midi_high": 72,
+            "playback": "блок, по кнопке арпеджио",
+            "timbre": [
+              "acoustic_grand",
+              "electric_piano"
+            ],
+            "difficulty_step": "Пары maj7/min7 → dom7/m7b5 → все пять",
+            "items_per_session": 16
+          },
+          "feedback": {
+            "correct": "Верно.",
+            "first_error": "Сначала определи качество трезвучия внизу, потом септиму.",
+            "repeat_error": "Трезвучие ты услышал верно (малое), но септима большая, а не малая: это m7, а не minMaj7."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 16
+          },
+          "mvp_status": "v2"
+        },
+        {
+          "stage": 7,
+          "title": "Аккорды со сменой тембра и регистра",
+          "competency_ids": [
+            "chd.compare_four_types"
+          ],
+          "params": {
+            "context": "none",
+            "replays": 1,
+            "show_notation": false,
+            "answer_format": "single_choice_4",
+            "options": 4,
+            "chord_types": [
+              "major",
+              "minor",
+              "dim",
+              "aug"
+            ],
+            "inversions": [
+              "root",
+              "first",
+              "second"
+            ],
+            "midi_low": 40,
+            "midi_high": 79,
+            "playback": "блок",
+            "timbre": [
+              "acoustic_grand",
+              "strings",
+              "organ",
+              "electric_piano"
+            ],
+            "difficulty_step": "Один проигрыш, широкий регистр, разные тембры — проверка переноса",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно. Навык перенесён на другой тембр и регистр.",
+            "first_error": "Тембр другой, структура та же. Слушай интервалы, а не окраску.",
+            "repeat_error": "Разбор: это уменьшённое трезвучие в широком расположении. Проигрываю его же в тесном на фортепиано."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 12
+          },
+          "mvp_status": "v1.1"
+        }
+      ]
+    },
+    {
+      "id": "PR-07",
+      "title": "Аккорды: построение",
+      "app_section": "practice",
+      "skill_track": "chord",
+      "competency_ids": [
+        "chd.triad_structure",
+        "chd.major_triad",
+        "chd.minor_triad",
+        "chd.dim_triad",
+        "chd.aug_triad",
+        "chd.compare_four_types",
+        "chd.inversion_first",
+        "chd.inversion_second",
+        "chd.triads_on_degrees_major",
+        "chd.triads_on_degrees_minor",
+        "chd.chord_symbols",
+        "chd.seventh_structure",
+        "chd.dom7",
+        "chd.dom7_inversions",
+        "chd.seventh_types",
+        "chd.leading_tone_sevenths"
+      ],
+      "interaction_template": "T07",
+      "alt_interaction_template": "T06",
+      "opened_by_lesson_ids": [
+        "L08-01",
+        "L08-02",
+        "L08-03",
+        "L08-05",
+        "L08-06",
+        "L08-08",
+        "L08-09",
+        "L08-10"
+      ],
+      "prerequisite_ids": [
+        "C:chd.triad_structure"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam"
+      ],
+      "review_rule": "RP-knowledge",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "teacher_review_status": "ok",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Построй трезвучие на клавиатуре",
+          "competency_ids": [
+            "chd.major_triad",
+            "chd.minor_triad"
+          ],
+          "params": {
+            "context": "none",
+            "show_keyboard": true,
+            "answer_format": "keyboard_input",
+            "chord_types": [
+              "major",
+              "minor"
+            ],
+            "difficulty_step": "От белых основных тонов к чёрным",
+            "items_per_session": 12,
+            "playback": "аккорд проигрывается блоком и арпеджио после ответа"
+          },
+          "feedback": {
+            "correct": "Верно: 0–4–7 полутонов.",
+            "first_error": "Посчитай полутоны от основного тона: 4 и ещё 3.",
+            "repeat_error": "Ты построил 0–3–7 — это малое трезвучие. В большом нижняя терция шире на полутон."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "Четыре вида от одного звука",
+          "competency_ids": [
+            "chd.compare_four_types"
+          ],
+          "params": {
+            "context": "none",
+            "show_keyboard": true,
+            "answer_format": "keyboard_input",
+            "chord_types": [
+              "major",
+              "minor",
+              "dim",
+              "aug"
+            ],
+            "difficulty_step": "Один основной тон, четыре вида подряд → случайные основные тоны",
+            "items_per_session": 12,
+            "playback": "после каждого построения — блок и арпеджио вверх и вниз"
+          },
+          "feedback": {
+            "correct": "Верно: уменьшённое — 0–3–6.",
+            "first_error": "Проверь верхний интервал: терция большая или малая?",
+            "repeat_error": "У тебя 0–3–7 (малое). В уменьшённом верхняя терция тоже малая: 0–3–6."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12,
+            "coverage": [
+              "major",
+              "minor",
+              "dim",
+              "aug"
+            ]
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 3,
+          "title": "Трезвучие на стане",
+          "competency_ids": [
+            "chd.major_triad",
+            "chd.minor_triad",
+            "chd.dim_triad",
+            "chd.aug_triad"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "staff_drag",
+            "chord_types": [
+              "major",
+              "minor",
+              "dim",
+              "aug"
+            ],
+            "difficulty_step": "Без знаков → со знаками альтерации",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, включая знаки.",
+            "first_error": "Проверь, нужны ли знаки альтерации.",
+            "repeat_error": "Ноты стоят через ступень верно, но не хватает бемоля у терцового тона — иначе получается большое трезвучие."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 4,
+          "title": "Найди и исправь ошибку в аккорде",
+          "competency_ids": [
+            "chd.compare_four_types"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "find_error",
+            "chord_types": [
+              "major",
+              "minor",
+              "dim",
+              "aug"
+            ],
+            "difficulty_step": "Ошибка в одном звуке → ошибка в знаке → ошибка в положении",
+            "items_per_session": 10,
+            "playback": "звучит заявленный и фактический аккорд"
+          },
+          "feedback": {
+            "correct": "Верно: терцовый тон был на полутон выше нужного.",
+            "first_error": "Сравни заявленное название и то, что реально построено.",
+            "repeat_error": "Ошибка не в квинтовом тоне: он верный. Слушай терцовый тон — именно он определяет большое или малое трезвучие."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 10
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 5,
+          "title": "Обращения",
+          "competency_ids": [
+            "chd.inversion_first",
+            "chd.inversion_second"
+          ],
+          "params": {
+            "context": "none",
+            "show_keyboard": true,
+            "answer_format": "builder",
+            "inversions": [
+              "root",
+              "first",
+              "second"
+            ],
+            "difficulty_step": "Секстаккорд → квартсекстаккорд → смешанно",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно: в басу терцовый тон.",
+            "first_error": "Обращение определяется тем, какой тон снизу.",
+            "repeat_error": "Ты поставил в бас квинтовый тон — это квартсекстаккорд. В секстаккорде снизу терцовый тон."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 12
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 6,
+          "title": "Трезвучия на ступенях и обозначения",
+          "competency_ids": [
+            "chd.triads_on_degrees_major",
+            "chd.triads_on_degrees_minor",
+            "chd.chord_symbols"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "builder",
+            "difficulty_step": "Мажор → минор → буквенные обозначения",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно: на II ступени мажора — малое трезвучие (ii).",
+            "first_error": "Построй трезвучие только из звуков этой тональности и посмотри, что получилось.",
+            "repeat_error": "Ты сделал большое трезвучие, добавив знак. В диатонике на II ступени получается малое: ii."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 14
+          },
+          "mvp_status": "v1.1"
+        }
+      ]
+    },
+    {
+      "id": "PR-08",
+      "title": "Чтение нот",
+      "app_section": "practice",
+      "skill_track": "notation",
+      "competency_ids": [
+        "not.staff",
+        "not.clef_treble",
+        "not.anchors_treble",
+        "not.read_treble_c4_g4",
+        "not.read_treble_a4_g5",
+        "not.ledger_lines",
+        "not.clef_bass",
+        "not.read_bass_c3_c4",
+        "not.grand_staff",
+        "not.stem_rules",
+        "not.accidentals_notation",
+        "not.accidental_scope"
+      ],
+      "interaction_template": "T01",
+      "alt_interaction_template": "T06",
+      "opened_by_lesson_ids": [
+        "L03-04",
+        "L03-05",
+        "L03-08",
+        "L03-09"
+      ],
+      "prerequisite_ids": [
+        "C:not.clef_treble"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam",
+        "diagnostic"
+      ],
+      "review_rule": "RP-knowledge",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "teacher_review_status": "ok",
+      "notes": "Автоматизация чтения вынесена сюда из теории: раньше это были 30 почти одинаковых уроков",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Опоры и соседи (C4–G4)",
+          "competency_ids": [
+            "not.read_treble_c4_g4"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "single_choice_5",
+            "options": 5,
+            "difficulty_step": "Опорные ноты → соседние",
+            "items_per_session": 16
+          },
+          "feedback": {
+            "correct": "Верно.",
+            "first_error": "Найди ближайшую опору и шагни от неё.",
+            "repeat_error": "Это ре, а не ми: нота стоит под первой линией, а не на ней."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 16
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "Весь скрипичный ключ (A3–G5)",
+          "competency_ids": [
+            "not.read_treble_a4_g5",
+            "not.ledger_lines"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "single_choice_7",
+            "options": 7,
+            "difficulty_step": "Добавляются добавочные линии и нота над станом",
+            "items_per_session": 20
+          },
+          "feedback": {
+            "correct": "Верно.",
+            "first_error": "Проверь, на линии нота или в промежутке.",
+            "repeat_error": "Ты назвал ноту октавой ниже: это ре второй октавы, четвёртая линия."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 20
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 3,
+          "title": "Скоростной раунд",
+          "competency_ids": [
+            "not.read_treble_a4_g5"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "single_choice_7",
+            "options": 7,
+            "difficulty_step": "30 нот за 60 секунд; ограничение времени на ответ 3 → 2 секунды",
+            "items_per_session": 30,
+            "notes": "Скоростной критерий включается только после достижения точности"
+          },
+          "feedback": {
+            "correct": "Верно, время ответа падает.",
+            "first_error": "Не считай линии — используй опоры.",
+            "repeat_error": "Медленно отвечаешь на ноты выше до второй октавы. Даю 8 заданий только на них."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 30,
+            "metric": "median_response_ms",
+            "threshold_ms": 2000
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 4,
+          "title": "Басовый ключ (C3–C4)",
+          "competency_ids": [
+            "not.clef_bass",
+            "not.read_bass_c3_c4"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "single_choice_7",
+            "options": 7,
+            "difficulty_step": "Опора Фа → все ноты диапазона",
+            "items_per_session": 20
+          },
+          "feedback": {
+            "correct": "Верно.",
+            "first_error": "В басовом ключе четвёртая линия — фа.",
+            "repeat_error": "Ты прочитал ноту как в скрипичном ключе. Смотри на ключ: две точки обнимают линию фа."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 20
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 5,
+          "title": "Смешанные ключи и большой стан",
+          "competency_ids": [
+            "not.grand_staff"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "answer_format": "single_choice_7",
+            "options": 7,
+            "difficulty_step": "Ключ меняется каждое задание",
+            "items_per_session": 20
+          },
+          "feedback": {
+            "correct": "Верно, ключ учтён.",
+            "first_error": "Сначала посмотри на ключ, потом на позицию ноты.",
+            "repeat_error": "Позиция та же, но ключ басовый: это ми малой октавы, а не до второй."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 20
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 6,
+          "title": "Знаки альтерации в чтении",
+          "competency_ids": [
+            "not.accidentals_notation",
+            "not.accidental_scope"
+          ],
+          "params": {
+            "context": "none",
+            "show_notation": true,
+            "show_keyboard": true,
+            "answer_format": "keyboard_input",
+            "difficulty_step": "Знак при ноте → знак действует до конца такта → ключевые знаки",
+            "items_per_session": 16
+          },
+          "feedback": {
+            "correct": "Верно, знак учтён до конца такта.",
+            "first_error": "Проверь, был ли знак раньше в этом такте.",
+            "repeat_error": "Диез стоял у первой ноты такта и действует на все такие же ноты до конца такта — ты сыграл без него."
+          },
+          "pass": {
+            "min_accuracy": 0.85,
+            "min_items": 16
+          },
+          "mvp_status": "v1.1"
+        }
+      ]
+    },
+    {
+      "id": "PR-09",
+      "title": "Ритм: пульс, эхо и чтение",
+      "app_section": "practice",
+      "skill_track": "rhythm",
+      "competency_ids": [
+        "rhy.pulse_tap",
+        "rhy.beat_tempo",
+        "ear.meter.simple_compound",
+        "rhy.metric_accent",
+        "ear.rhythm.pattern",
+        "rhy.dur_basic",
+        "rhy.eighths",
+        "rhy.rests",
+        "rhy.dot",
+        "rhy.tie",
+        "rhy.anacrusis",
+        "rhy.sixteenths",
+        "rhy.mixed_subdivision",
+        "rhy.dotted_rhythm",
+        "rhy.syncopation",
+        "rhy.triplet",
+        "rhy.compound_68",
+        "rhy.compound_vs_simple",
+        "rhy.other_meters"
+      ],
+      "interaction_template": "T09",
+      "alt_interaction_template": "T02",
+      "opened_by_lesson_ids": [
+        "L00-06",
+        "L02-01",
+        "L02-05",
+        "L07-01"
+      ],
+      "prerequisite_ids": [],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam",
+        "diagnostic"
+      ],
+      "review_rule": "RP-motor",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "teacher_review_status": "needs_review",
+      "requires_latency_calibration": true,
+      "notes": "При неудачной калибровке задержки тренажёр переключается на T02 (выбор записи) и T08 (сборка), чтобы устройство не наказывало пользователя",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Пульс",
+          "competency_ids": [
+            "rhy.pulse_tap",
+            "rhy.beat_tempo"
+          ],
+          "params": {
+            "context": "count_in_1_bar",
+            "replays": 3,
+            "answer_format": "tap",
+            "tempo_bpm": [
+              60,
+              70,
+              80,
+              90,
+              100
+            ],
+            "tolerance_ms": 120,
+            "difficulty_step": "С метрономом → метроном затихает после 4 долей",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Среднее отклонение в допуске.",
+            "first_error": "Ты тапаешь вдвое чаще пульса — попробуй только на сильные удары.",
+            "repeat_error": "Стабильное опоздание на 180 мс: слушай на долю вперёд. Включаю режим с гидом на первый такт."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 8,
+            "metric": "onset_accuracy_ms",
+            "threshold_ms": 120
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "Метр: 2, 3 или 4",
+          "competency_ids": [
+            "ear.meter.simple_compound",
+            "rhy.metric_accent"
+          ],
+          "params": {
+            "context": "фрагмент с ясной долей",
+            "replays": 2,
+            "show_notation": false,
+            "answer_format": "single_choice_3",
+            "options": 3,
+            "difficulty_step": "2 против 3 → добавляется 4 → фрагменты без ударных",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно, счёт на три.",
+            "first_error": "Тапни только тяжёлые удары и посчитай, через сколько они повторяются.",
+            "repeat_error": "Это 4/4: акцент повторяется через четыре доли. Включаю озвученный счёт поверх музыки."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 12
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 3,
+          "title": "Эхо-ритм",
+          "competency_ids": [
+            "ear.rhythm.pattern"
+          ],
+          "params": {
+            "context": "объявление размера + отсчёт 1 такта, ритм звучит дважды",
+            "replays": 2,
+            "show_notation": false,
+            "answer_format": "tap",
+            "tempo_bpm": [
+              70,
+              80,
+              90
+            ],
+            "meter": [
+              "2/4",
+              "3/4",
+              "4/4"
+            ],
+            "bars": 2,
+            "durations": [
+              "q",
+              "h",
+              "e",
+              "qr"
+            ],
+            "tolerance_ms": 110,
+            "difficulty_step": "1 такт → 2 такта → с паузами",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Совпадение с эталоном в допуске.",
+            "first_error": "Ты пропустил одну атаку во втором такте. Слушай ещё раз.",
+            "repeat_error": "Наложение показывает: вторая доля разделена на две восьмые, ты сыграл одну четверть. Включаю медленный темп."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 8,
+            "metric": "onset_accuracy_ms",
+            "threshold_ms": 110
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 4,
+          "title": "Чтение ритма",
+          "competency_ids": [
+            "rhy.dur_basic",
+            "rhy.eighths",
+            "rhy.rests",
+            "rhy.dot",
+            "rhy.tie",
+            "rhy.anacrusis"
+          ],
+          "params": {
+            "context": "count_in_1_bar",
+            "show_notation": true,
+            "answer_format": "tap",
+            "tempo_bpm": [
+              70,
+              84
+            ],
+            "meter": [
+              "2/4",
+              "3/4",
+              "4/4"
+            ],
+            "bars": 4,
+            "durations": [
+              "q",
+              "h",
+              "w",
+              "e",
+              "qr",
+              "hr",
+              "q.",
+              "tie"
+            ],
+            "tolerance_ms": 110,
+            "difficulty_step": "2 такта → 4 такта → с затактом",
+            "items_per_session": 6
+          },
+          "feedback": {
+            "correct": "Ритм прочитан в допуске.",
+            "first_error": "Такт 3 разошёлся: держи счёт вслух.",
+            "repeat_error": "Половинная с точкой держится 3 доли, ты снял её на 2. Зацикливаю этот такт в медленном темпе."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 6,
+            "metric": "onset_accuracy_ms",
+            "threshold_ms": 110
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 5,
+          "title": "Дробление, пунктир, синкопа, триоль",
+          "competency_ids": [
+            "rhy.sixteenths",
+            "rhy.mixed_subdivision",
+            "rhy.dotted_rhythm",
+            "rhy.syncopation",
+            "rhy.triplet"
+          ],
+          "params": {
+            "context": "count_in_1_bar",
+            "show_notation": true,
+            "answer_format": "tap",
+            "tempo_bpm": [
+              60,
+              70,
+              80
+            ],
+            "meter": [
+              "4/4",
+              "3/4"
+            ],
+            "bars": 4,
+            "durations": [
+              "s",
+              "e",
+              "q",
+              "q.",
+              "e.",
+              "triplet",
+              "tie"
+            ],
+            "tolerance_ms": 90,
+            "difficulty_step": "Шестнадцатые → пунктир → синкопа → триоль; пары пунктир/триоль подаются подряд",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Верно, рисунок точный.",
+            "first_error": "Разница между пунктиром и триолью — в равномерности. Послушай эталон.",
+            "repeat_error": "Ты сыграл триоль вместо пунктира: три равные атаки вместо длинной и короткой. Проигрываю оба варианта."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 8,
+            "metric": "onset_accuracy_ms",
+            "threshold_ms": 90
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 6,
+          "title": "Составные и несимметричные размеры",
+          "competency_ids": [
+            "rhy.compound_68",
+            "rhy.compound_vs_simple",
+            "rhy.other_meters"
+          ],
+          "params": {
+            "context": "count_in_1_bar",
+            "show_notation": true,
+            "answer_format": "tap",
+            "tempo_bpm": [
+              60,
+              76
+            ],
+            "meter": [
+              "6/8",
+              "9/8",
+              "12/8",
+              "5/4",
+              "7/8"
+            ],
+            "bars": 4,
+            "tolerance_ms": 100,
+            "difficulty_step": "6/8 → 9/8 и 12/8 → 5/4 и 7/8 только на узнавание",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Верно: две большие доли по три восьмых.",
+            "first_error": "Тапни только большие доли: их две или три?",
+            "repeat_error": "Это 6/8, а не 3/4: акценты через три восьмые. Включаю счёт «раз-и-и, два-и-и»."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 8,
+            "metric": "onset_accuracy_ms",
+            "threshold_ms": 100
+          },
+          "mvp_status": "v1.2"
+        }
+      ]
+    },
+    {
+      "id": "PR-10",
+      "title": "Ритмический диктант",
+      "app_section": "practice",
+      "skill_track": "dictation",
+      "competency_ids": [
+        "wrt.rhythm_dictation",
+        "ear.rhythm.pattern",
+        "rhy.beaming",
+        "rhy.dot",
+        "rhy.tie",
+        "rhy.sixteenths",
+        "rhy.compound_68"
+      ],
+      "interaction_template": "T08",
+      "opened_by_lesson_ids": [
+        "L10-05"
+      ],
+      "prerequisite_ids": [
+        "C:ear.rhythm.pattern"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam"
+      ],
+      "review_rule": "RP-integration",
+      "mvp_status": "mvp",
+      "dev_complexity": "M",
+      "teacher_review_status": "needs_review",
+      "notes": "Стадия 1 входит в MVP: 1 такт, четверти и восьмые, выбор из 3 записей, затем сборка",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "1 такт: выбор записи, затем сборка",
+          "competency_ids": [
+            "wrt.rhythm_dictation"
+          ],
+          "params": {
+            "context": "объявление размера + отсчёт",
+            "replays": 3,
+            "show_notation": false,
+            "answer_format": "single_choice_3 → rhythm_grid",
+            "meter": [
+              "4/4"
+            ],
+            "bars": 1,
+            "durations": [
+              "q",
+              "e",
+              "h"
+            ],
+            "difficulty_step": "Выбор из 3 вариантов → сборка из палитры",
+            "items_per_session": 6
+          },
+          "feedback": {
+            "correct": "Верно, сумма длительностей сошлась.",
+            "first_error": "Посчитай, сколько атак было на каждой доле.",
+            "repeat_error": "На второй доле было две восьмые, у тебя одна четверть. Проигрываю только вторую долю."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 6
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "2 такта с паузами",
+          "competency_ids": [
+            "wrt.rhythm_dictation",
+            "rhy.rests"
+          ],
+          "params": {
+            "context": "объявление размера + отсчёт",
+            "replays": 3,
+            "show_notation": false,
+            "answer_format": "rhythm_grid",
+            "meter": [
+              "4/4",
+              "3/4"
+            ],
+            "bars": 2,
+            "durations": [
+              "q",
+              "e",
+              "h",
+              "qr",
+              "hr"
+            ],
+            "difficulty_step": "Добавляются паузы",
+            "items_per_session": 5
+          },
+          "feedback": {
+            "correct": "Верно, включая паузы.",
+            "first_error": "В такте не хватает длительностей: проверь сумму.",
+            "repeat_error": "На третьей доле была четвертная пауза, а не нота. Проигрываю такт с подсветкой долей."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 5
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 3,
+          "title": "2 такта с точкой и лигой",
+          "competency_ids": [
+            "rhy.dot",
+            "rhy.tie"
+          ],
+          "params": {
+            "context": "объявление размера + отсчёт",
+            "replays": 3,
+            "show_notation": false,
+            "answer_format": "rhythm_grid",
+            "meter": [
+              "4/4",
+              "3/4"
+            ],
+            "bars": 2,
+            "durations": [
+              "q",
+              "e",
+              "h",
+              "q.",
+              "h.",
+              "tie",
+              "qr"
+            ],
+            "difficulty_step": "Точка → лига через тактовую черту",
+            "items_per_session": 5
+          },
+          "feedback": {
+            "correct": "Верно.",
+            "first_error": "Звук держался дольше одной доли — проверь точку или лигу.",
+            "repeat_error": "Ты записал две отдельные ноты, но звук был один и переходил через тактовую черту — это лига."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 5
+          },
+          "mvp_status": "v1.1"
+        },
+        {
+          "stage": 4,
+          "title": "4 такта с шестнадцатыми и пунктиром",
+          "competency_ids": [
+            "rhy.sixteenths",
+            "rhy.dotted_rhythm"
+          ],
+          "params": {
+            "context": "объявление размера + отсчёт",
+            "replays": 4,
+            "show_notation": false,
+            "answer_format": "rhythm_grid",
+            "meter": [
+              "4/4",
+              "2/4"
+            ],
+            "bars": 4,
+            "durations": [
+              "q",
+              "e",
+              "s",
+              "q.",
+              "e.",
+              "qr",
+              "tie"
+            ],
+            "difficulty_step": "2 → 4 такта",
+            "items_per_session": 5
+          },
+          "feedback": {
+            "correct": "Верно, 4 такта записаны.",
+            "first_error": "Такты 1 и 2 верны. Слушай третий отдельно.",
+            "repeat_error": "В такте 3 пунктир, а не ровные восьмые: первая нота длиннее второй."
+          },
+          "pass": {
+            "min_accuracy": 0.6,
+            "min_items": 5
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 5,
+          "title": "Составной размер",
+          "competency_ids": [
+            "rhy.compound_68"
+          ],
+          "params": {
+            "context": "объявление размера + отсчёт",
+            "replays": 4,
+            "show_notation": false,
+            "answer_format": "rhythm_grid",
+            "meter": [
+              "6/8"
+            ],
+            "bars": 4,
+            "durations": [
+              "e",
+              "q",
+              "q.",
+              "er",
+              "tie"
+            ],
+            "difficulty_step": "2 такта в 6/8 → 4 такта",
+            "items_per_session": 5
+          },
+          "feedback": {
+            "correct": "Верно, группировка 3+3 соблюдена.",
+            "first_error": "В 6/8 восьмые группируются по три.",
+            "repeat_error": "Ты сгруппировал по две — это выглядит как 3/4. Показываю правильную группировку и проигрываю разницу."
+          },
+          "pass": {
+            "min_accuracy": 0.6,
+            "min_items": 5
+          },
+          "mvp_status": "v1.2"
+        }
+      ]
+    },
+    {
+      "id": "PR-11",
+      "title": "Мелодический диктант",
+      "app_section": "practice",
+      "skill_track": "dictation",
+      "competency_ids": [
+        "wrt.melodic_dictation",
+        "ear.degree.sequence",
+        "ear.melody_memory",
+        "rea.error_detection"
+      ],
+      "interaction_template": "T10",
+      "alt_interaction_template": "T05",
+      "opened_by_lesson_ids": [
+        "L10-04",
+        "L10-06"
+      ],
+      "prerequisite_ids": [
+        "C:ear.degree.sequence"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "cold_review",
+        "level_exam"
+      ],
+      "anti_absolute_pitch": "Тональность объявляется и меняется; мелодии генерируются, а не берутся из фиксированного набора файлов",
+      "review_rule": "RP-integration",
+      "mvp_status": "v1.2",
+      "dev_complexity": "L",
+      "teacher_review_status": "needs_review",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Эхо-мелодия на клавиатуре",
+          "competency_ids": [
+            "ear.melody_memory"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I",
+            "replays": 2,
+            "show_notation": false,
+            "show_keyboard": true,
+            "answer_format": "keyboard_sequence",
+            "sequence_length": 4,
+            "keys": [
+              "C"
+            ],
+            "midi_low": 60,
+            "midi_high": 72,
+            "difficulty_step": "3 → 5 нот, только ступени 1–5",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Верно воспроизведено.",
+            "first_error": "Начни с первого звука: он совпадает с тоникой?",
+            "repeat_error": "Первые два звука верны, третий выше на ступень. Проигрываю по одному звуку."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 8
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 2,
+          "title": "Запись ступенями 1–3–5",
+          "competency_ids": [
+            "wrt.melodic_dictation"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I",
+            "replays": 3,
+            "show_notation": false,
+            "answer_format": "sequence_input_4",
+            "sequence_length": 4,
+            "target_set": [
+              1,
+              3,
+              5
+            ],
+            "keys": [
+              "C"
+            ],
+            "difficulty_step": "4 → 6 ступеней",
+            "items_per_session": 6
+          },
+          "feedback": {
+            "correct": "Верно.",
+            "first_error": "Запиши сначала первый и последний звук.",
+            "repeat_error": "Третья ступень записана как 5, прозвучала 3. Проигрываю каркас мелодии."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 6
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 3,
+          "title": "Все ступени, 4 такта",
+          "competency_ids": [
+            "wrt.melodic_dictation"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I",
+            "replays": 4,
+            "show_notation": false,
+            "answer_format": "sequence_input_8",
+            "sequence_length": 8,
+            "target_set": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "keys": [
+              "C",
+              "G",
+              "F"
+            ],
+            "difficulty_step": "Только шаги → добавляются скачки на терцию и кварту",
+            "items_per_session": 5
+          },
+          "feedback": {
+            "correct": "Верно.",
+            "first_error": "Часть мелодии верна. Отметь, где ты не уверен, и послушай этот участок.",
+            "repeat_error": "Пятый звук: ты записал 4, прозвучала 6. Обе неустойчивы, но разрешаются по-разному."
+          },
+          "pass": {
+            "min_accuracy": 0.6,
+            "min_items": 5
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 4,
+          "title": "Ступени плюс ритм",
+          "competency_ids": [
+            "wrt.melodic_dictation",
+            "wrt.rhythm_dictation"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I + отсчёт",
+            "replays": 4,
+            "show_notation": false,
+            "answer_format": "sequence_input_with_rhythm",
+            "meter": [
+              "4/4",
+              "3/4"
+            ],
+            "bars": 2,
+            "keys": [
+              "C",
+              "G"
+            ],
+            "difficulty_step": "Ритм задан → ритм записывается пользователем",
+            "items_per_session": 5
+          },
+          "feedback": {
+            "correct": "Верно: и высота, и ритм.",
+            "first_error": "Сначала запиши ритм, потом ступени.",
+            "repeat_error": "Ступени верны, ритм нет: во втором такте была половинная, а не две четверти."
+          },
+          "pass": {
+            "min_accuracy": 0.6,
+            "min_items": 5
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 5,
+          "title": "Запись на стане",
+          "competency_ids": [
+            "wrt.melodic_dictation",
+            "not.stem_rules"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I + отсчёт",
+            "replays": 5,
+            "show_notation": false,
+            "answer_format": "staff_drag",
+            "meter": [
+              "4/4"
+            ],
+            "bars": 4,
+            "keys": [
+              "C",
+              "G",
+              "F"
+            ],
+            "difficulty_step": "Первая нота дана → без подсказки",
+            "items_per_session": 4
+          },
+          "feedback": {
+            "correct": "Верно записано на стане.",
+            "first_error": "Проверь ключевые знаки и позиции нот.",
+            "repeat_error": "Ступени услышаны верно, но нота записана октавой выше — проверь опоры стана."
+          },
+          "pass": {
+            "min_accuracy": 0.6,
+            "min_items": 4
+          },
+          "mvp_status": "v2"
+        }
+      ]
+    },
+    {
+      "id": "PR-12",
+      "title": "Гармонический слух: функции, каденции, прогрессии",
+      "app_section": "practice",
+      "skill_track": "harmony",
+      "competency_ids": [
+        "ear.function.tsd",
+        "fun.cadence_authentic_half",
+        "fun.cadence_plagal_interrupted",
+        "ear.cadence.type",
+        "fun.progressions_basic",
+        "fun.progressions_predominant",
+        "ear.progression.4chords",
+        "fun.harmonize_melody",
+        "fun.harmonic_dictation_method",
+        "chd.roman_numerals",
+        "fun.modulation",
+        "ear.modulation.detect",
+        "fun.secondary_dominants",
+        "fun.pivot_chord",
+        "ana.form_analysis",
+        "sca.key_identification"
+      ],
+      "interaction_template": "T10",
+      "alt_interaction_template": "T02",
+      "opened_by_lesson_ids": [
+        "L09-01",
+        "L09-03",
+        "L09-05",
+        "L09-08"
+      ],
+      "prerequisite_ids": [
+        "C:fun.tsd"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix",
+        "cold_review",
+        "level_exam"
+      ],
+      "anti_absolute_pitch": "Тональность объявляется и меняется каждые 2 задания; voicing варьируется",
+      "review_rule": "RP-aural",
+      "mvp_status": "v1.2",
+      "dev_complexity": "M",
+      "teacher_review_status": "needs_review",
+      "sources": [
+        "S-08"
+      ],
+      "notes": "Ответ функциями и басом на стадиях 1–3; римские цифры только со стадии 4 (Chenette 2021)",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Функция: тоника или доминанта",
+          "competency_ids": [
+            "ear.function.tsd"
+          ],
+          "params": {
+            "context": "cadence_I_V_I",
+            "replays": 2,
+            "show_notation": false,
+            "answer_format": "single_choice_2",
+            "answer_labels": "T / D",
+            "options": 2,
+            "keys": [
+              "C",
+              "G",
+              "F"
+            ],
+            "voicing": "четырёхголосное",
+            "difficulty_step": "T против D → добавляется S",
+            "items_per_session": 12
+          },
+          "feedback": {
+            "correct": "Верно: доминанта требует продолжения.",
+            "first_error": "Слушай: аккорд стоит на месте или тянет дальше?",
+            "repeat_error": "Это субдоминанта: она уходит от тоники, но не создаёт такого напряжения, как доминанта. Проигрываю T–S–T и T–D–T."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 12
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 2,
+          "title": "Басовая линия",
+          "competency_ids": [
+            "fun.harmonic_dictation_method"
+          ],
+          "params": {
+            "context": "cadence_I_V_I",
+            "replays": 3,
+            "show_notation": false,
+            "answer_format": "sequence_input_4",
+            "sequence_length": 4,
+            "keys": [
+              "C",
+              "G"
+            ],
+            "difficulty_step": "Только бас; аккорды в основном виде",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Верно, бас услышан.",
+            "first_error": "Слушай только самый низкий голос.",
+            "repeat_error": "Третий аккорд: бас поднялся на кварту, а не опустился. Проигрываю только басовую линию."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 8
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 3,
+          "title": "Тип каденции",
+          "competency_ids": [
+            "ear.cadence.type",
+            "fun.cadence_authentic_half",
+            "fun.cadence_plagal_interrupted"
+          ],
+          "params": {
+            "context": "cadence в объявленной тональности",
+            "replays": 2,
+            "show_notation": false,
+            "answer_format": "single_choice_4",
+            "options": 4,
+            "keys": [
+              "C",
+              "G",
+              "F",
+              "Am"
+            ],
+            "difficulty_step": "Автентическая против плагальной → добавляются половинная и прерванная",
+            "items_per_session": 14
+          },
+          "feedback": {
+            "correct": "Верно, плагальная каденция: IV–I.",
+            "first_error": "Слушай предпоследний аккорд.",
+            "repeat_error": "Ты выбрал автентическую: там перед тоникой доминанта. Здесь перед тоникой субдоминанта. Проигрываю обе."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 14
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 4,
+          "title": "Последовательность из 4 аккордов римскими цифрами",
+          "competency_ids": [
+            "ear.progression.4chords",
+            "chd.roman_numerals",
+            "fun.progressions_basic"
+          ],
+          "params": {
+            "context": "cadence_I_V_I",
+            "replays": 4,
+            "show_notation": false,
+            "answer_format": "sequence_input_4",
+            "sequence_length": 4,
+            "options": 7,
+            "keys": [
+              "C",
+              "G",
+              "F"
+            ],
+            "difficulty_step": "Только основной вид → добавляются обращения",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Верно: I–vi–IV–V.",
+            "first_error": "Начни с баса, потом определи качество каждого аккорда.",
+            "repeat_error": "Третий аккорд: бас фа, но аккорд малый — это ii с басом на терцовом тоне, а не IV."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 8
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 5,
+          "title": "Гармонизация мелодии",
+          "competency_ids": [
+            "fun.harmonize_melody"
+          ],
+          "params": {
+            "context": "мелодия 4 такта в объявленной тональности",
+            "replays": 3,
+            "show_notation": true,
+            "answer_format": "sequence_input_4",
+            "difficulty_step": "Выбор из 3 аккордов на такт → свободный выбор из диатоники",
+            "items_per_session": 6,
+            "notes": "Принимается несколько вариантов; список допустимых согласовать с преподавателем (Q-09)"
+          },
+          "feedback": {
+            "correct": "Вариант принят: аккорд содержит мелодическую ноту, каденция закрывает фразу.",
+            "first_error": "Проверь, входит ли мелодическая нота в выбранный аккорд.",
+            "repeat_error": "На третьем такте мелодия идёт на VII ступени — тоника здесь звучит плохо, нужна доминанта. Проигрываю оба варианта."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 6
+          },
+          "mvp_status": "v2"
+        },
+        {
+          "stage": 6,
+          "title": "Модуляция и анализ",
+          "competency_ids": [
+            "ear.modulation.detect",
+            "fun.modulation",
+            "fun.secondary_dominants",
+            "fun.pivot_chord",
+            "ana.form_analysis"
+          ],
+          "params": {
+            "context": "тоника исходной тональности",
+            "replays": 3,
+            "show_notation": false,
+            "answer_format": "timeline_marker",
+            "bars": 8,
+            "difficulty_step": "Есть модуляция или нет → куда → где пивот-аккорд",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Верно: модуляция в доминанту, такт 6.",
+            "first_error": "Проверь, закрепился ли новый центр каденцией.",
+            "repeat_error": "В такте 4 было отклонение: новый центр не был закреплён. Модуляция произошла в такте 6."
+          },
+          "pass": {
+            "min_accuracy": 0.65,
+            "min_items": 8
+          },
+          "mvp_status": "v2"
+        }
+      ]
+    },
+    {
+      "id": "PR-13",
+      "title": "Чтение с листа",
+      "app_section": "practice",
+      "skill_track": "reading",
+      "competency_ids": [
+        "not.read_with_rhythm",
+        "rea.prehearing",
+        "rea.read_by_degrees",
+        "rea.triad_leaps",
+        "rea.sight_reading",
+        "rea.error_detection",
+        "not.read_treble_a4_g5",
+        "not.read_bass_c3_c4",
+        "not.grand_staff",
+        "not.read_treble_c4_g4"
+      ],
+      "interaction_template": "T06",
+      "opened_by_lesson_ids": [
+        "L03-10",
+        "L10-01",
+        "L10-02",
+        "L10-03"
+      ],
+      "prerequisite_ids": [
+        "C:not.read_with_rhythm"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "cold_review",
+        "level_exam"
+      ],
+      "review_rule": "RP-integration",
+      "mvp_status": "mvp",
+      "dev_complexity": "L",
+      "teacher_review_status": "ok",
+      "notes": "Оценка: доля верных нот и доля попаданий в окно ритма; в MVP оценивается по нотам с мягким окном ритма",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "4 такта, только высота",
+          "competency_ids": [
+            "not.read_with_rhythm",
+            "not.read_treble_c4_g4"
+          ],
+          "params": {
+            "context": "тоника перед началом",
+            "show_notation": true,
+            "show_keyboard": true,
+            "answer_format": "keyboard_sequence",
+            "bars": 4,
+            "tempo_bpm": [
+              0
+            ],
+            "difficulty_step": "Без темпа (свободно) → с метрономом",
+            "items_per_session": 4
+          },
+          "feedback": {
+            "correct": "Все ноты верны.",
+            "first_error": "Такт 2: сначала найди опору, потом шагай.",
+            "repeat_error": "Ты сыграл соль вместо ля: нота стоит в промежутке над второй линией."
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 4
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "4 такта в ритме",
+          "competency_ids": [
+            "not.read_with_rhythm"
+          ],
+          "params": {
+            "context": "count_in_1_bar",
+            "show_notation": true,
+            "show_keyboard": true,
+            "answer_format": "keyboard_sequence",
+            "bars": 4,
+            "tempo_bpm": [
+              60,
+              72
+            ],
+            "tolerance_ms": 150,
+            "difficulty_step": "60 → 72 BPM",
+            "items_per_session": 4
+          },
+          "feedback": {
+            "correct": "Ноты и ритм в допуске.",
+            "first_error": "Ноты верные, ритм разошёлся в такте 3.",
+            "repeat_error": "Ты не додержал половинную. Зацикливаю такт 3 в темпе 60."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 4
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 3,
+          "title": "Чтение по ступеням",
+          "competency_ids": [
+            "rea.read_by_degrees",
+            "rea.prehearing"
+          ],
+          "params": {
+            "context": "тональность объявляется, тоника даётся",
+            "show_notation": true,
+            "show_keyboard": true,
+            "answer_format": "keyboard_sequence",
+            "bars": 8,
+            "tempo_bpm": [
+              60,
+              72
+            ],
+            "difficulty_step": "До 2 знаков; перед игрой обязательный шаг предслышания",
+            "items_per_session": 4
+          },
+          "feedback": {
+            "correct": "Верно. Ты читал ступенями, а не отдельными нотами.",
+            "first_error": "Определи ступень первой ноты и веди отсчёт от тоники.",
+            "repeat_error": "В такте 5 скачок с I на V, а ты сыграл на IV. Показываю ступени над нотами."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 4
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 4,
+          "title": "Скачки по трезвучию и две строки",
+          "competency_ids": [
+            "rea.triad_leaps",
+            "not.grand_staff",
+            "not.read_bass_c3_c4"
+          ],
+          "params": {
+            "context": "тоника",
+            "show_notation": true,
+            "show_keyboard": true,
+            "answer_format": "keyboard_sequence",
+            "bars": 8,
+            "tempo_bpm": [
+              60
+            ],
+            "difficulty_step": "Скачки по I–III–V → две строки (мелодия и бас)",
+            "items_per_session": 4
+          },
+          "feedback": {
+            "correct": "Верно, включая скачки.",
+            "first_error": "Скачок идёт по звукам трезвучия — проверь, какой это тон.",
+            "repeat_error": "Ты сыграл секунду вместо терции: следующая нота через ступень, на линию выше."
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 4
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 5,
+          "title": "Незнакомый материал с первого чтения",
+          "competency_ids": [
+            "rea.sight_reading",
+            "rea.error_detection"
+          ],
+          "params": {
+            "context": "тоника + отсчёт",
+            "show_notation": true,
+            "show_keyboard": true,
+            "answer_format": "keyboard_sequence",
+            "bars": 8,
+            "tempo_bpm": [
+              66,
+              80
+            ],
+            "meter": [
+              "4/4",
+              "3/4",
+              "6/8"
+            ],
+            "difficulty_step": "Новая пьеса каждый раз; после исполнения — поиск собственной ошибки в записи",
+            "items_per_session": 3
+          },
+          "feedback": {
+            "correct": "Прочитано с первого раза.",
+            "first_error": "Отметь на записи место, где сбился.",
+            "repeat_error": "Разбор: пунктирный ритм в такте 6 сыгран как ровные восьмые. Проигрываю эталон и твою запись."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 3
+          },
+          "mvp_status": "v2"
+        }
+      ]
+    },
+    {
+      "id": "PR-14",
+      "title": "Listen–sing–reveal (пение без автооценки)",
+      "app_section": "practice",
+      "skill_track": "voice",
+      "competency_ids": [
+        "vox.sing_self_assessment",
+        "sca.degree_method",
+        "ear.degree.major.5"
+      ],
+      "interaction_template": "T13",
+      "opened_by_lesson_ids": [
+        "L10-08"
+      ],
+      "prerequisite_ids": [
+        "C:sca.degree_method"
+      ],
+      "entry_points": [
+        "lesson_followup",
+        "standalone_trainer",
+        "daily_mix"
+      ],
+      "review_rule": "RP-integration",
+      "mvp_status": "v1.2",
+      "dev_complexity": "S",
+      "teacher_review_status": "blocking",
+      "requires_microphone": false,
+      "notes": "Микрофон не используется. Диапазоны для подростков и взрослых и правила октавного переноса — вопрос Q-08, блокирующий для этого тренажёра",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Спой тонику",
+          "competency_ids": [
+            "vox.sing_self_assessment"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I",
+            "replays": 3,
+            "self_assessment": true,
+            "answer_format": "self_report_3",
+            "answer_labels": "«совпало» / «почти» / «не совпало»",
+            "difficulty_step": "Тоника → V → III",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Отмечено. Слушай эталон ещё раз и сравни.",
+            "first_error": "Если не совпало — спой ниже или выше и повтори.",
+            "repeat_error": "Попробуй сначала промычать звук, потом открыть гласную."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 8,
+            "metric": "self_report"
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 2,
+          "title": "Спой ступень по номеру",
+          "competency_ids": [
+            "vox.sing_self_assessment",
+            "sca.degree_method"
+          ],
+          "params": {
+            "context": "cadence_I_IV_V_I",
+            "replays": 3,
+            "self_assessment": true,
+            "answer_format": "self_report_3",
+            "difficulty_step": "1, 5, 3 → все ступени",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Отмечено.",
+            "first_error": "Спой гамму до нужной ступени, потом только её.",
+            "repeat_error": "Опора: проиграю тонику и целевую ступень подряд, затем спой."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 8,
+            "metric": "self_report"
+          },
+          "mvp_status": "v1.2"
+        },
+        {
+          "stage": 3,
+          "title": "Спой интервал от звука",
+          "competency_ids": [
+            "vox.sing_self_assessment"
+          ],
+          "params": {
+            "context": "заданный звук",
+            "replays": 3,
+            "self_assessment": true,
+            "answer_format": "self_report_3",
+            "difficulty_step": "Терции и квинты → все простые интервалы",
+            "items_per_session": 8
+          },
+          "feedback": {
+            "correct": "Отмечено.",
+            "first_error": "Спой заполнение между звуками, потом только крайние.",
+            "repeat_error": "Проиграю интервал по звукам, спой вместе со мной, затем сам."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 8,
+            "metric": "self_report"
+          },
+          "mvp_status": "v2"
+        },
+        {
+          "stage": 4,
+          "title": "Спой мотив с листа",
+          "competency_ids": [
+            "vox.sing_self_assessment",
+            "rea.read_by_degrees"
+          ],
+          "params": {
+            "context": "тоника + первая нота",
+            "replays": 2,
+            "show_notation": true,
+            "self_assessment": true,
+            "answer_format": "self_report_3",
+            "bars": 2,
+            "difficulty_step": "2 такта → 4 такта",
+            "items_per_session": 6
+          },
+          "feedback": {
+            "correct": "Отмечено.",
+            "first_error": "Пропой мысленно перед тем, как петь вслух.",
+            "repeat_error": "Проиграю мотив, спой за мной по фразам, затем целиком."
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 6,
+            "metric": "self_report"
+          },
+          "mvp_status": "v2"
+        }
+      ]
+    },
+    {
+      "id": "PR-15",
+      "title": "Ежедневный микс",
+      "app_section": "practice",
+      "skill_track": "mixed",
+      "competency_ids": [
+        "snd.pitch_direction",
+        "snd.contour",
+        "kbd.find_c",
+        "kbd.names_cde",
+        "kbd.names_fgab",
+        "kbd.octaves",
+        "kbd.semitone",
+        "kbd.tone",
+        "kbd.accidentals",
+        "rhy.pulse_tap",
+        "ear.meter.simple_compound",
+        "ear.rhythm.pattern",
+        "not.read_treble_c4_g4",
+        "sca.tonic",
+        "ear.degree.major.1",
+        "ear.degree.major.5",
+        "ear.interval.m3_M3",
+        "ear.triad.major",
+        "ear.triad.minor",
+        "ear.scale.major_minor",
+        "ear.melody_memory",
+        "kbd.layout_groups"
+      ],
+      "interaction_template": "T02",
+      "alt_interaction_template": "T06",
+      "opened_by_lesson_ids": [
+        "L00-06"
+      ],
+      "prerequisite_ids": [],
+      "entry_points": [
+        "daily_mix",
+        "standalone_trainer"
+      ],
+      "anti_absolute_pitch": "Задания собираются из тренажёров, каждый из которых уже рандомизирует тональность и регистр",
+      "review_rule": "RP-aural",
+      "mvp_status": "mvp",
+      "dev_complexity": "S",
+      "teacher_review_status": "ok",
+      "notes": "Не содержит собственного контента: собирает задания из PR-01…PR-13 по составу 70/20/10",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Адаптивная сессия дня",
+          "params": {
+            "items_per_session": 12,
+            "difficulty_step": "Один параметр за раз: набор ответов, регистр, направление, темп, число прослушиваний, тембр",
+            "notes": "70% due и ошибки, 20% недавно освоенное, 10% лёгкое; обязательно минимум одно слуховое задание и одно активное действие; первые 3–5 заданий блочно, далее чередование"
+          },
+          "pass": {
+            "min_accuracy": 0.7,
+            "min_items": 12
+          },
+          "mvp_status": "mvp"
+        }
+      ]
+    },
+    {
+      "id": "PR-16",
+      "title": "Работа над ошибками и cold review",
+      "app_section": "practice",
+      "skill_track": "mixed",
+      "competency_ids": [
+        "ear.degree.major.4",
+        "ear.degree.major.6",
+        "ear.interval.p4_p5",
+        "ear.triad.dim",
+        "rhy.dotted_rhythm",
+        "not.read_bass_c3_c4",
+        "rhy.triplet",
+        "ear.triad.aug"
+      ],
+      "interaction_template": "T02",
+      "opened_by_lesson_ids": [],
+      "prerequisite_ids": [],
+      "entry_points": [
+        "error_queue",
+        "cold_review"
+      ],
+      "review_rule": "RP-aural",
+      "mvp_status": "mvp",
+      "dev_complexity": "S",
+      "teacher_review_status": "ok",
+      "notes": "Системный тренажёр: не имеет своего контента, формирует задания по error_tag и по расписанию повторений",
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Разбор по типу ошибки",
+          "params": {
+            "items_per_session": 8,
+            "difficulty_step": "Сначала пара, в которой ошибка (например, IV против VI), затем та же компетенция в общем наборе",
+            "notes": "Группировка по error_tag, а не по конкретному заданию; обязательное сравнительное аудио"
+          },
+          "pass": {
+            "min_accuracy": 0.75,
+            "min_items": 8
+          },
+          "mvp_status": "mvp"
+        },
+        {
+          "stage": 2,
+          "title": "Отложенная проверка (cold review)",
+          "params": {
+            "items_per_session": 10,
+            "difficulty_step": "Без подсказок, один проигрыш, новая тональность или регистр",
+            "notes": "Запускается по расписанию review_policy; успешное прохождение переводит компетенцию в mastered"
+          },
+          "pass": {
+            "min_accuracy": 0.8,
+            "min_items": 10
+          },
+          "mvp_status": "mvp"
+        }
+      ]
+    }
+  ]
+}
