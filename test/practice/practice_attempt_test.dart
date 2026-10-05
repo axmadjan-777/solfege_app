@@ -11,6 +11,7 @@ import 'package:solfege_app/features/practice/progress/practice_attempt.dart';
 import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/screens/practice_followup.dart';
 import 'package:solfege_app/features/practice/screens/practice_map_screen.dart';
+import 'package:solfege_app/features/practice/screens/practice_round_screen.dart';
 
 void main() {
   late CurriculumCatalog catalog;
@@ -77,6 +78,54 @@ void main() {
         catalog.practiceSets.firstWhere((set) => set.id == 'PR-14'));
     expect(store.snapshot(sing).status, isNot(CompetencyStatus.mastered));
     expect(store.book.attempts, hasLength(2));
+  });
+
+  testWidgets(
+      'twelve correct answers stay provisional until a later cold review',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final player = FakePracticeAudioPlayer();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PracticeRoundScreen(
+          setId: 'PR-03',
+          player: player,
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+
+    for (var i = 0; i < 12; i++) {
+      await tester.pump();
+      await tester.tap(find.text('м3'));
+      await tester.pump();
+      if (i < 11) {
+        await tester.tap(find.text('Следующее'));
+        await tester.pump();
+      }
+    }
+
+    final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+    expect(find.text('Предварительно сдано'), findsOneWidget);
+    expect(store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed);
+
+    await tester.tap(find.text('Холодная проверка'));
+    await tester.pump();
+    expect(find.text('Рано'), findsOneWidget);
+    expect(store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed);
+
+    clock.advance(const Duration(hours: 20));
+    await tester.tap(find.text('Холодная проверка'));
+    await tester.pump();
+    expect(find.text('Освоено'), findsWidgets);
+    expect(store.snapshot(competency).status, CompetencyStatus.mastered);
   });
 }
 

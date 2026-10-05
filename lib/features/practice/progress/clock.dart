@@ -3,6 +3,13 @@ abstract interface class Clock {
   DateTime now();
 }
 
+class SystemClock implements Clock {
+  const SystemClock();
+
+  @override
+  DateTime now() => DateTime.now();
+}
+
 class FixedClock implements Clock {
   FixedClock(this.current);
 

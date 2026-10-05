@@ -32,11 +32,14 @@ Widget practiceSetScreen({
   required PracticeAudioPlayer player,
   required CurriculumCatalog catalog,
   ProgressStore? progress,
+  ValueChanged<bool>? onAnswered,
 }) {
   void record(bool correct) {
-    if (progress == null) return;
-    recordPracticeAnswer(
-        store: progress, catalog: catalog, setId: setId, correct: correct);
+    if (progress != null) {
+      recordPracticeAnswer(
+          store: progress, catalog: catalog, setId: setId, correct: correct);
+    }
+    onAnswered?.call(correct);
   }
 
   return switch (setId) {

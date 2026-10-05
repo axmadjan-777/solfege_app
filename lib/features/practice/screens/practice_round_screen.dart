@@ -1,0 +1,136 @@
+import 'package:flutter/material.dart';
+
+import '../../../core/theme/app_colors.dart';
+import '../../curriculum/data/curriculum_catalog.dart';
+import '../audio/practice_audio_player.dart';
+import '../progress/attempt.dart';
+import '../progress/clock.dart';
+import '../progress/practice_attempt.dart';
+import '../progress/progress_store.dart';
+import 'practice_followup.dart';
+
+/// Серия ответов. Окно из 12 верных даёт `provisionally_passed`.
+/// `mastered` ставит только холодная проверка спустя 20 часов.
+class PracticeRoundScreen extends StatefulWidget {
+  const PracticeRoundScreen({
+    super.key,
+    required this.setId,
+    required this.player,
+    required this.catalog,
+    required this.progress,
+    required this.clock,
+  });
+
+  final String setId;
+  final PracticeAudioPlayer player;
+  final CurriculumCatalog catalog;
+  final ProgressStore progress;
+  final Clock clock;
+
+  @override
+  State<PracticeRoundScreen> createState() => _PracticeRoundScreenState();
+}
+
+class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
+  var _round = 0;
+  var _answered = false;
+  String? _notice;
+
+  String get _competency => competencyOf(
+      widget.catalog.practiceSets.firstWhere((set) => set.id == widget.setId));
+
+  CompetencyStatus get _status => widget.progress.snapshot(_competency).status;
+
+  void _advance() {
+    setState(() {
+      _round += 1;
+      _answered = false;
+      _notice = null;
+    });
+  }
+
+  void _coldReview() {
+    final granted = recordColdReview(
+      store: widget.progress,
+      catalog: widget.catalog,
+      setId: widget.setId,
+      clock: widget.clock,
+    );
+    setState(() => _notice = granted ? 'Освоено' : 'Рано');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provisional = _status == CompetencyStatus.provisionallyPassed ||
+        _status == CompetencyStatus.mastered;
+    return Stack(
+      children: [
+        KeyedSubtree(
+          key: ValueKey('${widget.setId}-$_round'),
+          child: practiceSetScreen(
+            setId: widget.setId,
+            player: widget.player,
+            catalog: widget.catalog,
+            progress: widget.progress,
+            onAnswered: (_) => setState(() => _answered = true),
+          ),
+        ),
+        if (_answered)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Material(
+              color: AppColors.background,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(practiceStatusLabel(_status)),
+                    if (_notice != null) Text(_notice!),
+                    const SizedBox(height: 12),
+                    if (provisional)
+                      FilledButton(
+                          onPressed: _coldReview,
+                          child: const Text('Холодная проверка'))
+                    else
+                      FilledButton(
+                          onPressed: _advance, child: const Text('Следующее')),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+Widget openPractice({
+  required String setId,
+  required PracticeAudioPlayer player,
+  required CurriculumCatalog catalog,
+  ProgressStore? progress,
+  Clock? clock,
+}) {
+  if (progress == null) {
+    return practiceSetScreen(setId: setId, player: player, catalog: catalog);
+  }
+  return PracticeRoundScreen(
+    setId: setId,
+    player: player,
+    catalog: catalog,
+    progress: progress,
+    clock: clock ?? const SystemClock(),
+  );
+}
+
+String practiceStatusLabel(CompetencyStatus status) {
+  return switch (status) {
+    CompetencyStatus.provisionallyPassed => 'Предварительно сдано',
+    CompetencyStatus.mastered => 'Освоено',
+    CompetencyStatus.needsReview => 'Нужно повторить',
+    CompetencyStatus.practicing => 'В практике',
+    _ => 'Закрыто',
+  };
+}
