@@ -59,6 +59,7 @@ class Level0Plan {
         'L02-08' => _anacrusis(lesson),
         'L03-04' => _trebleC4(lesson),
         'L03-10' => _notesAndRhythm(lesson),
+        'L10-05' => _rhythmDictationMethod(lesson),
         'L04-04' || 'L04-11' => _degreeLesson(lesson),
         _ => lesson.level == 1 ? _level1(lesson) : _fromParams(lesson),
       },
@@ -148,6 +149,16 @@ List<Level0Step> _trebleC4(Lesson lesson) {
     for (var i = 0; i < lesson.checkItems; i++)
       _choice(lesson, 'check', 'Проверка ноты ${i + 1}', 'T05', notes, 0),
     _choice(lesson, 'transfer', lesson.finalTask, 'T05', notes, 0),
+  ];
+}
+
+List<Level0Step> _rhythmDictationMethod(Lesson lesson) {
+  const steps = ['сумма сходится', 'сумма не сходится'];
+  return [
+    _explanation(lesson),
+    for (var i = 0; i < 2; i++)
+      _choice(lesson, 'guided', '${lesson.userAction}, пример ${i + 1}', 'T08', steps, 0),
+    _choice(lesson, 'transfer', lesson.finalTask, 'T08', steps, 0),
   ];
 }
 
