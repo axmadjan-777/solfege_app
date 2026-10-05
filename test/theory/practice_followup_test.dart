@@ -258,6 +258,62 @@ void main() {
     expect(find.textContaining('Недавно:'), findsNothing);
   });
 
+  testWidgets('the passing window moves the interval from first to recent',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
+    for (var i = 0; i < 12; i++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+      );
+    }
+    for (final correct in [true, true, false, false, false, false]) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: correct,
+      );
+    }
+    const competency = 'ear.interval.m3_M3';
+    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
+
+    for (var i = 0; i < 10; i++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+      );
+    }
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
+    expect(find.text('Сначала: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Недавно:'), findsNothing);
+
+    recordPracticeAnswer(
+      store: store,
+      catalog: catalog,
+      setId: 'PR-03',
+      correct: true,
+    );
+    expect(
+      store.snapshot(competency).status,
+      CompetencyStatus.provisionallyPassed,
+    );
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Недавно: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Сначала:'), findsNothing);
+    expect(find.text('Должное: 0'), findsOneWidget);
+  });
+
   testWidgets('a due interval leads the recent pulse and records the answer',
       (tester) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
