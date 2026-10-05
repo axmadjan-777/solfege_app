@@ -7,6 +7,7 @@ import '../progress/clock.dart';
 import '../progress/error_return.dart';
 import '../progress/practice_attempt.dart';
 import '../progress/progress_store.dart';
+import '../trainers/error_queue.dart';
 import '../trainers/note_reading.dart';
 import '../trainers/daily_mix.dart';
 import '../trainers/harmony_and_melody.dart';
@@ -169,6 +170,7 @@ DailyMixPlan _mixPlan(
     competencies: progress.book.competencies,
     waiting: progress.book.returns,
     now: now,
+    openTags: ErrorQueue.openTags(progress.book.attempts),
   );
   final base = buildDailyMix(seed: now.month * 31 + now.day, pool: pool);
   return placeDueReturns(base, _dueNow(progress, clock).toList());

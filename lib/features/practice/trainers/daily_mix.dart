@@ -148,20 +148,31 @@ MixBucket? bucketOf(CompetencySnapshot snap, DateTime now) {
   return null;
 }
 
-/// Пул из книги. Ожидающий возврат не подменяется компетенцией, срок которой раньше.
+/// Пул из книги. Открытая метка ошибки должная в тот же день.
+/// Назначенный возврат до своего срока в пул не входит.
 List<MixItem> poolFromBook({
   required List<TrainerRef> trainers,
   required Map<String, CompetencySnapshot> competencies,
   required List<ScheduledReturn> waiting,
   required DateTime now,
+  List<String> openTags = const [],
 }) {
   final held = {
     for (final item in waiting)
       if (now.isBefore(item.dueAt)) item.tag,
   };
+  final open = openTags.toSet();
   final items = <MixItem>[];
   for (final trainer in trainers) {
     if (held.contains(trainer.id)) continue;
+    if (open.contains(trainer.id)) {
+      items.add(MixItem(
+        id: trainer.id,
+        bucket: MixBucket.due,
+        action: trainer.action,
+      ));
+      continue;
+    }
     final snap = competencies[trainer.competencyId];
     if (snap == null) continue;
     final bucket = bucketOf(snap, now);

@@ -136,6 +136,30 @@ void main() {
       now: tomorrow,
     );
     expect(held, isEmpty);
+    final open = poolFromBook(
+      trainers: trainers,
+      competencies: {
+        'ear.interval': _snap(CompetencyStatus.practicing, tomorrow),
+      },
+      waiting: const [],
+      openTags: const ['PR-03'],
+      now: today,
+    );
+    expect(open.single.bucket, MixBucket.due);
+    expect(buildDailyMix(seed: 1, pool: open).countOf(MixBucket.due), 8);
+    final heldOpen = poolFromBook(
+      trainers: const [
+        TrainerRef(
+            id: 'PR-03', competencyId: 'ear.interval', action: MixAction.aural),
+      ],
+      competencies: {
+        'ear.interval': _snap(CompetencyStatus.practicing, tomorrow),
+      },
+      waiting: [ScheduledReturn(tag: 'PR-03', dueAt: tomorrow)],
+      openTags: const ['PR-03'],
+      now: today,
+    );
+    expect(heldOpen, isEmpty);
     expect(mixAction('T02'), MixAction.aural);
     expect(mixAction('T09'), MixAction.active);
     expect(

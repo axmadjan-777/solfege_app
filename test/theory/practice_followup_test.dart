@@ -164,6 +164,34 @@ void main() {
     expect(store.book.attempts.last.isCorrect, isTrue);
   });
 
+  testWidgets('a miss is due the same day and a correct retry clears it',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
+    recordPracticeAnswer(
+      store: store,
+      catalog: catalog,
+      setId: 'PR-03',
+      correct: false,
+    );
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Должное: 8'), findsOneWidget);
+    expect(find.text('Недавнее: 0'), findsOneWidget);
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(find.text('м3'), findsOneWidget);
+    await tester.tap(find.text('м3'));
+    await tester.pump();
+
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Должное: 0'), findsOneWidget);
+    expect(find.text('Недавнее: 2'), findsOneWidget);
+  });
+
   test('the catalog daily mix lasts five minutes', () {
     expect(dailyMixLimit(catalog.config.raw), const Duration(minutes: 5));
   });
