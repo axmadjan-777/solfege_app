@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:solfege_app/features/curriculum/data/curriculum_catalog.dart';
 import 'package:solfege_app/features/practice/audio/practice_audio_player.dart';
+import 'package:solfege_app/features/practice/progress/attempt.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
 import 'package:solfege_app/features/practice/progress/error_return.dart';
 import 'package:solfege_app/features/practice/progress/practice_attempt.dart';
@@ -124,6 +125,31 @@ void main() {
     expect(find.text('Пока нет должных заданий.'), findsOneWidget);
     expect(find.text('Начать'), findsNothing);
     expect(find.text('м3'), findsNothing);
+  });
+
+  testWidgets('a mastered note is named once as easy', (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+      book: const ProgressBook(
+        userId: 'local',
+        competencies: {
+          'not.read_treble_c4_g4': CompetencySnapshot(
+            status: CompetencyStatus.mastered,
+            stability: Stability(),
+            intervalStep: 0,
+            dueAt: null,
+            provisionalAt: null,
+          ),
+        },
+        attempts: [],
+      ),
+    );
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Лёгкое: 2'), findsOneWidget);
+    expect(find.text('Легко: Чтение нот'), findsOneWidget);
+    expect(find.textContaining('Сначала:'), findsNothing);
   });
 
   testWidgets('a due interval leads the recent pulse and records the answer',
