@@ -367,6 +367,51 @@ void main() {
     expect(store.snapshot(competency).stability.reached, isTrue);
     expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
   });
+
+  testWidgets('three sessions in one key ask for another tonality',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PracticeRoundScreen(
+          setId: 'PR-03',
+          player: FakePracticeAudioPlayer(),
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+
+    await _answer(tester, 'м3');
+    for (var i = 0; i < 2; i++) {
+      clock.advance(const Duration(hours: 20));
+      await tester.tap(find.text('Следующее'));
+      await tester.pump();
+      await _answer(tester, 'м3');
+    }
+
+    expect(find.text('Нужна другая тональность'), findsOneWidget);
+    expect(find.text('Стабильно'), findsNothing);
+    expect(store.snapshot(competency).stability.sessions, hasLength(3));
+    expect(store.snapshot(competency).stability.reached, isFalse);
+    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
+
+    clock.advance(const Duration(hours: 20));
+    await tester.tap(find.text('Тональность: до'));
+    await tester.pump();
+    await tester.tap(find.text('Следующее'));
+    await tester.pump();
+    await _answer(tester, 'м3');
+
+    expect(find.text('Стабильно'), findsOneWidget);
+    expect(store.snapshot(competency).stability.reached, isTrue);
+    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
+  });
 }
 
 void _slip(MemoryProgressStore store, CurriculumCatalog catalog) {
