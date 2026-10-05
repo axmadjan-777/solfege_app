@@ -221,6 +221,43 @@ void main() {
     expect(find.text('Опоры и соседи (C4–G4)'), findsOneWidget);
   });
 
+  testWidgets('one correct answer keeps a review competency first',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+      book: ProgressBook(
+        userId: 'local',
+        competencies: {
+          'not.read_treble_c4_g4': CompetencySnapshot(
+            status: CompetencyStatus.needsReview,
+            stability: const Stability(),
+            intervalStep: 0,
+            dueAt: DateTime.utc(2026, 10, 6, 8),
+            provisionalAt: null,
+          ),
+        },
+        attempts: [],
+      ),
+    );
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    await tester.tap(find.text('до'));
+    await tester.pump();
+    expect(
+      store.snapshot('not.read_treble_c4_g4').status,
+      CompetencyStatus.needsReview,
+    );
+
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Сначала: Чтение нот'), findsOneWidget);
+    expect(find.text('Должное: 8'), findsOneWidget);
+    expect(find.textContaining('Недавно:'), findsNothing);
+  });
+
   testWidgets('a due interval leads the recent pulse and records the answer',
       (tester) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
