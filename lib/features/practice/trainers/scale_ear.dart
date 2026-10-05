@@ -41,4 +41,4 @@ bool pr05CanStart(bool Function(String competencyId) isMastered) {
   return isMastered('sca.major_formula') && isMastered('sca.c_major') && isMastered('sca.major_g_f');
 }
 
-bool pr05StagePlayable(int stage) => stage == 1 || stage == 2;
+bool pr05StagePlayable(int stage) => stage >= 1 && stage <= 5;

@@ -70,6 +70,7 @@ class _PracticeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final earlyIntervals = set.id == 'PR-03';
     final minorDictation = set.id == 'PR-02';
+    final scaleBuild = set.id == 'PR-05';
     final open = earlyIntervals ||
         (minorDictation && pr02CanStart(isMastered)) ||
         (set.mvpStatus.isMvp && isTrainerOpen(set: set, catalog: catalog, isMastered: isMastered));
@@ -79,7 +80,9 @@ class _PracticeCard extends StatelessWidget {
             ? 'Скоро'
             : earlyIntervals
                 ? 'Стадии 1–8'
-                : (open ? 'Открыто' : 'Закрыто');
+                : scaleBuild
+                    ? (open ? 'Стадии 1–5' : 'Закрыто')
+                    : (open ? 'Открыто' : 'Закрыто');
     final diagnostic = set.id == 'PR-08' || set.id == 'PR-09';
     return Card(
       key: Key('practice-${set.id}'),

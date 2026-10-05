@@ -37,7 +37,8 @@ void main() {
 
   test('stages 1–2 wait for three major lessons and ignore postponed minor lessons', () {
     expect(pr05StagePlayable(2), isTrue);
-    expect(pr05StagePlayable(3), isFalse);
+    expect(pr05StagePlayable(5), isTrue);
+    expect(pr05StagePlayable(6), isFalse);
     expect(
       pr05CanStart((id) => id == 'sca.major_formula' || id == 'sca.c_major' || id == 'sca.major_g_f'),
       isTrue,
