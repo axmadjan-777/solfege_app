@@ -358,6 +358,57 @@ void main() {
     expect(find.textContaining('Сначала:'), findsNothing);
   });
 
+  testWidgets('a cold-review miss puts the interval back first',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
+    for (var i = 0; i < 12; i++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+      );
+    }
+    clock.advance(const Duration(hours: 20));
+    for (var i = 0; i < 3; i++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+        coldReview: true,
+        sessionId: 'cold-miss',
+      );
+    }
+    const competency = 'ear.interval.m3_M3';
+    expect(
+      store.snapshot(competency).status,
+      CompetencyStatus.provisionallyPassed,
+    );
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Недавно: Интервалы на слух'), findsOneWidget);
+
+    recordPracticeAnswer(
+      store: store,
+      catalog: catalog,
+      setId: 'PR-03',
+      correct: false,
+      coldReview: true,
+      sessionId: 'cold-miss',
+    );
+    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
+    expect(store.snapshot(competency).provisionalAt, isNull);
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Сначала: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Легко:'), findsNothing);
+    expect(find.textContaining('Недавно:'), findsNothing);
+  });
+
   testWidgets('a due interval leads the recent pulse and records the answer',
       (tester) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
