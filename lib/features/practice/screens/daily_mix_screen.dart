@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../progress/clock.dart';
+import '../progress/error_return.dart';
 import '../trainers/daily_mix.dart';
 
 /// Сводка плана. Если передан `taskBuilder`, «Начать» проводит задания по одному.
@@ -13,6 +14,9 @@ class DailyMixScreen extends StatefulWidget {
     this.clock,
     this.sessionLimit,
     this.onSameSessionReturn,
+    this.dueNow = const <String>{},
+    this.onDueAnswer,
+    this.successDays = 3,
   });
 
   final DailyMixPlan plan;
@@ -21,6 +25,9 @@ class DailyMixScreen extends StatefulWidget {
   final Clock? clock;
   final Duration? sessionLimit;
   final void Function(String tag)? onSameSessionReturn;
+  final Set<String> dueNow;
+  final void Function(String tag, bool correct)? onDueAnswer;
+  final int successDays;
 
   @override
   State<DailyMixScreen> createState() => _DailyMixScreenState();
@@ -35,6 +42,7 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
   var _stoppedForTime = false;
   DateTime? _startedAt;
   final _tomorrow = <String>[];
+  final _later = <String>[];
   late List<MixItem> _items;
 
   @override
@@ -57,15 +65,20 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
 
   void _accept(bool correct) {
     if (_answered) return;
-    final tag = _returnItem ? _items[_index].id : null;
+    final id = _items[_index].id;
+    final returning = _returnItem;
+    final due = !returning && widget.dueNow.contains(id);
     setState(() {
       _answered = true;
       _completed += 1;
       if (correct) {
         _correct += 1;
       }
-      if (tag != null && !_tomorrow.contains(tag)) {
-        _tomorrow.add(tag);
+      if (returning && !_tomorrow.contains(id)) {
+        _tomorrow.add(id);
+      }
+      if (due && correct && !_later.contains(id)) {
+        _later.add(id);
       }
       _items = appendSameSessionReturn(
         planned: widget.plan.items,
@@ -74,7 +87,8 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
         correct: correct,
       );
     });
-    if (tag != null) widget.onSameSessionReturn?.call(tag);
+    if (returning) widget.onSameSessionReturn?.call(id);
+    if (due) widget.onDueAnswer?.call(id, correct);
   }
 
   @override
@@ -146,6 +160,8 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
               if (_stoppedForTime) const Text('Время вышло'),
               Text('Итог: верно $_correct из $_completed'),
               for (final tag in _tomorrow) Text('Завтра: $tag'),
+              for (final tag in _later)
+                Text('${returnGapLabel(widget.successDays)}: $tag'),
             ],
             Text('Заданий: ${plan.items.length}'),
             Text('Должное: ${plan.countOf(MixBucket.due)}'),

@@ -168,6 +168,40 @@ void main() {
     expect(identical(placeDueReturns(base, const []), base), isTrue);
   });
 
+  test('a successful return waits three days and a miss stays on tomorrow', () {
+    final at = DateTime.utc(2026, 10, 5, 8);
+    final scheduled = scheduleAfter(
+      current: scheduleNextDay(current: const [], tag: 'PR-08', at: at),
+      tag: 'PR-08',
+      at: at.add(const Duration(days: 1)),
+      days: 3,
+    );
+    expect(scheduled.single.dueAt, DateTime.utc(2026, 10, 9, 8));
+    expect(
+      dueReturnTags(
+        scheduled: scheduled,
+        now: at.add(const Duration(days: 3)),
+      ),
+      isEmpty,
+    );
+    expect(
+      dueReturnTags(
+        scheduled: scheduled,
+        now: at.add(const Duration(days: 4)),
+      ),
+      ['PR-08'],
+    );
+    expect(
+        errorReturnSuccessDays(const {
+          'error_queue': {'after_success_days': 3}
+        }),
+        3);
+    expect(returnGapLabel(1), 'Через 1 день');
+    expect(returnGapLabel(3), 'Через 3 дня');
+    expect(returnGapLabel(5), 'Через 5 дней');
+    expect(returnGapLabel(11), 'Через 11 дней');
+  });
+
   test('the mix limit reads duration_min', () {
     expect(
       dailyMixLimit(const {
@@ -282,5 +316,38 @@ void main() {
     await tester.pump();
     expect(seen, ['PR-08']);
     expect(find.text('Завтра: PR-08'), findsOneWidget);
+  });
+
+  testWidgets('a correct due return waits three days', (tester) async {
+    final seen = <(String, bool)>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DailyMixScreen(
+          plan: const DailyMixPlan([
+            MixItem(
+                id: 'PR-08', bucket: MixBucket.due, action: MixAction.active),
+          ]),
+          dueNow: const {'PR-08'},
+          successDays: 3,
+          onDueAnswer: (tag, correct) => seen.add((tag, correct)),
+          taskBuilder: (item, onAnswered) => Scaffold(
+            body: FilledButton(
+              onPressed: () => onAnswered(true),
+              child: Text(item.id),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    await tester.tap(find.text('PR-08'));
+    await tester.pump();
+    await tester.tap(find.text('Итог'));
+    await tester.pump();
+    expect(seen, [('PR-08', true)]);
+    expect(find.text('Через 3 дня: PR-08'), findsOneWidget);
+    expect(find.text('Завтра: PR-08'), findsNothing);
   });
 }

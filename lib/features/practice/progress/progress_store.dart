@@ -131,6 +131,8 @@ abstract interface class ProgressStore {
 
   void scheduleNextDayReturn(String tag);
 
+  void scheduleReturnInDays(String tag, int days);
+
   List<String> openErrorTags();
 }
 
@@ -233,15 +235,19 @@ class MemoryProgressStore implements ProgressStore {
   }
 
   @override
-  void scheduleNextDayReturn(String tag) {
+  void scheduleNextDayReturn(String tag) => scheduleReturnInDays(tag, 1);
+
+  @override
+  void scheduleReturnInDays(String tag, int days) {
     book = ProgressBook(
       userId: book.userId,
       competencies: book.competencies,
       attempts: book.attempts,
-      returns: scheduleNextDay(
+      returns: scheduleAfter(
         current: book.returns,
         tag: tag,
         at: clock.now(),
+        days: days,
       ),
     );
   }
@@ -300,8 +306,11 @@ class SharedPreferencesProgressStore implements ProgressStore {
   }
 
   @override
-  void scheduleNextDayReturn(String tag) {
-    _memory.scheduleNextDayReturn(tag);
+  void scheduleNextDayReturn(String tag) => scheduleReturnInDays(tag, 1);
+
+  @override
+  void scheduleReturnInDays(String tag, int days) {
+    _memory.scheduleReturnInDays(tag, days);
     _preferences.setString(storageKey, jsonEncode(book.toJson()));
   }
 

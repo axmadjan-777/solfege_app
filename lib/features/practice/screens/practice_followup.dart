@@ -92,7 +92,17 @@ Widget practiceSetScreen({
         plan: _mixPlan(progress, clock),
         clock: clock,
         sessionLimit: dailyMixLimit(catalog.config.raw),
+        dueNow: _dueNow(progress, clock),
+        successDays: errorReturnSuccessDays(catalog.config.raw),
         onSameSessionReturn: progress?.scheduleNextDayReturn,
+        onDueAnswer: (tag, correct) {
+          final store = progress;
+          if (store == null || !correct) return;
+          store.scheduleReturnInDays(
+            tag,
+            errorReturnSuccessDays(catalog.config.raw),
+          );
+        },
         taskBuilder: (item, onAnswered) => practiceSetScreen(
           setId: item.id,
           player: player,
@@ -119,13 +129,13 @@ Widget practiceSetScreen({
 }
 
 DailyMixPlan _mixPlan(ProgressStore? progress, Clock? clock) {
-  final base = appDailyMix();
-  if (progress == null) return base;
+  return placeDueReturns(appDailyMix(), _dueNow(progress, clock).toList());
+}
+
+Set<String> _dueNow(ProgressStore? progress, Clock? clock) {
+  if (progress == null) return const {};
   final now = (clock ?? const SystemClock()).now();
-  return placeDueReturns(
-    base,
-    dueReturnTags(scheduled: progress.book.returns, now: now),
-  );
+  return dueReturnTags(scheduled: progress.book.returns, now: now).toSet();
 }
 
 class MelodyFollowup extends StatelessWidget {

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:solfege_app/features/curriculum/data/curriculum_catalog.dart';
 import 'package:solfege_app/features/practice/audio/practice_audio_player.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
+import 'package:solfege_app/features/practice/progress/error_return.dart';
 import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/screens/practice_followup.dart';
 import 'package:solfege_app/features/practice/trainers/daily_mix.dart';
@@ -188,6 +189,63 @@ void main() {
     expect(find.text('Опоры и соседи (C4–G4)'), findsOneWidget);
     expect(find.text('м3'), findsNothing);
   });
+
+  test('a successful error return waits the configured three days', () {
+    expect(errorReturnSuccessDays(catalog.config.raw), 3);
+  });
+
+  testWidgets('a correct due note waits three days before it leads again',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
+    store.scheduleNextDayReturn('PR-08');
+    clock.advance(const Duration(days: 1));
+
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(find.text('Опоры и соседи (C4–G4)'), findsOneWidget);
+    await tester.tap(find.text('до'));
+    await tester.pump();
+    expect(
+      store.book.returns.single.dueAt,
+      clock.now().add(const Duration(days: 3)),
+    );
+
+    clock.advance(const Duration(days: 1));
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(find.text('м3'), findsOneWidget);
+
+    clock.advance(const Duration(days: 2));
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(find.text('Опоры и соседи (C4–G4)'), findsOneWidget);
+  });
+}
+
+Widget _mix(
+  CurriculumCatalog catalog,
+  FakePracticeAudioPlayer player,
+  MemoryProgressStore store,
+  Clock clock,
+) {
+  return MaterialApp(
+    home: practiceSetScreen(
+      setId: 'PR-15',
+      player: player,
+      catalog: catalog,
+      progress: store,
+      clock: clock,
+    ),
+  );
 }
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
