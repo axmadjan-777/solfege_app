@@ -570,7 +570,38 @@ void main() {
     expect(find.text('Лёгкое: 2'), findsOneWidget);
     expect(find.textContaining('Сначала:'), findsNothing);
     expect(find.textContaining('Недавно:'), findsNothing);
+
+    final dueAt = store.snapshot(competency).dueAt;
+    expect(dueAt, clock.now().add(const Duration(days: 1)));
+    clock.advance(const Duration(hours: 23));
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, store, clock));
+    expect(find.text('Легко: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Сначала:'), findsNothing);
+
+    clock.advance(const Duration(hours: 1));
+    expect(clock.now(), dueAt);
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, store, clock));
+    expect(find.text('Сначала: Интервалы на слух'), findsOneWidget);
+    expect(find.text('Должное: 8'), findsOneWidget);
+    expect(find.textContaining('Легко:'), findsNothing);
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(find.text('м3'), findsOneWidget);
   });
+}
+
+Widget _mix(CurriculumCatalog catalog, ProgressStore store, Clock clock) {
+  return MaterialApp(
+    home: practiceSetScreen(
+      setId: 'PR-15',
+      player: FakePracticeAudioPlayer(),
+      catalog: catalog,
+      progress: store,
+      clock: clock,
+    ),
+  );
 }
 
 void _slip(MemoryProgressStore store, CurriculumCatalog catalog) {
