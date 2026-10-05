@@ -173,6 +173,34 @@ void main() {
     expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
     expect(store.snapshot(competency).provisionalAt, isNull);
     expect(find.text('Освоено'), findsNothing);
+
+    await tester.tap(find.text('Следующее'));
+    await tester.pump();
+    await _answer(tester, 'м3');
+    final restored = store.snapshot(competency).provisionalAt;
+    expect(find.text('Предварительно сдано'), findsOneWidget);
+    expect(store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed);
+    expect(restored, clock.now());
+
+    await tester.tap(find.text('Холодная проверка'));
+    await tester.pump();
+    expect(find.text('Рано'), findsOneWidget);
+    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
+
+    clock.advance(const Duration(hours: 20));
+    await tester.tap(find.text('Холодная проверка'));
+    await tester.pump();
+    for (var i = 0; i < 4; i++) {
+      await _answer(tester, 'м3');
+      if (i < 3) {
+        await tester.tap(find.text('Следующее'));
+        await tester.pump();
+      }
+    }
+    expect(find.text('Освоено'), findsWidgets);
+    expect(store.snapshot(competency).status, CompetencyStatus.mastered);
+    expect(store.snapshot(competency).provisionalAt, restored);
   });
 
   test('four of the last six correct answers stay provisionally passed', () {

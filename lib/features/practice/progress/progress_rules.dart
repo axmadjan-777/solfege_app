@@ -61,9 +61,9 @@ class MasteryDecision {
     if (coldReview) {
       final waited = provisionalAt != null &&
           !now.isBefore(provisionalAt.add(const Duration(hours: 20)));
-      final coldAccuracy =
-          _sessionAccuracy(attempts.where((a) => a.coldReview));
-      final coldCount = attempts.where((a) => a.coldReview).length;
+      final coldAttempts = _currentColdReview(attempts);
+      final coldAccuracy = _sessionAccuracy(coldAttempts);
+      final coldCount = coldAttempts.length;
       final complete = coldCount >= delayedMinItems && coldAccuracy != null;
       if (waited && complete && coldAccuracy >= delayedMinAccuracy) {
         return MasteryDecision(
@@ -102,6 +102,13 @@ class MasteryDecision {
     return MasteryDecision(status: current, markedProvisionalAt: provisionalAt);
   }
 
+  static List<AttemptRecord> _currentColdReview(List<AttemptRecord> attempts) {
+    final cold = attempts.where((attempt) => attempt.coldReview).toList();
+    if (cold.isEmpty) return const [];
+    final sessionId = cold.last.sessionId;
+    return cold.where((attempt) => attempt.sessionId == sessionId).toList();
+  }
+
   static List<AttemptRecord> _last(List<AttemptRecord> attempts, int count) {
     if (attempts.length <= count) return attempts;
     return attempts.sublist(attempts.length - count);
@@ -132,8 +139,10 @@ class StabilityUpdate {
   }) {
     if (!successful) return current;
     final previous = current.sessions.isEmpty ? null : current.sessions.last.at;
-    if (previous != null && at.difference(previous) < const Duration(hours: 20))
+    if (previous != null &&
+        at.difference(previous) < const Duration(hours: 20)) {
       return current;
+    }
     return current.add(StabilitySession(at: at, tonality: tonality));
   }
 }

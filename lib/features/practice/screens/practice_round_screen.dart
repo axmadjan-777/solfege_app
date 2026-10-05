@@ -36,6 +36,7 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
   var _round = 0;
   var _answered = false;
   var _coldLeft = 0;
+  String? _coldSession;
   String? _notice;
 
   String get _competency => competencyOf(
@@ -61,6 +62,8 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
     }
     setState(() {
       _coldLeft = widget.catalog.config.masteryRules.delayedMinItems;
+      _coldSession =
+          '${widget.setId}-cold-${widget.clock.now().microsecondsSinceEpoch}';
       _notice = 'Холодная проверка';
       _round += 1;
       _answered = false;
@@ -79,6 +82,7 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
             catalog: widget.catalog,
             progress: widget.progress,
             coldReview: _coldLeft > 0,
+            sessionId: _coldLeft > 0 ? _coldSession : null,
             onAnswered: (_) {
               setState(() {
                 if (_coldLeft > 0) _coldLeft -= 1;

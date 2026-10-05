@@ -34,6 +34,7 @@ Widget practiceSetScreen({
   ProgressStore? progress,
   ValueChanged<bool>? onAnswered,
   bool coldReview = false,
+  String? sessionId,
 }) {
   void record(bool correct) {
     if (progress != null) {
@@ -43,6 +44,7 @@ Widget practiceSetScreen({
         setId: setId,
         correct: correct,
         coldReview: coldReview,
+        sessionId: sessionId,
       );
     }
     onAnswered?.call(correct);

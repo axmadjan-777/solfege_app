@@ -9,13 +9,14 @@ void recordPracticeAnswer({
   required String setId,
   required bool correct,
   bool coldReview = false,
+  String? sessionId,
 }) {
   final set = catalog.practiceSets.firstWhere((item) => item.id == setId);
   final competencyId = competencyOf(set);
   store.recordSession(
     SessionDraft(
       competencyId: competencyId,
-      sessionId: '$setId-${store.book.attempts.length}',
+      sessionId: sessionId ?? '$setId-${store.book.attempts.length}',
       correct: [correct],
       policy: catalog.config.policy(set.reviewRule),
       tonality: 'C',

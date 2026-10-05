@@ -110,6 +110,45 @@ void main() {
     expect(marked, isNotNull);
   });
 
+  test('the next passing window starts a new 20 hour wait', () {
+    store.recordSession(_session(
+        id: 'learn', correct: List<bool>.filled(12, true), policy: aural));
+    final firstMark = store.snapshot('ear.degree.major.1').provisionalAt;
+    clock.advance(const Duration(hours: 20));
+    store.recordSession(
+      _session(
+          id: 'cold-miss',
+          correct: const [true, true, true, false],
+          policy: aural,
+          coldReview: true),
+    );
+    clock.advance(const Duration(hours: 1));
+    store.recordSession(
+        _session(id: 'again', correct: const [true], policy: aural));
+
+    final restored = store.snapshot('ear.degree.major.1');
+    expect(restored.status, CompetencyStatus.provisionallyPassed);
+    expect(restored.provisionalAt, clock.now());
+    expect(restored.provisionalAt, isNot(firstMark));
+
+    store.recordSession(_session(
+        id: 'cold-soon',
+        correct: List<bool>.filled(4, true),
+        policy: aural,
+        coldReview: true));
+    expect(store.snapshot('ear.degree.major.1').status,
+        CompetencyStatus.provisionallyPassed);
+
+    clock.advance(const Duration(hours: 20));
+    store.recordSession(_session(
+        id: 'cold-ok',
+        correct: List<bool>.filled(4, true),
+        policy: aural,
+        coldReview: true));
+    expect(
+        store.snapshot('ear.degree.major.1').status, CompetencyStatus.mastered);
+  });
+
   test('accuracy below 0.6 on the last six answers demotes to needs review',
       () {
     store.recordSession(_session(
