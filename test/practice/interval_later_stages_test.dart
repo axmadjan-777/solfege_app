@@ -13,7 +13,8 @@ void main() {
     expect(IntervalEar.semitones['ч5']! - IntervalEar.semitones['тритон']!, 1);
     expect(IntervalEar.semitones['м6'], 8);
     expect(IntervalEar.semitones['б6'], 9);
-    expect(IntervalEar.inversion(IntervalEar.semitones['м2']!), IntervalEar.semitones['б7']);
+    expect(IntervalEar.inversion(IntervalEar.semitones['м2']!),
+        IntervalEar.semitones['б7']);
     expect(IntervalEar.inversion(6), 6);
     expect(IntervalEar.stageLabels[7], hasLength(11));
     expect(IntervalEar.stageLabels[4], ['м3', 'б3', 'ч4', 'ч5']);
@@ -31,7 +32,8 @@ void main() {
     expect(sequence.events.whereType<ChordEvent>().single.midi, [60, 65]);
   });
 
-  testWidgets('calling a fourth a fifth is wrong and replays both', (tester) async {
+  testWidgets('calling a fourth a fifth is wrong and replays both',
+      (tester) async {
     final player = FakePracticeAudioPlayer();
     bool? answer;
     await tester.pumpWidget(
@@ -47,13 +49,47 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(player.played.whereType<NoteEvent>().map((event) => event.midi).toList(), [60, 65]);
+    expect(
+        player.played
+            .whereType<NoteEvent>()
+            .map((event) => event.midi)
+            .toList(),
+        [60, 65]);
 
     await tester.tap(find.text('ч5'));
     await tester.pump();
     expect(answer, isFalse);
     expect(find.text('Пока не то'), findsOneWidget);
-    final compared = player.played.whereType<NoteEvent>().map((event) => event.midi).toList();
+    final compared = player.played
+        .whereType<NoteEvent>()
+        .map((event) => event.midi)
+        .toList();
     expect(compared, [60, 65, 60, 65, 60, 67, 60, 65]);
+  });
+
+  testWidgets('ещё раз replays the interval three times', (tester) async {
+    final player = FakePracticeAudioPlayer();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: IntervalChoiceScreen(
+          bassMidi: 60,
+          steps: 3,
+          labels: const ['м3', 'б3'],
+          harmonic: false,
+          player: player,
+          onAnswered: (_) {},
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(find.text('Ещё раз (3)'), findsOneWidget);
+    await tester.tap(find.text('Ещё раз (3)'));
+    await tester.pump();
+    await tester.tap(find.text('Ещё раз (2)'));
+    await tester.pump();
+    await tester.tap(find.text('Ещё раз (1)'));
+    await tester.pump();
+    expect(find.text('Повторы кончились'), findsOneWidget);
+    expect(player.played.whereType<NoteEvent>(), hasLength(8));
   });
 }

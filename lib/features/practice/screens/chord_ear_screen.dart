@@ -4,10 +4,15 @@ import '../../../core/theme/app_colors.dart';
 import '../audio/audio_sequence.dart';
 import '../audio/practice_audio_player.dart';
 import '../trainers/triad_formulas.dart';
+import '../widgets/sound_replay_button.dart';
 
 /// Стадия 1 PR-06. Вид аккорда считается по звукам, а не по подписи кнопки.
 class ChordEarScreen extends StatefulWidget {
-  const ChordEarScreen({super.key, required this.pitches, required this.player, required this.onAnswered});
+  const ChordEarScreen(
+      {super.key,
+      required this.pitches,
+      required this.player,
+      required this.onAnswered});
 
   final List<int> pitches;
   final PracticeAudioPlayer player;
@@ -19,13 +24,22 @@ class ChordEarScreen extends StatefulWidget {
 
 class _ChordEarScreenState extends State<ChordEarScreen> {
   String? _feedback;
+  var _replays = SoundReplayButton.freeReplays;
+
+  void _playStimulus() {
+    widget.player.play(AudioSequence([ChordEvent(widget.pitches)]));
+  }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.player.play(AudioSequence([ChordEvent(widget.pitches)]));
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _playStimulus());
+  }
+
+  void _replay() {
+    if (_replays <= 0) return;
+    setState(() => _replays -= 1);
+    _playStimulus();
   }
 
   void _choose(String name) {
@@ -45,9 +59,14 @@ class _ChordEarScreenState extends State<ChordEarScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            FilledButton(onPressed: () => _choose('major'), child: const Text('большое')),
+            SoundReplayButton(remaining: _replays, onPressed: _replay),
+            const SizedBox(height: 12),
+            FilledButton(
+                onPressed: () => _choose('major'),
+                child: const Text('большое')),
             const SizedBox(height: 8),
-            FilledButton(onPressed: () => _choose('minor'), child: const Text('малое')),
+            FilledButton(
+                onPressed: () => _choose('minor'), child: const Text('малое')),
             if (_feedback != null) ...[
               const SizedBox(height: 16),
               Text(_feedback!),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../audio/practice_audio_player.dart';
 import '../trainers/interval_ear.dart';
+import '../widgets/sound_replay_button.dart';
 
 /// Стадии 4–8. Имя интервала считается по числу полутонов, не по подписи кнопки.
 class IntervalChoiceScreen extends StatefulWidget {
@@ -29,15 +30,28 @@ class IntervalChoiceScreen extends StatefulWidget {
 
 class _IntervalChoiceScreenState extends State<IntervalChoiceScreen> {
   String? _feedback;
+  var _replays = SoundReplayButton.freeReplays;
+
+  void _playStimulus() {
+    widget.player.play(
+      intervalPlayback(
+        bassMidi: widget.bassMidi,
+        steps: widget.steps,
+        harmonic: widget.harmonic,
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.player.play(
-        intervalPlayback(bassMidi: widget.bassMidi, steps: widget.steps, harmonic: widget.harmonic),
-      );
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _playStimulus());
+  }
+
+  void _replay() {
+    if (_replays <= 0) return;
+    setState(() => _replays -= 1);
+    _playStimulus();
   }
 
   void _choose(String label) {
@@ -48,7 +62,10 @@ class _IntervalChoiceScreenState extends State<IntervalChoiceScreen> {
       final chosen = IntervalEar.semitones[label];
       if (chosen != null) {
         widget.player.play(
-          intervalComparison(bassMidi: widget.bassMidi, correctSemitones: widget.steps, chosenSemitones: chosen),
+          intervalComparison(
+              bassMidi: widget.bassMidi,
+              correctSemitones: widget.steps,
+              chosenSemitones: chosen),
         );
       }
     }
@@ -60,14 +77,18 @@ class _IntervalChoiceScreenState extends State<IntervalChoiceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: Text(widget.harmonic ? 'Гармонический интервал' : 'Интервал')),
+      appBar: AppBar(
+          title: Text(widget.harmonic ? 'Гармонический интервал' : 'Интервал')),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
+          SoundReplayButton(remaining: _replays, onPressed: _replay),
+          const SizedBox(height: 12),
           for (final label in widget.labels)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: FilledButton(onPressed: () => _choose(label), child: Text(label)),
+              child: FilledButton(
+                  onPressed: () => _choose(label), child: Text(label)),
             ),
           if (_feedback != null) Text(_feedback!),
         ],
