@@ -10,18 +10,24 @@ class NoteReading {
   static const c4Midi = 60;
   static const g4Midi = 67;
 
-  static String syllable(int midi) => SolfegeNotes.fromMidi(midi, useFlats: false);
+  static String syllable(int midi) =>
+      SolfegeNotes.fromMidi(midi, useFlats: false);
 
-  static double trebleY(int midi) => TrebleStaffLayout.yForMidi(midi, topPadding: 8, lineGap: 12);
+  static double trebleY(int midi) =>
+      TrebleStaffLayout.yForMidi(midi, topPadding: 8, lineGap: 12);
 
   /// Положительное значение — выше фа малой октавы.
   static int bassStepsFromF3(int midi) {
-    return TrebleStaffLayout.diatonicIndex(midi) - TrebleStaffLayout.diatonicIndex(f3Midi);
+    return TrebleStaffLayout.diatonicIndex(midi) -
+        TrebleStaffLayout.diatonicIndex(f3Midi);
   }
 
   static bool inTrebleC4G4(int midi) => midi >= c4Midi && midi <= g4Midi;
 
   static bool inBassC3C4(int midi) => midi >= c3Midi && midi <= c4Midi;
+
+  /// Ниже средней линейки (си первой октавы) штиль смотрит вверх.
+  static bool stemUp(int midi) => midi < 71;
 }
 
 /// Стадия 6 вне MVP. Старт ждёт четыре урока чтения.

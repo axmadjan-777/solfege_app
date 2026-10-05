@@ -3,28 +3,36 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../curriculum/data/curriculum_asset_source.dart';
 import '../../curriculum/data/curriculum_catalog.dart';
+import '../../practice/audio/practice_audio_player.dart';
+import '../../practice/audio/synthetic_practice_audio_player.dart';
+import '../../practice/screens/practice_followup.dart';
 import '../level0/level0_plan.dart';
 import '../level0/level0_player.dart';
 import 'theory_level_screen.dart';
 
 class TheoryHomeScreen extends StatelessWidget {
-  const TheoryHomeScreen({super.key, this.catalog, this.isMastered});
+  const TheoryHomeScreen(
+      {super.key, this.catalog, this.isMastered, this.player});
 
   final CurriculumCatalog? catalog;
   final bool Function(String competencyId)? isMastered;
+  final PracticeAudioPlayer? player;
 
   bool _mastered(String id) => isMastered?.call(id) ?? false;
 
   @override
   Widget build(BuildContext context) {
     if (catalog != null) {
-      return _Home(catalog: catalog!, isMastered: _mastered);
+      return _Home(catalog: catalog!, isMastered: _mastered, player: player);
     }
     return FutureBuilder<CurriculumCatalog>(
       future: const CurriculumAssetSource().load(),
       builder: (context, snapshot) {
-        if (snapshot.hasData) return _Home(catalog: snapshot.data!, isMastered: _mastered);
-        if (snapshot.hasError) return const Center(child: Text('Не удалось загрузить теорию'));
+        if (snapshot.hasData)
+          return _Home(
+              catalog: snapshot.data!, isMastered: _mastered, player: player);
+        if (snapshot.hasError)
+          return const Center(child: Text('Не удалось загрузить теорию'));
         return const Center(child: CircularProgressIndicator());
       },
     );
@@ -32,10 +40,12 @@ class TheoryHomeScreen extends StatelessWidget {
 }
 
 class _Home extends StatelessWidget {
-  const _Home({required this.catalog, required this.isMastered});
+  const _Home(
+      {required this.catalog, required this.isMastered, required this.player});
 
   final CurriculumCatalog catalog;
   final bool Function(String competencyId) isMastered;
+  final PracticeAudioPlayer? player;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +60,18 @@ class _Home extends StatelessWidget {
               MaterialPageRoute<void>(
                 builder: (_) => Level0Player(
                   plan: Level0Plan.fromLesson(lesson),
-                  onFinished: (_) {},
+                  onFinished: (result) {
+                    if (result.trainPracticeSetIds.isEmpty) return;
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => practiceSetScreen(
+                          setId: result.trainPracticeSetIds.first,
+                          player: player ?? SyntheticPracticeAudioPlayer(),
+                          catalog: catalog,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             );

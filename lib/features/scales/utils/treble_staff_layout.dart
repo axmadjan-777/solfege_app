@@ -8,6 +8,7 @@ import 'solfege_notes.dart';
 /// Вертикальные позиции нот в скрипичном ключе.
 abstract final class TrebleStaffLayout {
   static const referenceMidi = 67; // G4 на 2-й линейке снизу
+  static const lineCount = 5;
   static const referenceLineIndex = 3; // от верхней линейки (0..4)
 
   /// MIDI диезов при ключе (порядок: фа, до, соль, ре, ля, ми, си).
