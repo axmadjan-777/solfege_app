@@ -409,6 +409,68 @@ void main() {
     expect(find.textContaining('Недавно:'), findsNothing);
   });
 
+  testWidgets('the next window after a cold miss starts a new wait',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
+    for (var i = 0; i < 12; i++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+      );
+    }
+    final firstMark = store.snapshot('ear.interval.m3_M3').provisionalAt;
+    clock.advance(const Duration(hours: 20));
+    for (final correct in [true, true, true, false]) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: correct,
+        coldReview: true,
+        sessionId: 'cold-miss',
+      );
+    }
+    clock.advance(const Duration(hours: 1));
+    recordPracticeAnswer(
+      store: store,
+      catalog: catalog,
+      setId: 'PR-03',
+      correct: true,
+    );
+    final restored = store.snapshot('ear.interval.m3_M3');
+    expect(restored.status, CompetencyStatus.provisionallyPassed);
+    expect(restored.provisionalAt, clock.now());
+    expect(restored.provisionalAt, isNot(firstMark));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Недавно: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Сначала:'), findsNothing);
+
+    for (var i = 0; i < 4; i++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+        coldReview: true,
+        sessionId: 'too-soon',
+      );
+    }
+    expect(
+      store.snapshot('ear.interval.m3_M3').status,
+      CompetencyStatus.provisionallyPassed,
+    );
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Недавно: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Легко:'), findsNothing);
+  });
+
   testWidgets('a due interval leads the recent pulse and records the answer',
       (tester) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
