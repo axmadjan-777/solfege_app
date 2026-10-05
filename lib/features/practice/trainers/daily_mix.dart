@@ -109,3 +109,29 @@ const appMixPool = <MixItem>[
 ];
 
 DailyMixPlan appDailyMix() => buildDailyMix(seed: 1, pool: appMixPool);
+
+/// Должные возвраты встают в начало. Длина плана сохраняется.
+DailyMixPlan placeDueReturns(DailyMixPlan plan, List<String> tags) {
+  if (tags.isEmpty) return plan;
+  final known = {for (final item in appMixPool) item.id: item};
+  final front = [
+    for (final tag in tags)
+      MixItem(
+        id: tag,
+        bucket: MixBucket.due,
+        action: known[tag]?.action ?? MixAction.aural,
+      ),
+  ];
+  final rest = <MixItem>[];
+  final skipped = <MixItem>[];
+  for (final item in plan.items) {
+    if (tags.contains(item.id)) {
+      skipped.add(item);
+    } else {
+      rest.add(item);
+    }
+  }
+  final merged = [...front, ...rest, ...skipped];
+  if (merged.length <= plan.items.length) return DailyMixPlan(merged);
+  return DailyMixPlan(merged.take(plan.items.length).toList());
+}

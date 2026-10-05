@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
+import 'package:solfege_app/features/practice/progress/error_return.dart';
 import 'package:solfege_app/features/practice/screens/daily_mix_screen.dart';
 import 'package:solfege_app/features/practice/trainers/daily_mix.dart';
 
@@ -141,6 +142,32 @@ void main() {
     expect(find.text('Заданий: 2'), findsOneWidget);
   });
 
+  test('a due return leads the next mix and an early clock does not', () {
+    final at = DateTime.utc(2026, 10, 5, 8);
+    final scheduled = scheduleNextDay(
+      current: const [],
+      tag: 'PR-08',
+      at: at,
+    );
+    expect(scheduled.single.dueAt, DateTime.utc(2026, 10, 6, 8));
+    expect(
+      dueReturnTags(
+          scheduled: scheduled, now: at.add(const Duration(hours: 23))),
+      isEmpty,
+    );
+    final due = dueReturnTags(
+      scheduled: scheduled,
+      now: at.add(const Duration(days: 1)),
+    );
+    expect(due, ['PR-08']);
+    final plan = placeDueReturns(appDailyMix(), due);
+    expect(plan.items, hasLength(12));
+    expect(plan.items.first.id, 'PR-08');
+    expect(plan.items.first.bucket, MixBucket.due);
+    final base = appDailyMix();
+    expect(identical(placeDueReturns(base, const []), base), isTrue);
+  });
+
   test('the mix limit reads duration_min', () {
     expect(
       dailyMixLimit(const {
@@ -218,5 +245,42 @@ void main() {
     await tester.pump();
     expect(find.text('PR-08'), findsOneWidget);
     expect(find.text('Время вышло'), findsNothing);
+  });
+
+  testWidgets('answering the same-session return schedules tomorrow',
+      (tester) async {
+    final seen = <String>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DailyMixScreen(
+          plan: const DailyMixPlan([
+            MixItem(
+                id: 'PR-08', bucket: MixBucket.due, action: MixAction.active),
+          ]),
+          onSameSessionReturn: seen.add,
+          taskBuilder: (item, onAnswered) => Scaffold(
+            body: FilledButton(
+              onPressed: () => onAnswered(false),
+              child: Text(item.id),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    await tester.tap(find.text('PR-08'));
+    await tester.pump();
+    expect(seen, isEmpty);
+    await tester.tap(find.text('Дальше'));
+    await tester.pump();
+    expect(find.text('Повтор ошибки'), findsOneWidget);
+    await tester.tap(find.text('PR-08'));
+    await tester.pump();
+    await tester.tap(find.text('Итог'));
+    await tester.pump();
+    expect(seen, ['PR-08']);
+    expect(find.text('Завтра: PR-08'), findsOneWidget);
   });
 }

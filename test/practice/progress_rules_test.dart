@@ -5,6 +5,7 @@ import 'package:solfege_app/features/curriculum/data/curriculum_catalog.dart';
 import 'package:solfege_app/features/curriculum/models/curriculum_config.dart';
 import 'package:solfege_app/features/practice/progress/attempt.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
+import 'package:solfege_app/features/practice/progress/error_return.dart';
 import 'package:solfege_app/features/practice/progress/progress_rules.dart';
 import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:test/test.dart';
@@ -246,6 +247,35 @@ void main() {
         jsonDecode(jsonEncode(store.book.toJson())) as Map<String, dynamic>);
     expect(restored.attempts.single.errorTag, 'degree.4');
     expect(restored.attempts.single.itemSignature, isNotEmpty);
+  });
+
+  test('a next-day return survives json and the next session', () {
+    store.scheduleNextDayReturn('PR-08');
+    expect(store.book.returns.single.dueAt,
+        clock.now().add(const Duration(days: 1)));
+    expect(
+      dueReturnTags(scheduled: store.book.returns, now: clock.now()),
+      isEmpty,
+    );
+
+    final encoded =
+        jsonDecode(jsonEncode(store.book.toJson())) as Map<String, dynamic>;
+    final restored = ProgressBook.fromJson(encoded);
+    expect(restored.returns.single.tag, 'PR-08');
+
+    final legacy = Map<String, dynamic>.from(encoded)..remove('returns');
+    expect(ProgressBook.fromJson(legacy).returns, isEmpty);
+
+    store.recordSession(
+      _session(id: 'later', correct: const [true], policy: aural),
+    );
+    expect(store.book.returns.single.tag, 'PR-08');
+    clock.advance(const Duration(hours: 23));
+    expect(dueReturnTags(scheduled: store.book.returns, now: clock.now()),
+        isEmpty);
+    clock.advance(const Duration(hours: 1));
+    expect(dueReturnTags(scheduled: store.book.returns, now: clock.now()),
+        ['PR-08']);
   });
 }
 

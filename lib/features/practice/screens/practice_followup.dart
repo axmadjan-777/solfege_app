@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../curriculum/data/curriculum_catalog.dart';
 import '../audio/practice_audio_player.dart';
 import '../progress/clock.dart';
+import '../progress/error_return.dart';
 import '../progress/practice_attempt.dart';
 import '../progress/progress_store.dart';
 import '../trainers/note_reading.dart';
@@ -88,9 +89,10 @@ Widget practiceSetScreen({
       ),
     'PR-14' => SingFollowup(onAnswered: record),
     'PR-15' => DailyMixScreen(
-        plan: appDailyMix(),
+        plan: _mixPlan(progress, clock),
         clock: clock,
         sessionLimit: dailyMixLimit(catalog.config.raw),
+        onSameSessionReturn: progress?.scheduleNextDayReturn,
         taskBuilder: (item, onAnswered) => practiceSetScreen(
           setId: item.id,
           player: player,
@@ -114,6 +116,16 @@ Widget practiceSetScreen({
       ),
     _ => _UnknownPractice(setId: setId),
   };
+}
+
+DailyMixPlan _mixPlan(ProgressStore? progress, Clock? clock) {
+  final base = appDailyMix();
+  if (progress == null) return base;
+  final now = (clock ?? const SystemClock()).now();
+  return placeDueReturns(
+    base,
+    dueReturnTags(scheduled: progress.book.returns, now: now),
+  );
 }
 
 class MelodyFollowup extends StatelessWidget {

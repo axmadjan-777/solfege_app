@@ -8,6 +8,7 @@ import 'package:solfege_app/features/curriculum/data/curriculum_catalog.dart';
 import 'package:solfege_app/features/practice/audio/practice_audio_player.dart';
 import 'package:solfege_app/features/practice/progress/attempt.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
+import 'package:solfege_app/features/practice/progress/error_return.dart';
 import 'package:solfege_app/features/practice/progress/practice_attempt.dart';
 import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/screens/practice_round_screen.dart';
@@ -55,6 +56,29 @@ void main() {
     expect(find.text('Устойчивость 1/3'), findsOneWidget);
     expect(find.text('В практике'), findsOneWidget);
     expect(find.text('Освоено'), findsNothing);
+  });
+
+  test('a next-day return survives a new launch', () async {
+    final preferences = await SharedPreferences.getInstance();
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    _store(preferences, clock).scheduleNextDayReturn('PR-08');
+
+    final reloaded = _store(preferences, clock);
+    expect(reloaded.book.returns.single.tag, 'PR-08');
+    expect(
+      dueReturnTags(
+        scheduled: reloaded.book.returns,
+        now: clock.now().add(const Duration(hours: 23)),
+      ),
+      isEmpty,
+    );
+    expect(
+      dueReturnTags(
+        scheduled: reloaded.book.returns,
+        now: clock.now().add(const Duration(days: 1)),
+      ),
+      ['PR-08'],
+    );
   });
 }
 

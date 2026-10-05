@@ -145,6 +145,49 @@ void main() {
   test('the catalog daily mix lasts five minutes', () {
     expect(dailyMixLimit(catalog.config.raw), const Duration(minutes: 5));
   });
+
+  testWidgets('a return due tomorrow opens note reading the next day',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
+    store.scheduleNextDayReturn('PR-08');
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: practiceSetScreen(
+          setId: 'PR-15',
+          player: player,
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(find.text('м3'), findsOneWidget);
+
+    clock.advance(const Duration(days: 1));
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: practiceSetScreen(
+          setId: 'PR-15',
+          player: player,
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(find.text('Опоры и соседи (C4–G4)'), findsOneWidget);
+    expect(find.text('м3'), findsNothing);
+  });
 }
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {

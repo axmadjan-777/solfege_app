@@ -12,6 +12,7 @@ class DailyMixScreen extends StatefulWidget {
     this.taskBuilder,
     this.clock,
     this.sessionLimit,
+    this.onSameSessionReturn,
   });
 
   final DailyMixPlan plan;
@@ -19,6 +20,7 @@ class DailyMixScreen extends StatefulWidget {
       taskBuilder;
   final Clock? clock;
   final Duration? sessionLimit;
+  final void Function(String tag)? onSameSessionReturn;
 
   @override
   State<DailyMixScreen> createState() => _DailyMixScreenState();
@@ -32,6 +34,7 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
   var _completed = 0;
   var _stoppedForTime = false;
   DateTime? _startedAt;
+  final _tomorrow = <String>[];
   late List<MixItem> _items;
 
   @override
@@ -54,11 +57,15 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
 
   void _accept(bool correct) {
     if (_answered) return;
+    final tag = _returnItem ? _items[_index].id : null;
     setState(() {
       _answered = true;
       _completed += 1;
       if (correct) {
         _correct += 1;
+      }
+      if (tag != null && !_tomorrow.contains(tag)) {
+        _tomorrow.add(tag);
       }
       _items = appendSameSessionReturn(
         planned: widget.plan.items,
@@ -67,6 +74,7 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
         correct: correct,
       );
     });
+    if (tag != null) widget.onSameSessionReturn?.call(tag);
   }
 
   @override
@@ -137,6 +145,7 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
             if (_finished) ...[
               if (_stoppedForTime) const Text('Время вышло'),
               Text('Итог: верно $_correct из $_completed'),
+              for (final tag in _tomorrow) Text('Завтра: $tag'),
             ],
             Text('Заданий: ${plan.items.length}'),
             Text('Должное: ${plan.countOf(MixBucket.due)}'),

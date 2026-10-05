@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../curriculum/models/curriculum_config.dart';
 import 'attempt.dart';
 import 'clock.dart';
+import 'error_return.dart';
 import 'progress_rules.dart';
 
 class CompetencySnapshot {
@@ -53,14 +54,17 @@ class CompetencySnapshot {
 }
 
 class ProgressBook {
-  const ProgressBook(
-      {required this.userId,
-      required this.competencies,
-      required this.attempts});
+  const ProgressBook({
+    required this.userId,
+    required this.competencies,
+    required this.attempts,
+    this.returns = const [],
+  });
 
   final String userId;
   final Map<String, CompetencySnapshot> competencies;
   final List<AttemptRecord> attempts;
+  final List<ScheduledReturn> returns;
 
   Map<String, Object?> toJson() => {
         'user_id': userId,
@@ -68,6 +72,7 @@ class ProgressBook {
           for (final e in competencies.entries) e.key: e.value.toJson()
         },
         'attempts': [for (final attempt in attempts) attempt.toJson()],
+        'returns': [for (final item in returns) item.toJson()],
       };
 
   factory ProgressBook.fromJson(Map<String, dynamic> json) => ProgressBook(
@@ -80,6 +85,10 @@ class ProgressBook {
         attempts: [
           for (final attempt in json['attempts'] as List)
             AttemptRecord.fromJson(Map<String, dynamic>.from(attempt as Map)),
+        ],
+        returns: [
+          for (final item in json['returns'] as List? ?? const [])
+            ScheduledReturn.fromJson(Map<String, dynamic>.from(item as Map)),
         ],
       );
 
@@ -119,6 +128,8 @@ abstract interface class ProgressStore {
   CompetencySnapshot snapshot(String competencyId);
 
   void recordSession(SessionDraft session);
+
+  void scheduleNextDayReturn(String tag);
 
   List<String> openErrorTags();
 }
@@ -214,7 +225,25 @@ class MemoryProgressStore implements ProgressStore {
       provisionalAt: decision.markedProvisionalAt,
     );
     book = ProgressBook(
-        userId: book.userId, competencies: competencies, attempts: attempts);
+      userId: book.userId,
+      competencies: competencies,
+      attempts: attempts,
+      returns: book.returns,
+    );
+  }
+
+  @override
+  void scheduleNextDayReturn(String tag) {
+    book = ProgressBook(
+      userId: book.userId,
+      competencies: book.competencies,
+      attempts: book.attempts,
+      returns: scheduleNextDay(
+        current: book.returns,
+        tag: tag,
+        at: clock.now(),
+      ),
+    );
   }
 
   @override
@@ -267,6 +296,12 @@ class SharedPreferencesProgressStore implements ProgressStore {
   @override
   void recordSession(SessionDraft session) {
     _memory.recordSession(session);
+    _preferences.setString(storageKey, jsonEncode(book.toJson()));
+  }
+
+  @override
+  void scheduleNextDayReturn(String tag) {
+    _memory.scheduleNextDayReturn(tag);
     _preferences.setString(storageKey, jsonEncode(book.toJson()));
   }
 
