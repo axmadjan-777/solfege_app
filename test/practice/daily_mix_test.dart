@@ -456,6 +456,51 @@ void main() {
     expect(find.text('Через 3 дня: PR-08'), findsOneWidget);
     expect(find.text('Завтра: PR-08'), findsNothing);
   });
+
+  test('due titles stay unique and skip recent items', () {
+    const plan = DailyMixPlan([
+      MixItem(id: 'L00-02', bucket: MixBucket.due, action: MixAction.aural),
+      MixItem(id: 'L00-02', bucket: MixBucket.due, action: MixAction.aural),
+      MixItem(id: 'PR-03', bucket: MixBucket.due, action: MixAction.aural),
+      MixItem(id: 'PR-09', bucket: MixBucket.recent, action: MixAction.active),
+    ]);
+    expect(
+      duePreviewTitles(plan, (id) => id == 'L00-02' ? 'Выше и ниже' : id),
+      ['Выше и ниже', 'PR-03'],
+    );
+  });
+
+  testWidgets('the summary names each due task once', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DailyMixScreen(
+          plan: const DailyMixPlan([
+            MixItem(
+                id: 'L00-02', bucket: MixBucket.due, action: MixAction.aural),
+            MixItem(
+                id: 'L00-02', bucket: MixBucket.due, action: MixAction.aural),
+            MixItem(
+                id: 'PR-03', bucket: MixBucket.due, action: MixAction.aural),
+            MixItem(
+                id: 'PR-09',
+                bucket: MixBucket.recent,
+                action: MixAction.active),
+          ]),
+          titleOf: (id) => switch (id) {
+            'L00-02' => 'Выше и ниже',
+            'PR-03' => 'Интервалы на слух',
+            'PR-09' => 'Пульс',
+            _ => id,
+          },
+          taskBuilder: (item, onAnswered) => const SizedBox.shrink(),
+        ),
+      ),
+    );
+    expect(find.text('Сначала: Выше и ниже'), findsOneWidget);
+    expect(find.text('Ещё: Интервалы на слух'), findsOneWidget);
+    expect(find.text('Ещё: Выше и ниже'), findsNothing);
+    expect(find.textContaining('Пульс'), findsNothing);
+  });
 }
 
 CompetencySnapshot _snap(CompetencyStatus status, DateTime? dueAt) {

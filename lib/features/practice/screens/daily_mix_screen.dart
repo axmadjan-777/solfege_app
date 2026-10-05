@@ -146,13 +146,7 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
     );
   }
 
-  String? get _firstDueTitle {
-    for (final item in widget.plan.items) {
-      if (item.bucket != MixBucket.due) continue;
-      return widget.titleOf?.call(item.id) ?? item.id;
-    }
-    return null;
-  }
+  List<String> get _dueTitles => duePreviewTitles(widget.plan, widget.titleOf);
 
   Widget _summary() {
     final plan = widget.plan;
@@ -178,9 +172,10 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
             Text('Должное: ${plan.countOf(MixBucket.due)}'),
             Text('Недавнее: ${plan.countOf(MixBucket.recent)}'),
             Text('Лёгкое: ${plan.countOf(MixBucket.easy)}'),
-            if (canStart && _firstDueTitle != null) ...[
+            if (canStart && _dueTitles.isNotEmpty) ...[
               const SizedBox(height: 16),
-              Text('Сначала: $_firstDueTitle'),
+              Text('Сначала: ${_dueTitles.first}'),
+              for (final title in _dueTitles.skip(1)) Text('Ещё: $title'),
             ],
             if (canStart) ...[
               const SizedBox(height: 16),

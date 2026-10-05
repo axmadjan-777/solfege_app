@@ -231,6 +231,31 @@ void main() {
     expect(find.text('Пока нет должных заданий.'), findsOneWidget);
   });
 
+  testWidgets('two open errors are both named before the mix starts',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
+    recordLessonResult(
+      store: store,
+      catalog: catalog,
+      lesson: catalog.lesson('L00-02'),
+      correct: 0,
+      total: 2,
+    );
+    recordPracticeAnswer(
+      store: store,
+      catalog: catalog,
+      setId: 'PR-03',
+      correct: false,
+    );
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.textContaining('Выше и ниже'), findsOneWidget);
+    expect(find.textContaining('Интервалы на слух'), findsOneWidget);
+  });
+
   test('the catalog daily mix lasts five minutes', () {
     expect(dailyMixLimit(catalog.config.raw), const Duration(minutes: 5));
   });

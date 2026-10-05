@@ -114,6 +114,20 @@ const appMixPool = <MixItem>[
 
 DailyMixPlan appDailyMix() => buildDailyMix(seed: 1, pool: appMixPool);
 
+/// Названия должных заданий в порядке плана, каждое один раз.
+List<String> duePreviewTitles(
+  DailyMixPlan plan,
+  String Function(String id)? titleOf,
+) {
+  final seen = <String>{};
+  final titles = <String>[];
+  for (final item in plan.items) {
+    if (item.bucket != MixBucket.due || !seen.add(item.id)) continue;
+    titles.add(titleOf?.call(item.id) ?? item.id);
+  }
+  return titles;
+}
+
 class TrainerRef {
   const TrainerRef({
     required this.id,
