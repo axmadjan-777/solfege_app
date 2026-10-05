@@ -6,6 +6,7 @@ import '../../curriculum/data/curriculum_catalog.dart';
 import '../../practice/audio/practice_audio_player.dart';
 import '../../practice/audio/synthetic_practice_audio_player.dart';
 import '../../practice/progress/clock.dart';
+import '../../practice/progress/practice_attempt.dart';
 import '../../practice/progress/progress_store.dart';
 import '../../practice/screens/practice_round_screen.dart';
 import '../level0/level0_plan.dart';
@@ -88,6 +89,15 @@ class _Home extends StatelessWidget {
                 builder: (_) => Level0Player(
                   plan: Level0Plan.fromLesson(lesson),
                   onFinished: (result) {
+                    if (progress != null) {
+                      recordLessonResult(
+                        store: progress!,
+                        catalog: catalog,
+                        lesson: lesson,
+                        correct: result.correct,
+                        total: result.total,
+                      );
+                    }
                     if (result.trainPracticeSetIds.isEmpty) return;
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(

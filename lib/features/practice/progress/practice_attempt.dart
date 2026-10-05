@@ -1,4 +1,5 @@
 import '../../curriculum/data/curriculum_catalog.dart';
+import '../../curriculum/models/lesson.dart';
 import '../../curriculum/models/practice_set.dart';
 import 'progress_store.dart';
 
@@ -24,6 +25,32 @@ void recordPracticeAnswer({
       coldReview: coldReview,
       errorTag: correct ? '' : setId,
       itemSignature: setId,
+    ),
+  );
+}
+
+/// Итог урока пишется в ту же книгу, что и ответ тренажёра. Короткий урок не ставит `mastered`.
+void recordLessonResult({
+  required ProgressStore store,
+  required CurriculumCatalog catalog,
+  required Lesson lesson,
+  required int correct,
+  required int total,
+}) {
+  if (total <= 0) return;
+  final missed = total - correct;
+  store.recordSession(
+    SessionDraft(
+      competencyId: lesson.primaryCompetency,
+      sessionId: '${lesson.id}-${store.book.attempts.length}',
+      correct: [
+        ...List<bool>.filled(correct, true),
+        ...List<bool>.filled(missed, false)
+      ],
+      policy: catalog.config.policy(lesson.coldReviewPolicyId),
+      tonality: 'C',
+      errorTag: missed == 0 ? '' : lesson.id,
+      itemSignature: lesson.id,
     ),
   );
 }
