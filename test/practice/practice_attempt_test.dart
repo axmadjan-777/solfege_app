@@ -412,6 +412,45 @@ void main() {
     expect(store.snapshot(competency).stability.reached, isTrue);
     expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
   });
+
+  testWidgets('a miss after 20 hours does not count as a stability session',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PracticeRoundScreen(
+          setId: 'PR-03',
+          player: FakePracticeAudioPlayer(),
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+
+    await _answer(tester, 'м3');
+    expect(find.text('Устойчивость 1/3'), findsOneWidget);
+
+    clock.advance(const Duration(hours: 20));
+    await tester.tap(find.text('Следующее'));
+    await tester.pump();
+    await _answer(tester, 'б3');
+
+    expect(find.text('Устойчивость 1/3'), findsOneWidget);
+    expect(find.text('Пока не то'), findsOneWidget);
+    expect(store.snapshot(competency).stability.sessions, hasLength(1));
+    expect(store.book.attempts.last.isCorrect, isFalse);
+
+    await tester.tap(find.text('Следующее'));
+    await tester.pump();
+    await _answer(tester, 'м3');
+    expect(find.text('Устойчивость 2/3'), findsOneWidget);
+    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
+  });
 }
 
 void _slip(MemoryProgressStore store, CurriculumCatalog catalog) {
