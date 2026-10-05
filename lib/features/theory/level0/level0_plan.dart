@@ -2,6 +2,7 @@ import '../../curriculum/models/lesson.dart';
 import '../../practice/progress/attempt.dart';
 import '../../scales/utils/solfege_notes.dart';
 import 'early_level_plan.dart';
+import 'foundation_plan.dart';
 import 'late_level_plan.dart';
 
 /// Потолок урока. `mastered` ставит только отложенная проверка.
@@ -56,6 +57,7 @@ class Level0Plan {
       trainPracticeSetIds: lesson.id == 'L04-04' || lesson.id == 'L04-11' ? const ['PR-01'] : lesson.practiceSetIds,
       steps: lateLevelSteps(lesson) ??
           earlyLevelSteps(lesson) ??
+          foundationSteps(lesson) ??
           switch (lesson.id) {
         'L00-01' => _toneAndNoise(lesson),
         'L00-04' => _loudnessAndTimbre(lesson),
@@ -435,7 +437,7 @@ List<Level0Step> _doReMi(Lesson lesson) {
     for (var i = 0; i < lesson.learningItems; i++)
       _choice(lesson, 'guided', 'Найти клавишу: ${notes[i % notes.length]}', 'T06', notes, i % notes.length),
     for (var i = 0; i < lesson.checkItems; i++)
-      _choice(lesson, 'check', 'Назови клавишу ${i + 1}', 'T06', notes, i % notes.length),
+      _choice(lesson, 'check', 'Найти клавишу: ${notes[i % notes.length]}', 'T06', notes, i % notes.length),
     _choice(
       lesson,
       'transfer',

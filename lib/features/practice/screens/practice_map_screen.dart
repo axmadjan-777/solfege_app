@@ -6,6 +6,7 @@ import '../../curriculum/data/curriculum_catalog.dart';
 import '../../curriculum/models/practice_set.dart';
 import '../audio/practice_audio_player.dart';
 import '../audio/synthetic_practice_audio_player.dart';
+import '../progress/progress_store.dart';
 import '../progress/progress_rules.dart';
 import '../trainers/assessment.dart';
 import '../trainers/minor_degree_dictation.dart';
@@ -14,24 +15,33 @@ import 'practice_followup.dart';
 
 class PracticeMapScreen extends StatelessWidget {
   const PracticeMapScreen(
-      {super.key, this.catalog, this.isMastered, this.player});
+      {super.key, this.catalog, this.isMastered, this.player, this.progress});
 
   final CurriculumCatalog? catalog;
   final bool Function(String competencyId)? isMastered;
   final PracticeAudioPlayer? player;
+  final ProgressStore? progress;
 
   bool _mastered(String id) => isMastered?.call(id) ?? false;
 
   @override
   Widget build(BuildContext context) {
-    if (catalog != null)
-      return _MapBody(catalog: catalog!, isMastered: _mastered, player: player);
+    if (catalog != null) {
+      return _MapBody(
+          catalog: catalog!,
+          isMastered: _mastered,
+          player: player,
+          progress: progress);
+    }
     return FutureBuilder<CurriculumCatalog>(
       future: const CurriculumAssetSource().load(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return _MapBody(
-              catalog: snapshot.data!, isMastered: _mastered, player: player);
+              catalog: snapshot.data!,
+              isMastered: _mastered,
+              player: player,
+              progress: progress);
         }
         if (snapshot.hasError) {
           return const Center(child: Text('Не удалось загрузить практику'));
@@ -43,12 +53,17 @@ class PracticeMapScreen extends StatelessWidget {
 }
 
 class _MapBody extends StatelessWidget {
-  const _MapBody(
-      {required this.catalog, required this.isMastered, required this.player});
+  const _MapBody({
+    required this.catalog,
+    required this.isMastered,
+    required this.player,
+    required this.progress,
+  });
 
   final CurriculumCatalog catalog;
   final bool Function(String competencyId) isMastered;
   final PracticeAudioPlayer? player;
+  final ProgressStore? progress;
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +77,12 @@ class _MapBody extends StatelessWidget {
             const SizedBox(height: 16),
             for (final set in catalog.practiceSets)
               _PracticeCard(
-                  set: set,
-                  catalog: catalog,
-                  isMastered: isMastered,
-                  player: player),
+                set: set,
+                catalog: catalog,
+                isMastered: isMastered,
+                player: player,
+                progress: progress,
+              ),
           ],
         ),
       ),
@@ -74,16 +91,19 @@ class _MapBody extends StatelessWidget {
 }
 
 class _PracticeCard extends StatelessWidget {
-  const _PracticeCard(
-      {required this.set,
-      required this.catalog,
-      required this.isMastered,
-      required this.player});
+  const _PracticeCard({
+    required this.set,
+    required this.catalog,
+    required this.isMastered,
+    required this.player,
+    required this.progress,
+  });
 
   final PracticeSet set;
   final CurriculumCatalog catalog;
   final bool Function(String competencyId) isMastered;
   final PracticeAudioPlayer? player;
+  final ProgressStore? progress;
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +141,7 @@ class _PracticeCard extends StatelessWidget {
                           setId: set.id,
                           player: player ?? SyntheticPracticeAudioPlayer(),
                           catalog: catalog,
+                          progress: progress,
                         ),
                       ),
                     );
