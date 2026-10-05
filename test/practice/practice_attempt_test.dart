@@ -514,6 +514,29 @@ void main() {
     expect(
         find.widgetWithText(FilledButton, 'Холодная проверка'), findsNothing);
     expect(find.text('Холодная проверка'), findsNothing);
+
+    await tester.tap(find.text('Следующее'));
+    await tester.pump();
+    await _answer(tester, 'м3');
+    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
+    expect(find.text('Нужно повторить'), findsOneWidget);
+    expect(
+        find.widgetWithText(FilledButton, 'Холодная проверка'), findsNothing);
+
+    for (var i = 0; i < 5; i++) {
+      await tester.tap(find.text('Следующее'));
+      await tester.pump();
+      await _answer(tester, 'м3');
+    }
+    expect(find.text('Предварительно сдано'), findsOneWidget);
+    expect(store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed);
+    expect(store.snapshot(competency).provisionalAt, clock.now());
+
+    await tester.tap(find.text('Холодная проверка'));
+    await tester.pump();
+    expect(find.text('Рано'), findsOneWidget);
+    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
   });
 }
 
