@@ -537,6 +537,22 @@ void main() {
     await tester.pump();
     expect(find.text('Рано'), findsOneWidget);
     expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
+
+    clock.advance(const Duration(hours: 20));
+    await tester.tap(find.text('Холодная проверка'));
+    await tester.pump();
+    for (var i = 0; i < 4; i++) {
+      await _answer(tester, 'м3');
+      if (i < 3) {
+        await tester.tap(find.text('Следующее'));
+        await tester.pump();
+      }
+    }
+    expect(find.text('Освоено'), findsWidgets);
+    expect(store.snapshot(competency).status, CompetencyStatus.mastered);
+    expect(
+        find.widgetWithText(FilledButton, 'Холодная проверка'), findsNothing);
+    expect(find.widgetWithText(FilledButton, 'Следующее'), findsNothing);
   });
 }
 
