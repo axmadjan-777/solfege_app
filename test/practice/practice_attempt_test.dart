@@ -321,6 +321,52 @@ void main() {
     expect(find.text('Рано'), findsOneWidget);
     expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
   });
+
+  testWidgets(
+      'three spaced sessions in two keys become stable without mastered',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PracticeRoundScreen(
+          setId: 'PR-03',
+          player: FakePracticeAudioPlayer(),
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+
+    await _answer(tester, 'м3');
+    expect(find.text('Устойчивость 1/3'), findsOneWidget);
+    await tester.tap(find.text('Следующее'));
+    await tester.pump();
+    await _answer(tester, 'м3');
+    expect(find.text('Устойчивость 1/3'), findsOneWidget);
+
+    clock.advance(const Duration(hours: 20));
+    await tester.tap(find.text('Следующее'));
+    await tester.pump();
+    await _answer(tester, 'м3');
+    expect(find.text('Устойчивость 2/3'), findsOneWidget);
+
+    clock.advance(const Duration(hours: 20));
+    await tester.tap(find.text('Тональность: до'));
+    await tester.pump();
+    expect(find.text('Тональность: соль'), findsOneWidget);
+    await tester.tap(find.text('Следующее'));
+    await tester.pump();
+    await _answer(tester, 'м3');
+
+    expect(find.text('Стабильно'), findsOneWidget);
+    expect(store.snapshot(competency).stability.reached, isTrue);
+    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
+  });
 }
 
 void _slip(MemoryProgressStore store, CurriculumCatalog catalog) {

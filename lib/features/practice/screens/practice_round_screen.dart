@@ -38,6 +38,7 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
   var _coldLeft = 0;
   String? _coldSession;
   String? _notice;
+  var _tonality = 'C';
 
   String get _competency => competencyOf(
       widget.catalog.practiceSets.firstWhere((set) => set.id == widget.setId));
@@ -83,6 +84,7 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
             progress: widget.progress,
             coldReview: _coldLeft > 0,
             sessionId: _coldLeft > 0 ? _coldSession : null,
+            tonality: _tonality,
             onAnswered: (_) {
               setState(() {
                 if (_coldLeft > 0) _coldLeft -= 1;
@@ -103,15 +105,24 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(practiceStatusLabel(_status)),
+                    Text(stabilityLabel(
+                        widget.progress.snapshot(_competency).stability)),
                     if (_notice != null) Text(_notice!),
                     const SizedBox(height: 12),
                     if (_status == CompetencyStatus.provisionallyPassed)
                       FilledButton(
                           onPressed: _coldReview,
                           child: const Text('Холодная проверка')),
-                    if (_status != CompetencyStatus.mastered)
+                    if (_status != CompetencyStatus.mastered) ...[
+                      FilledButton(
+                        onPressed: () => setState(
+                            () => _tonality = _tonality == 'C' ? 'G' : 'C'),
+                        child: Text(
+                            'Тональность: ${_tonality == 'C' ? 'до' : 'соль'}'),
+                      ),
                       FilledButton(
                           onPressed: _advance, child: const Text('Следующее')),
+                    ],
                   ],
                 ),
               ),
@@ -139,6 +150,12 @@ Widget openPractice({
     progress: progress,
     clock: clock ?? const SystemClock(),
   );
+}
+
+String stabilityLabel(Stability stability) {
+  if (stability.reached) return 'Стабильно';
+  if (stability.sessions.length >= 3) return 'Нужна другая тональность';
+  return 'Устойчивость ${stability.sessions.length}/3';
 }
 
 String practiceStatusLabel(CompetencyStatus status) {

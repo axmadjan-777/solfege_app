@@ -35,6 +35,7 @@ Widget practiceSetScreen({
   ValueChanged<bool>? onAnswered,
   bool coldReview = false,
   String? sessionId,
+  String tonality = 'C',
 }) {
   void record(bool correct) {
     if (progress != null) {
@@ -45,6 +46,7 @@ Widget practiceSetScreen({
         correct: correct,
         coldReview: coldReview,
         sessionId: sessionId,
+        tonality: tonality,
       );
     }
     onAnswered?.call(correct);

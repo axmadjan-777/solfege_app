@@ -10,6 +10,7 @@ void recordPracticeAnswer({
   required bool correct,
   bool coldReview = false,
   String? sessionId,
+  String tonality = 'C',
 }) {
   final set = catalog.practiceSets.firstWhere((item) => item.id == setId);
   final competencyId = competencyOf(set);
@@ -19,7 +20,7 @@ void recordPracticeAnswer({
       sessionId: sessionId ?? '$setId-${store.book.attempts.length}',
       correct: [correct],
       policy: catalog.config.policy(set.reviewRule),
-      tonality: 'C',
+      tonality: tonality,
       coldReview: coldReview,
       errorTag: correct ? '' : setId,
       itemSignature: setId,
