@@ -127,6 +127,67 @@ void main() {
     expect(find.text('Освоено'), findsWidgets);
     expect(store.snapshot(competency).status, CompetencyStatus.mastered);
   });
+
+  test('four of the last six correct answers stay provisionally passed', () {
+    final store = _store();
+    for (var i = 0; i < 12; i++) {
+      recordPracticeAnswer(
+          store: store, catalog: catalog, setId: 'PR-03', correct: true);
+    }
+    for (final correct in [true, true, true, true, false, false]) {
+      recordPracticeAnswer(
+          store: store, catalog: catalog, setId: 'PR-03', correct: correct);
+    }
+
+    final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+    expect(store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed);
+  });
+
+  testWidgets('four misses in the last six answers ask for review',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final player = FakePracticeAudioPlayer();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PracticeRoundScreen(
+          setId: 'PR-03',
+          player: player,
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+
+    for (var i = 0; i < 12; i++) {
+      await _answer(tester, 'м3');
+      if (i < 11) {
+        await tester.tap(find.text('Следующее'));
+        await tester.pump();
+      }
+    }
+    for (final label in ['м3', 'м3', 'б3', 'б3', 'б3', 'б3']) {
+      await tester.tap(find.text('Следующее'));
+      await tester.pump();
+      await _answer(tester, label);
+    }
+
+    final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+    expect(find.text('Нужно повторить'), findsOneWidget);
+    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
+    expect(find.text('Холодная проверка'), findsNothing);
+  });
+}
+
+Future<void> _answer(WidgetTester tester, String label) async {
+  await tester.pump();
+  await tester.tap(find.text(label));
+  await tester.pump();
 }
 
 MemoryProgressStore _store() {

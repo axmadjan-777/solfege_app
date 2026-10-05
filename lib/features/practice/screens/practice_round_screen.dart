@@ -61,8 +61,6 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provisional = _status == CompetencyStatus.provisionallyPassed ||
-        _status == CompetencyStatus.mastered;
     return Stack(
       children: [
         KeyedSubtree(
@@ -89,11 +87,11 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
                     Text(practiceStatusLabel(_status)),
                     if (_notice != null) Text(_notice!),
                     const SizedBox(height: 12),
-                    if (provisional)
+                    if (_status == CompetencyStatus.provisionallyPassed)
                       FilledButton(
                           onPressed: _coldReview,
-                          child: const Text('Холодная проверка'))
-                    else
+                          child: const Text('Холодная проверка')),
+                    if (_status != CompetencyStatus.mastered)
                       FilledButton(
                           onPressed: _advance, child: const Text('Следующее')),
                   ],
