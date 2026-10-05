@@ -41,6 +41,34 @@ void main() {
     expect(plan.items.every((item) => item.id == 'PR-01'), isTrue);
   });
 
+  test('a miss returns once at the end and a second miss does not', () {
+    const planned = [
+      MixItem(id: 'PR-03', bucket: MixBucket.due, action: MixAction.aural),
+      MixItem(id: 'PR-08', bucket: MixBucket.easy, action: MixAction.active),
+    ];
+    final afterFirst = appendSameSessionReturn(
+      planned: planned,
+      running: planned,
+      index: 0,
+      correct: false,
+    );
+    expect(afterFirst.map((item) => item.id), ['PR-03', 'PR-08', 'PR-03']);
+    final afterReturn = appendSameSessionReturn(
+      planned: planned,
+      running: afterFirst,
+      index: 2,
+      correct: false,
+    );
+    expect(afterReturn, hasLength(3));
+    final kept = appendSameSessionReturn(
+      planned: planned,
+      running: planned,
+      index: 0,
+      correct: true,
+    );
+    expect(kept, hasLength(2));
+  });
+
   test('the mix stays closed until the pulse lesson is mastered', () {
     expect(pr15CanStart((id) => id == 'rhy.pulse_tap'), isTrue);
     expect(pr15CanStart((_) => false), isFalse);
@@ -97,9 +125,18 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('PR-08'));
     await tester.pump();
+    expect(find.text('Дальше'), findsOneWidget);
+    await tester.tap(find.text('Дальше'));
+    await tester.pump();
+    expect(find.text('Повтор ошибки'), findsOneWidget);
+    expect(find.text('PR-08'), findsOneWidget);
+    await tester.tap(find.text('PR-08'));
+    await tester.pump();
+    expect(find.text('Итог'), findsOneWidget);
+    expect(find.text('Дальше'), findsNothing);
     await tester.tap(find.text('Итог'));
     await tester.pump();
-    expect(find.text('Итог: верно 1 из 2'), findsOneWidget);
+    expect(find.text('Итог: верно 1 из 3'), findsOneWidget);
     expect(find.text('Заданий: 2'), findsOneWidget);
   });
 }

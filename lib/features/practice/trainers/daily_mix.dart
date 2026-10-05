@@ -78,6 +78,18 @@ bool _hasBoth(List<MixItem> items) {
 bool pr15CanStart(bool Function(String competencyId) isMastered) =>
     isMastered('rhy.pulse_tap');
 
+/// Промах исходного задания возвращается один раз в конец сессии.
+/// Промах этого повтора новое задание не добавляет.
+List<MixItem> appendSameSessionReturn({
+  required List<MixItem> planned,
+  required List<MixItem> running,
+  required int index,
+  required bool correct,
+}) {
+  if (correct || index < 0 || index >= planned.length) return running;
+  return [...running, planned[index]];
+}
+
 /// Пул уже собранных тренажёров. Первые задания — слуховой интервал.
 const appMixPool = <MixItem>[
   MixItem(id: 'PR-03', bucket: MixBucket.due, action: MixAction.aural),

@@ -20,14 +20,31 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
   var _index = 0;
   var _answered = false;
   var _correct = 0;
+  late List<MixItem> _items;
 
-  bool get _finished => _started && _index >= widget.plan.items.length;
+  @override
+  void initState() {
+    super.initState();
+    _items = [...widget.plan.items];
+  }
+
+  bool get _finished => _started && _index >= _items.length;
+
+  bool get _returnItem => _index >= widget.plan.items.length;
 
   void _accept(bool correct) {
     if (_answered) return;
     setState(() {
       _answered = true;
-      if (correct) _correct += 1;
+      if (correct) {
+        _correct += 1;
+      }
+      _items = appendSameSessionReturn(
+        planned: widget.plan.items,
+        running: _items,
+        index: _index,
+        correct: correct,
+      );
     });
   }
 
@@ -38,26 +55,39 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
   }
 
   Widget _task() {
-    final last = _index + 1 >= widget.plan.items.length;
+    final item = _items[_index];
+    final last = _index + 1 >= _items.length;
     return Stack(
       children: [
         KeyedSubtree(
-          key: ValueKey('mix-$_index'),
-          child: widget.taskBuilder!(widget.plan.items[_index], _accept),
+          key: ValueKey('mix-${item.id}-$_index'),
+          child: widget.taskBuilder!(item, _accept),
         ),
-        if (_answered)
+        if (_returnItem || _answered)
           Align(
             alignment: Alignment.bottomCenter,
-            child: Material(
-              color: AppColors.background,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: FilledButton(
-                  onPressed: () => setState(() {
-                    _index += 1;
-                    _answered = false;
-                  }),
-                  child: Text(last ? 'Итог' : 'Дальше'),
+            child: IgnorePointer(
+              ignoring: !_answered,
+              child: Material(
+                color: AppColors.background,
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_returnItem) const Text('Повтор ошибки'),
+                      if (_answered) ...[
+                        const SizedBox(height: 12),
+                        FilledButton(
+                          onPressed: () => setState(() {
+                            _index += 1;
+                            _answered = false;
+                          }),
+                          child: Text(last ? 'Итог' : 'Дальше'),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -78,8 +108,7 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_finished)
-              Text('Итог: верно $_correct из ${plan.items.length}'),
+            if (_finished) Text('Итог: верно $_correct из ${_items.length}'),
             Text('Заданий: ${plan.items.length}'),
             Text('Должное: ${plan.countOf(MixBucket.due)}'),
             Text('Недавнее: ${plan.countOf(MixBucket.recent)}'),
