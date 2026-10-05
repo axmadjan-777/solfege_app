@@ -618,6 +618,27 @@ void main() {
     await tester.tap(find.text('Начать'));
     await tester.pump();
     expect(find.text('м3'), findsOneWidget);
+    await tester.tap(find.text('б3'));
+    await tester.pump();
+    expect(find.text('Пока не то'), findsOneWidget);
+    expect(store.snapshot(competency).status, CompetencyStatus.mastered);
+    expect(store.book.attempts.last.isCorrect, isFalse);
+    expect(store.book.attempts.last.errorTag, 'PR-03');
+    expect(
+      store.snapshot(competency).dueAt,
+      clock.now().add(const Duration(days: 1)),
+    );
+
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, store, clock));
+    expect(find.text('Сначала: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Легко:'), findsNothing);
+
+    clock.advance(const Duration(hours: 23));
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, store, clock));
+    expect(find.text('Сначала: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Легко:'), findsNothing);
   });
 }
 
