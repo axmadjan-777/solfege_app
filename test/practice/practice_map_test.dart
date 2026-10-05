@@ -20,7 +20,7 @@ void main() {
     );
   });
 
-  testWidgets('PR-01 stays locked and minor dictation is marked soon', (tester) async {
+  testWidgets('PR-01 stays locked and minor dictation waits for its lesson', (tester) async {
     await tester.pumpWidget(
       MaterialApp(home: PracticeMapScreen(catalog: catalog)),
     );
@@ -34,7 +34,7 @@ void main() {
 
     await tester.scrollUntilVisible(find.text('Ступеневый диктант в миноре'), 400);
     expect(
-      find.descendant(of: find.byKey(const Key('practice-PR-02')), matching: find.text('Скоро')),
+      find.descendant(of: find.byKey(const Key('practice-PR-02')), matching: find.text('Закрыто')),
       findsOneWidget,
     );
   });

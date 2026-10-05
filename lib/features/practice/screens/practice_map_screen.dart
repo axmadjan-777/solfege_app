@@ -6,6 +6,7 @@ import '../../curriculum/data/curriculum_catalog.dart';
 import '../../curriculum/models/practice_set.dart';
 import '../progress/progress_rules.dart';
 import '../trainers/assessment.dart';
+import '../trainers/minor_degree_dictation.dart';
 import 'diagnostic_screen.dart';
 
 class PracticeMapScreen extends StatelessWidget {
@@ -68,13 +69,17 @@ class _PracticeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final earlyIntervals = set.id == 'PR-03';
+    final minorDictation = set.id == 'PR-02';
     final open = earlyIntervals ||
+        (minorDictation && pr02CanStart(isMastered)) ||
         (set.mvpStatus.isMvp && isTrainerOpen(set: set, catalog: catalog, isMastered: isMastered));
-    final badge = !set.mvpStatus.isMvp
-        ? 'Скоро'
-        : earlyIntervals
-            ? 'Стадии 1–3'
-            : (open ? 'Открыто' : 'Закрыто');
+    final badge = minorDictation
+        ? (open ? 'Открыто' : 'Закрыто')
+        : !set.mvpStatus.isMvp
+            ? 'Скоро'
+            : earlyIntervals
+                ? 'Стадии 1–3'
+                : (open ? 'Открыто' : 'Закрыто');
     final diagnostic = set.id == 'PR-08' || set.id == 'PR-09';
     return Card(
       key: Key('practice-${set.id}'),
