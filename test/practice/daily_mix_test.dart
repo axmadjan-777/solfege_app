@@ -481,6 +481,14 @@ void main() {
     );
   });
 
+  test('a mastered competency becomes due at its timestamp', () {
+    final tomorrow = DateTime.utc(2026, 10, 6, 8);
+    final snap = _snap(CompetencyStatus.mastered, tomorrow);
+    expect(bucketOf(snap, DateTime.utc(2026, 10, 5, 8)), MixBucket.easy);
+    expect(bucketOf(snap, DateTime.utc(2026, 10, 6, 7)), MixBucket.easy);
+    expect(bucketOf(snap, tomorrow), MixBucket.due);
+  });
+
   testWidgets('the summary names each due task once', (tester) async {
     await tester.pumpWidget(
       MaterialApp(

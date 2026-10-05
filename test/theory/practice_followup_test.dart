@@ -152,6 +152,46 @@ void main() {
     expect(find.textContaining('Сначала:'), findsNothing);
   });
 
+  testWidgets('a mastered note leads the mix when its due date arrives',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+      book: ProgressBook(
+        userId: 'local',
+        competencies: {
+          'not.read_treble_c4_g4': CompetencySnapshot(
+            status: CompetencyStatus.mastered,
+            stability: const Stability(),
+            intervalStep: 0,
+            dueAt: DateTime.utc(2026, 10, 6, 8),
+            provisionalAt: null,
+          ),
+        },
+        attempts: [],
+      ),
+    );
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Легко: Чтение нот'), findsOneWidget);
+    expect(find.textContaining('Сначала:'), findsNothing);
+
+    clock.advance(const Duration(hours: 23));
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Легко: Чтение нот'), findsOneWidget);
+
+    clock.advance(const Duration(hours: 1));
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Сначала: Чтение нот'), findsOneWidget);
+    expect(find.textContaining('Легко:'), findsNothing);
+    expect(find.text('Должное: 8'), findsOneWidget);
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(find.text('Опоры и соседи (C4–G4)'), findsOneWidget);
+  });
+
   testWidgets('a due interval leads the recent pulse and records the answer',
       (tester) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
