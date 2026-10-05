@@ -39,6 +39,8 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
   var _started = false;
   var _index = 0;
   var _answered = false;
+  bool? _lastCorrect;
+  var _replay = 0;
   var _correct = 0;
   var _completed = 0;
   var _stoppedForTime = false;
@@ -72,6 +74,7 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
     final due = !returning && widget.dueNow.contains(id);
     setState(() {
       _answered = true;
+      _lastCorrect = correct;
       _completed += 1;
       if (correct) {
         _correct += 1;
@@ -105,7 +108,7 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
     return Stack(
       children: [
         KeyedSubtree(
-          key: ValueKey('mix-${item.id}-$_index'),
+          key: ValueKey('mix-${item.id}-$_index-$_replay'),
           child: widget.taskBuilder!(item, _accept),
         ),
         if (_returnItem || _answered)
@@ -121,6 +124,17 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (_returnItem) const Text('Повтор ошибки'),
+                      if (_answered && _lastCorrect == false) ...[
+                        const SizedBox(height: 12),
+                        FilledButton(
+                          onPressed: () => setState(() {
+                            _answered = false;
+                            _lastCorrect = null;
+                            _replay += 1;
+                          }),
+                          child: const Text('Повторить'),
+                        ),
+                      ],
                       if (_answered) ...[
                         const SizedBox(height: 12),
                         FilledButton(
@@ -132,6 +146,7 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
                             }
                             _index += 1;
                             _answered = false;
+                            _lastCorrect = null;
                           }),
                           child: Text(last || _timeUp ? 'Итог' : 'Дальше'),
                         ),

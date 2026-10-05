@@ -53,6 +53,14 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
     });
   }
 
+  void _repeat() {
+    setState(() {
+      _round += 1;
+      _answered = false;
+      _notice = null;
+    });
+  }
+
   void _coldReview() {
     final marked = widget.progress.snapshot(_competency).provisionalAt;
     final ready = marked != null &&
@@ -141,6 +149,9 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
                           onPressed: _coldReview,
                           child: const Text('Холодная проверка')),
                     if (_status != CompetencyStatus.mastered) ...[
+                      if (_coldLeft == 0)
+                        FilledButton(
+                            onPressed: _repeat, child: const Text('Повторить')),
                       FilledButton(
                         onPressed: () => setState(
                             () => _tonality = _tonality == 'C' ? 'G' : 'C'),

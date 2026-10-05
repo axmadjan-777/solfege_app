@@ -452,6 +452,32 @@ void main() {
     expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
   });
 
+  testWidgets('a wrong interval can be repeated before the next card',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PracticeRoundScreen(
+          setId: 'PR-03',
+          player: FakePracticeAudioPlayer(),
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+    await _answer(tester, 'б3');
+    expect(find.text('Пока не то'), findsOneWidget);
+    expect(find.text('Повторить'), findsOneWidget);
+    await tester.tap(find.text('Повторить'));
+    await tester.pump();
+    await _answer(tester, 'м3');
+    expect(find.text('Верно'), findsOneWidget);
+    expect(store.book.attempts.last.isCorrect, isTrue);
+  });
+
   testWidgets('a miss on the second due cold review asks to repeat',
       (tester) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
@@ -621,6 +647,7 @@ void main() {
     await tester.tap(find.text('б3'));
     await tester.pump();
     expect(find.text('Пока не то'), findsOneWidget);
+    expect(find.text('Повторить'), findsOneWidget);
     expect(store.snapshot(competency).status, CompetencyStatus.mastered);
     expect(store.book.attempts.last.isCorrect, isFalse);
     expect(store.book.attempts.last.errorTag, 'PR-03');
@@ -639,6 +666,18 @@ void main() {
     await tester.pumpWidget(_mix(catalog, store, clock));
     expect(find.text('Сначала: Интервалы на слух'), findsOneWidget);
     expect(find.textContaining('Легко:'), findsNothing);
+
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    await tester.tap(find.text('м3'));
+    await tester.pump();
+    expect(find.text('Верно'), findsOneWidget);
+    expect(store.book.attempts.last.isCorrect, isTrue);
+    expect(store.snapshot(competency).status, CompetencyStatus.mastered);
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, store, clock));
+    expect(find.text('Легко: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Сначала:'), findsNothing);
   });
 }
 
