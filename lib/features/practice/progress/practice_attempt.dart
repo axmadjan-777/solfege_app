@@ -23,7 +23,7 @@ void recordPracticeAnswer({
       policy: catalog.config.policy(set.reviewRule),
       tonality: tonality,
       coldReview: coldReview,
-      errorTag: correct ? '' : setId,
+      errorTag: setId,
       itemSignature: setId,
     ),
   );

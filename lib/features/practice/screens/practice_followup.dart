@@ -94,6 +94,7 @@ Widget practiceSetScreen({
               rules: catalog.config.masteryRules,
             ),
         catalog: catalog,
+        player: player,
         onColdReview: (_) {},
       ),
     _ => _UnknownPractice(setId: setId),

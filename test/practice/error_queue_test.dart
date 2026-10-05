@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:solfege_app/features/curriculum/data/curriculum_catalog.dart';
+import 'package:solfege_app/features/practice/audio/practice_audio_player.dart';
 import 'package:solfege_app/features/practice/progress/attempt.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
 import 'package:solfege_app/features/practice/progress/practice_attempt.dart';
@@ -111,6 +112,49 @@ void main() {
     expect(ErrorQueue.openTags(store.book.attempts), isEmpty);
     expect(store.snapshot(lesson.primaryCompetency).status,
         isNot(CompetencyStatus.mastered));
+  });
+
+  testWidgets(
+      'a trainer miss opens that trainer and a correct answer clears it',
+      (tester) async {
+    final store = MemoryProgressStore(
+      clock: FixedClock(DateTime.utc(2026, 10, 5, 8)),
+      rules: catalog.config.masteryRules,
+    );
+    recordPracticeAnswer(
+        store: store, catalog: catalog, setId: 'PR-03', correct: false);
+    final title =
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03').title;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ErrorQueueScreen(
+          store: store,
+          catalog: catalog,
+          player: FakePracticeAudioPlayer(),
+          clock: FixedClock(DateTime.utc(2026, 10, 5, 8)),
+          onColdReview: (_) {},
+        ),
+      ),
+    );
+    expect(find.text(title), findsOneWidget);
+
+    await tester.tap(find.text(title));
+    await tester.pumpAndSettle();
+    expect(find.text('м3'), findsOneWidget);
+    await tester.tap(find.text('м3'));
+    await tester.pump();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Очередь пуста. Новых ошибок нет.'), findsOneWidget);
+    expect(ErrorQueue.openTags(store.book.attempts), isEmpty);
+    expect(
+      store
+          .snapshot(competencyOf(
+              catalog.practiceSets.firstWhere((set) => set.id == 'PR-03')))
+          .status,
+      isNot(CompetencyStatus.mastered),
+    );
   });
 
   test('cold review 20 hours later grants mastered and the same hour does not',
