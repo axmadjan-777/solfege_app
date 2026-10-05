@@ -22,17 +22,24 @@ function jsonResponse(body: Record<string, unknown>, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: jsonHeaders });
 }
 
+function clientSafeKey(value: string | null | undefined): string | null {
+  if (!value) return null;
+  if (value.startsWith("sb_secret_") || value.startsWith("sbp_")) return null;
+  return value;
+}
+
 function getSupabasePublishableKey(): string | null {
   const rawKeys = Deno.env.get("SUPABASE_PUBLISHABLE_KEYS");
   if (rawKeys) {
     try {
       const keys = JSON.parse(rawKeys);
-      if (typeof keys?.default === "string") return keys.default;
+      const parsed = clientSafeKey(keys?.default);
+      if (parsed) return parsed;
     } catch (error) {
       console.error("Invalid SUPABASE_PUBLISHABLE_KEYS", error);
     }
   }
-  return Deno.env.get("SUPABASE_ANON_KEY") || null;
+  return clientSafeKey(Deno.env.get("SUPABASE_ANON_KEY"));
 }
 
 async function isAuthenticated(request: Request): Promise<boolean> {

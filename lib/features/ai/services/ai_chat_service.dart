@@ -59,6 +59,12 @@ class GeminiAiChatService implements AiChatService {
       final serverMessage =
           details is Map ? details['error']?.toString().trim() : null;
       if (error.status == 401) {
+        final text = serverMessage ?? '';
+        if (text.contains('Secret API key') || text.contains('Invalid API key')) {
+          throw const AiChatException(
+            'В клиент попал секретный ключ. В браузере он отвечает 401. Нужен publishable key.',
+          );
+        }
         throw const AiChatException(
           'Сессия истекла. Войдите в аккаунт снова.',
         );
