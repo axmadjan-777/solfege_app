@@ -1,6 +1,7 @@
 import '../../curriculum/data/curriculum_catalog.dart';
 import '../../curriculum/models/lesson.dart';
 import '../../curriculum/models/practice_set.dart';
+import '../trainers/error_queue.dart';
 import 'attempt.dart';
 
 /// Шаг `interval_days`: ошибка назад, успешный перенос вперёд.
@@ -145,6 +146,28 @@ class StabilityUpdate {
     }
     return current.add(StabilitySession(at: at, tonality: tonality));
   }
+}
+
+enum LessonGate { open, locked, repair }
+
+/// Три `needs_review` на линии навыка закрывают новый урок: ученик остаётся на повторении.
+LessonGate lessonGate({
+  required Lesson lesson,
+  required CurriculumCatalog catalog,
+  required bool Function(String competencyId) isMastered,
+  bool Function(String competencyId)? needsReview,
+}) {
+  if (!isLessonOpen(lesson: lesson, catalog: catalog, isMastered: isMastered)) {
+    return LessonGate.locked;
+  }
+  if (needsReview == null) return LessonGate.open;
+  final waiting = catalog.competencies
+      .where((competency) =>
+          competency.skillTrack == lesson.skillTrack &&
+          needsReview(competency.id))
+      .length;
+  if (ErrorQueue.repairInsteadOfNewLesson(waiting)) return LessonGate.repair;
+  return LessonGate.open;
 }
 
 /// Урок открыт, когда `primary_competency` каждой предпосылки-урока в `mastered`.

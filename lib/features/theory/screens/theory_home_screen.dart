@@ -21,6 +21,7 @@ class TheoryHomeScreen extends StatelessWidget {
     this.player,
     this.progress,
     this.clock,
+    this.needsReview,
   });
 
   final CurriculumCatalog? catalog;
@@ -28,6 +29,7 @@ class TheoryHomeScreen extends StatelessWidget {
   final PracticeAudioPlayer? player;
   final ProgressStore? progress;
   final Clock? clock;
+  final bool Function(String competencyId)? needsReview;
 
   bool _mastered(String id) => isMastered?.call(id) ?? false;
 
@@ -39,7 +41,8 @@ class TheoryHomeScreen extends StatelessWidget {
           isMastered: _mastered,
           player: player,
           progress: progress,
-          clock: clock);
+          clock: clock,
+          needsReview: needsReview);
     }
     return FutureBuilder<CurriculumCatalog>(
       future: const CurriculumAssetSource().load(),
@@ -50,7 +53,8 @@ class TheoryHomeScreen extends StatelessWidget {
               isMastered: _mastered,
               player: player,
               progress: progress,
-              clock: clock);
+              clock: clock,
+              needsReview: needsReview);
         }
         if (snapshot.hasError) {
           return const Center(child: Text('Не удалось загрузить теорию'));
@@ -67,13 +71,15 @@ class _Home extends StatelessWidget {
       required this.isMastered,
       required this.player,
       required this.progress,
-      required this.clock});
+      required this.clock,
+      required this.needsReview});
 
   final CurriculumCatalog catalog;
   final bool Function(String competencyId) isMastered;
   final PracticeAudioPlayer? player;
   final ProgressStore? progress;
   final Clock? clock;
+  final bool Function(String competencyId)? needsReview;
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +89,7 @@ class _Home extends StatelessWidget {
         child: TheoryLevelScreen(
           catalog: catalog,
           isMastered: isMastered,
+          needsReview: needsReview,
           onOpen: (lesson) {
             Navigator.of(context).push(
               MaterialPageRoute<void>(

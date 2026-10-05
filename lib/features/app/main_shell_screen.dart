@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../ai/screens/ai_chat_screen.dart';
+import '../practice/progress/attempt.dart';
 import '../practice/progress/practice_progress_binding.dart';
 import '../practice/screens/practice_map_screen.dart';
 import '../profile/screens/profile_screen.dart';
@@ -42,9 +43,13 @@ class _MainShellScreenState extends State<MainShellScreen> {
             label: 'Теория',
             icon: Icons.menu_book_rounded,
             screen: TheoryHomeScreen(
-                catalog: binding.catalog,
-                progress: binding.progress,
-                clock: binding.clock),
+              catalog: binding.catalog,
+              progress: binding.progress,
+              clock: binding.clock,
+              needsReview: (id) =>
+                  binding.progress.snapshot(id).status ==
+                  CompetencyStatus.needsReview,
+            ),
           ),
           _ShellTab(
             label: 'Практика',

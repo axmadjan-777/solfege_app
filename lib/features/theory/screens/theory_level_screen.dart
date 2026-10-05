@@ -16,11 +16,13 @@ class TheoryLevelScreen extends StatelessWidget {
     super.key,
     required this.catalog,
     required this.isMastered,
+    this.needsReview,
     required this.onOpen,
   });
 
   final CurriculumCatalog catalog;
   final bool Function(String competencyId) isMastered;
+  final bool Function(String competencyId)? needsReview;
   final ValueChanged<Lesson> onOpen;
 
   @override
@@ -48,6 +50,7 @@ class TheoryLevelScreen extends StatelessWidget {
               lesson: lesson,
               catalog: catalog,
               isMastered: isMastered,
+              needsReview: needsReview,
               onOpen: onOpen),
       ],
     );
@@ -59,25 +62,36 @@ class _LessonTile extends StatelessWidget {
     required this.lesson,
     required this.catalog,
     required this.isMastered,
+    required this.needsReview,
     required this.onOpen,
   });
 
   final Lesson lesson;
   final CurriculumCatalog catalog;
   final bool Function(String competencyId) isMastered;
+  final bool Function(String competencyId)? needsReview;
   final ValueChanged<Lesson> onOpen;
 
   @override
   Widget build(BuildContext context) {
-    final open =
-        isLessonOpen(lesson: lesson, catalog: catalog, isMastered: isMastered);
+    final gate = lessonGate(
+      lesson: lesson,
+      catalog: catalog,
+      isMastered: isMastered,
+      needsReview: needsReview,
+    );
+    final label = switch (gate) {
+      LessonGate.open => 'Открыто',
+      LessonGate.locked => 'Закрыто',
+      LessonGate.repair => 'Повторение',
+    };
     return Card(
       key: Key('lesson-${lesson.id}'),
       child: ListTile(
         title: Text(lesson.title),
-        subtitle: Text(open ? 'Открыто' : 'Закрыто'),
-        enabled: open,
-        onTap: open ? () => onOpen(lesson) : null,
+        subtitle: Text(label),
+        enabled: gate == LessonGate.open,
+        onTap: gate == LessonGate.open ? () => onOpen(lesson) : null,
       ),
     );
   }
