@@ -37,7 +37,9 @@ const _separatePlans = {'L05-01', 'L08-02', 'L10-05'};
 /// Проходимые шаги уровней 5, 7–11. Уровень 6 и три ранних урока собраны отдельно.
 List<Level0Step>? lateLevelSteps(Lesson lesson) {
   if (!lateTheoryLevels.contains(lesson.level) ||
-      _separatePlans.contains(lesson.id)) return null;
+      _separatePlans.contains(lesson.id)) {
+    return null;
+  }
   final script = lessonScript(lesson.id);
   final transfer = script.transfer ?? script.guided;
   return [

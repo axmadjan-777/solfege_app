@@ -55,10 +55,12 @@ void main() {
       );
       await tester.pump();
       expect(find.text(entry.value), findsWidgets, reason: entry.key);
-      if (entry.key == 'PR-12')
+      if (entry.key == 'PR-12') {
         expect(find.text('V–I — автентическая'), findsOneWidget);
-      if (entry.key == 'PR-14')
+      }
+      if (entry.key == 'PR-14') {
         expect(find.text('Спой тонику. Это самоотчёт'), findsOneWidget);
+      }
     }
   });
 
