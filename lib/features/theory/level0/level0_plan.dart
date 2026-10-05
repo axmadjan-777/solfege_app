@@ -37,18 +37,21 @@ class Level0Plan {
     required this.title,
     required this.primaryCompetency,
     required this.steps,
+    this.trainPracticeSetIds = const [],
   });
 
   final String lessonId;
   final String title;
   final String primaryCompetency;
   final List<Level0Step> steps;
+  final List<String> trainPracticeSetIds;
 
   factory Level0Plan.fromLesson(Lesson lesson) {
     return Level0Plan(
       lessonId: lesson.id,
       title: lesson.title,
       primaryCompetency: lesson.primaryCompetency,
+      trainPracticeSetIds: lesson.id == 'L04-04' || lesson.id == 'L04-11' ? const ['PR-01'] : const [],
       steps: switch (lesson.id) {
         'L00-01' => _toneAndNoise(lesson),
         'L00-04' => _loudnessAndTimbre(lesson),
@@ -56,6 +59,7 @@ class Level0Plan {
         'L02-08' => _anacrusis(lesson),
         'L03-04' => _trebleC4(lesson),
         'L03-10' => _notesAndRhythm(lesson),
+        'L04-04' || 'L04-11' => _degreeLesson(lesson),
         _ => lesson.level == 1 ? _level1(lesson) : _fromParams(lesson),
       },
     );
@@ -121,6 +125,16 @@ List<Level0Step> _loudnessAndTimbre(Lesson lesson) {
     for (var i = 0; i < lesson.checkItems; i++)
       _choice(lesson, 'check', 'Проверка тембра ${i + 1}', 'T11', timbre, 0),
     _choice(lesson, 'transfer', lesson.finalTask, 'T11', const ['фортепиано', 'гитара', 'флейта', 'электропиано'], 0),
+  ];
+}
+
+List<Level0Step> _degreeLesson(Lesson lesson) {
+  const degrees = ['1', '2', '3', '4', '5', '6', '7'];
+  return [
+    _explanation(lesson),
+    for (var i = 0; i < 2; i++)
+      _choice(lesson, 'guided', '${lesson.userAction} ${i + 1}', 'T02', degrees, 0),
+    _choice(lesson, 'transfer', lesson.finalTask, 'T02', degrees, 0),
   ];
 }
 

@@ -7,11 +7,17 @@ import '../../practice/progress/attempt.dart';
 import 'level0_plan.dart';
 
 class Level0Result {
-  const Level0Result({required this.lessonId, required this.correct, required this.total});
+  const Level0Result({
+    required this.lessonId,
+    required this.correct,
+    required this.total,
+    this.trainPracticeSetIds = const [],
+  });
 
   final String lessonId;
   final int correct;
   final int total;
+  final List<String> trainPracticeSetIds;
 
   CompetencyStatus get status => statusAfterLesson();
 }
@@ -132,7 +138,12 @@ class _Level0PlayerState extends State<Level0Player> {
         FilledButton(
           onPressed: () {
             widget.onFinished(
-              Level0Result(lessonId: widget.plan.lessonId, correct: _correct, total: _answered),
+              Level0Result(
+                lessonId: widget.plan.lessonId,
+                correct: _correct,
+                total: _answered,
+                trainPracticeSetIds: widget.plan.trainPracticeSetIds,
+              ),
             );
           },
           child: const Text('Тренировать'),
