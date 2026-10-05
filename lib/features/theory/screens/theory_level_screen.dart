@@ -19,7 +19,7 @@ class TheoryLevelScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lessons = catalog.lessons.where((lesson) => lesson.level <= 4 && lesson.mvpStatus.isMvp).toList()
+    final lessons = catalog.lessons.where(_onTheoryMap).toList()
       ..sort((a, b) {
         final byLevel = a.level.compareTo(b.level);
         return byLevel != 0 ? byLevel : a.order.compareTo(b.order);
@@ -30,7 +30,7 @@ class TheoryLevelScreen extends StatelessWidget {
         Text('Теория', style: Theme.of(context).textTheme.displaySmall),
         const SizedBox(height: 8),
         Text(
-          'Уровни 0–4',
+          'Уровни 0–4 и уровень 6',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
@@ -39,6 +39,11 @@ class TheoryLevelScreen extends StatelessWidget {
       ],
     );
   }
+}
+
+bool _onTheoryMap(Lesson lesson) {
+  if (lesson.mvpStatus.isMvp && lesson.level <= 4) return true;
+  return lesson.level == 6 && lesson.mvpStatus.id == 'v1.1';
 }
 
 class _LessonTile extends StatelessWidget {

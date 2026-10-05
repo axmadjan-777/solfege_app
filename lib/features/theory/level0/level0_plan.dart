@@ -51,7 +51,11 @@ class Level0Plan {
       lessonId: lesson.id,
       title: lesson.title,
       primaryCompetency: lesson.primaryCompetency,
-      trainPracticeSetIds: lesson.id == 'L04-04' || lesson.id == 'L04-11' ? const ['PR-01'] : const [],
+      trainPracticeSetIds: lesson.level == 6
+          ? lesson.practiceSetIds
+          : lesson.id == 'L04-04' || lesson.id == 'L04-11'
+              ? const ['PR-01']
+              : const [],
       steps: switch (lesson.id) {
         'L00-01' => _toneAndNoise(lesson),
         'L00-04' => _loudnessAndTimbre(lesson),
@@ -63,6 +67,9 @@ class Level0Plan {
         'L05-01' => _intervalCount(lesson),
         'L08-02' => _majorTriad(lesson),
         'L04-04' || 'L04-11' => _degreeLesson(lesson),
+        'L06-01' || 'L06-02' || 'L06-03' || 'L06-04' || 'L06-05' || 'L06-06' || 'L06-07' || 'L06-08' ||
+        'L06-09' || 'L06-10' || 'L06-11' =>
+          _level6(lesson),
         _ => lesson.level == 1 ? _level1(lesson) : _fromParams(lesson),
       },
     );
@@ -225,6 +232,100 @@ List<Level0Step> _strongBeat(Lesson lesson) {
     for (var i = 0; i < lesson.checkItems; i++)
       _choice(lesson, 'check', 'Проверка размера ${i + 1}', 'T02', meter, 1),
     _choice(lesson, 'transfer', lesson.finalTask, 'T02', meter, 1),
+  ];
+}
+
+List<Level0Step> _level6(Lesson lesson) {
+  final (options, answers) = switch (lesson.id) {
+    'L06-01' => (
+        const [
+          ('Третья ступень на 4 полутона', ['мажор', 'минор'], 0),
+          ('Третья ступень на 3 полутона', ['мажор', 'минор'], 1),
+          ('Минорная третья ступень относительно мажорной', ['выше', 'ниже'], 1),
+        ],
+        true,
+      ),
+    'L06-02' => (
+        const [
+          ('Где полутоны натурального минора', ['2–3 и 5–6', '3–4 и 7–8'], 0),
+          ('Ля минор на белых клавишах', ['да', 'нет'], 0),
+          ('Формула от тоники', ['тон-полутон-тон-тон-полутон-тон-тон', 'тон-тон-полутон-тон-тон-тон-полутон'], 0),
+        ],
+        true,
+      ),
+    'L06-03' => (
+        const [
+          ('От ля до до', ['3', '4'], 0),
+          ('Повышенная VII вместо натуральной', ['другая ступень', 'та же ступень'], 0),
+        ],
+        true,
+      ),
+    'L06-04' => (
+        const [
+          ('Параллель до мажора', ['ля минор', 'до минор'], 0),
+          ('Одноимённая к до мажору', ['ля минор', 'до минор'], 1),
+        ],
+        true,
+      ),
+    'L06-05' => (
+        const [
+          ('Что повышено в гармоническом миноре', ['только VII', 'VI и VII'], 0),
+        ],
+        true,
+      ),
+    'L06-06' => (
+        const [
+          ('Мелодический минор вверх', ['VI и VII', 'только VII'], 0),
+          ('Мелодический минор вниз', ['натуральный вид', 'повышенные VI и VII'], 0),
+        ],
+        true,
+      ),
+    'L06-07' => (
+        const [
+          ('Порядок диезов', ['фа-до-соль', 'соль-до-фа'], 0),
+          ('Два диеза', ['ре мажор', 'соль мажор'], 0),
+        ],
+        true,
+      ),
+    'L06-08' => (
+        const [
+          ('Квинта вверх от до', ['соль', 'фа'], 0),
+          ('Сколько диезов у соль мажора', ['1', '2'], 0),
+        ],
+        true,
+      ),
+    'L06-09' => (
+        const [
+          ('Один диез при ключе', ['соль мажор', 'фа мажор'], 0),
+        ],
+        true,
+      ),
+    'L06-10' => (
+        const [
+          ('Большая секунда вверх от до', ['ре', 'ми'], 0),
+        ],
+        true,
+      ),
+    'L06-11' => (
+        const [
+          ('Ступень 5 после переноса в другую тональность', ['5', '1'], 0),
+        ],
+        true,
+      ),
+    _ => (const <(String, List<String>, int)>[], false),
+  };
+  if (!answers) return _fromParams(lesson);
+  return [
+    _explanation(lesson),
+    for (var i = 0; i < options.length; i++)
+      _choice(
+        lesson,
+        i == options.length - 1 ? 'transfer' : 'guided',
+        i == options.length - 1 ? lesson.finalTask : options[i].$1,
+        lesson.interactionTemplate,
+        options[i].$2,
+        options[i].$3,
+      ),
   ];
 }
 
