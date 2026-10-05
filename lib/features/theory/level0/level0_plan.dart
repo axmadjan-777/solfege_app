@@ -1,5 +1,6 @@
 import '../../curriculum/models/lesson.dart';
 import '../../practice/progress/attempt.dart';
+import '../../scales/utils/solfege_notes.dart';
 
 /// Потолок урока. `mastered` ставит только отложенная проверка.
 CompetencyStatus statusAfterLesson() => CompetencyStatus.provisionallyPassed;
@@ -52,7 +53,7 @@ class Level0Plan {
         'L00-01' => _toneAndNoise(lesson),
         'L00-04' => _loudnessAndTimbre(lesson),
         'L00-07' => _strongBeat(lesson),
-        _ => _fromParams(lesson),
+        _ => lesson.level == 1 ? _level1(lesson) : _fromParams(lesson),
       },
     );
   }
@@ -211,6 +212,72 @@ List<String> _optionsFor(Lesson lesson) {
     'L00-08' => const ['до', 'ре', 'ми'],
     _ => const ['да', 'нет'],
   };
+}
+
+/// Слог → буква. Си = B, буква H не используется.
+String letterForSyllable(String syllable) {
+  const letters = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+  final index = SolfegeNotes.naturalNames.indexOf(syllable);
+  if (index < 0) {
+    throw ArgumentError.value(syllable, 'syllable', 'Неизвестное слоговое имя');
+  }
+  return letters[index];
+}
+
+List<Level0Step> _level1(Lesson lesson) {
+  return switch (lesson.id) {
+    'L01-01' => _doReMi(lesson),
+    'L01-03' => _letterPairs(lesson),
+    _ => _level1Generic(lesson),
+  };
+}
+
+List<Level0Step> _doReMi(Lesson lesson) {
+  final notes = SolfegeNotes.naturalNames.take(3).toList();
+  return [
+    _explanation(lesson),
+    for (var i = 0; i < lesson.learningItems; i++)
+      _choice(lesson, 'guided', 'Найти клавишу: ${notes[i % notes.length]}', 'T06', notes, i % notes.length),
+    for (var i = 0; i < lesson.checkItems; i++)
+      _choice(lesson, 'check', 'Назови клавишу ${i + 1}', 'T06', notes, i % notes.length),
+    _choice(
+      lesson,
+      'transfer',
+      lesson.finalTask,
+      'T06',
+      const ['до, ми, ре', 'ре, до, ми', 'ми, ре, до'],
+      0,
+    ),
+  ];
+}
+
+List<Level0Step> _letterPairs(Lesson lesson) {
+  const syllables = SolfegeNotes.naturalNames;
+  return [
+    _explanation(lesson),
+    for (final syllable in syllables)
+      _choice(
+        lesson,
+        'guided',
+        'Буква для «$syllable»',
+        'T11',
+        [for (final name in syllables) letterForSyllable(name)],
+        syllables.indexOf(syllable),
+      ),
+    _choice(lesson, 'transfer', lesson.finalTask, 'T11', [letterForSyllable('си')], 0),
+  ];
+}
+
+List<Level0Step> _level1Generic(Lesson lesson) {
+  const notes = SolfegeNotes.naturalNames;
+  return [
+    _explanation(lesson),
+    for (var i = 0; i < lesson.learningItems; i++)
+      _choice(lesson, 'guided', '${lesson.userAction} ${i + 1}', lesson.interactionTemplate, notes, i % notes.length),
+    for (var i = 0; i < lesson.checkItems; i++)
+      _choice(lesson, 'check', 'Проверка ${i + 1}', lesson.interactionTemplate, notes, 0),
+    _choice(lesson, 'transfer', lesson.finalTask, lesson.interactionTemplate, notes, 0),
+  ];
 }
 
 List<String> _strings(Object? raw) => [for (final value in raw as List? ?? const []) value.toString()];

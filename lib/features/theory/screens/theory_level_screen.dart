@@ -19,15 +19,18 @@ class TheoryLevelScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lessons = catalog.lessons.where((lesson) => lesson.level == 0).toList()
-      ..sort((a, b) => a.order.compareTo(b.order));
+    final lessons = catalog.lessons.where((lesson) => lesson.level <= 1 && lesson.mvpStatus.isMvp).toList()
+      ..sort((a, b) {
+        final byLevel = a.level.compareTo(b.level);
+        return byLevel != 0 ? byLevel : a.order.compareTo(b.order);
+      });
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
         Text('Теория', style: Theme.of(context).textTheme.displaySmall),
         const SizedBox(height: 8),
         Text(
-          'Уровень 0. Звук, слух и клавиатура',
+          'Уровни 0 и 1',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
