@@ -54,6 +54,8 @@ class Level0Plan {
         'L00-04' => _loudnessAndTimbre(lesson),
         'L00-07' => _strongBeat(lesson),
         'L02-08' => _anacrusis(lesson),
+        'L03-04' => _trebleC4(lesson),
+        'L03-10' => _notesAndRhythm(lesson),
         _ => lesson.level == 1 ? _level1(lesson) : _fromParams(lesson),
       },
     );
@@ -119,6 +121,31 @@ List<Level0Step> _loudnessAndTimbre(Lesson lesson) {
     for (var i = 0; i < lesson.checkItems; i++)
       _choice(lesson, 'check', 'Проверка тембра ${i + 1}', 'T11', timbre, 0),
     _choice(lesson, 'transfer', lesson.finalTask, 'T11', const ['фортепиано', 'гитара', 'флейта', 'электропиано'], 0),
+  ];
+}
+
+List<Level0Step> _trebleC4(Lesson lesson) {
+  const notes = ['до', 'ре', 'ми', 'фа', 'соль'];
+  return [
+    _explanation(lesson),
+    _choice(lesson, 'guided', 'Нота C4 на стане', 'T05', notes, 0),
+    for (var i = 1; i < lesson.learningItems; i++)
+      _choice(lesson, 'guided', 'Нота диапазона C4–G4, шаг ${i + 1}', 'T05', notes, i % notes.length),
+    for (var i = 0; i < lesson.checkItems; i++)
+      _choice(lesson, 'check', 'Проверка ноты ${i + 1}', 'T05', notes, 0),
+    _choice(lesson, 'transfer', lesson.finalTask, 'T05', notes, 0),
+  ];
+}
+
+List<Level0Step> _notesAndRhythm(Lesson lesson) {
+  const steps = ['сначала ритм', 'потом ноты'];
+  return [
+    _explanation(lesson),
+    for (var i = 0; i < lesson.learningItems; i++)
+      _choice(lesson, 'guided', '${lesson.userAction}, фраза ${i + 1}', 'T06', steps, 0),
+    for (var i = 0; i < lesson.checkItems; i++)
+      _choice(lesson, 'check', 'Проверка ${i + 1}', 'T06', steps, 0),
+    _choice(lesson, 'transfer', lesson.finalTask, 'T06', steps, 0),
   ];
 }
 
