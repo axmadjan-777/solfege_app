@@ -97,6 +97,7 @@ Widget practiceSetScreen({
         sessionLimit: dailyMixLimit(catalog.config.raw),
         dueNow: _dueNow(progress, clock),
         successDays: errorReturnSuccessDays(catalog.config.raw),
+        titleOf: (id) => _mixTitle(catalog, id),
         onSameSessionReturn: progress?.scheduleNextDayReturn,
         onDueAnswer: (tag, correct) {
           final store = progress;
@@ -209,6 +210,15 @@ DailyMixPlan _mixPlan(
   );
   final base = buildDailyMix(seed: now.month * 31 + now.day, pool: pool);
   return placeDueReturns(base, _dueNow(progress, clock).toList());
+}
+
+String _mixTitle(CurriculumCatalog catalog, String id) {
+  final lesson = catalog.findLesson(id);
+  if (lesson != null) return lesson.title;
+  for (final set in catalog.practiceSets) {
+    if (set.id == id) return set.title;
+  }
+  return id;
 }
 
 Set<String> _dueNow(ProgressStore? progress, Clock? clock) {

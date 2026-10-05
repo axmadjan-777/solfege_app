@@ -17,6 +17,7 @@ class DailyMixScreen extends StatefulWidget {
     this.dueNow = const <String>{},
     this.onDueAnswer,
     this.successDays = 3,
+    this.titleOf,
   });
 
   final DailyMixPlan plan;
@@ -28,6 +29,7 @@ class DailyMixScreen extends StatefulWidget {
   final Set<String> dueNow;
   final void Function(String tag, bool correct)? onDueAnswer;
   final int successDays;
+  final String Function(String id)? titleOf;
 
   @override
   State<DailyMixScreen> createState() => _DailyMixScreenState();
@@ -144,6 +146,14 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
     );
   }
 
+  String? get _firstDueTitle {
+    for (final item in widget.plan.items) {
+      if (item.bucket != MixBucket.due) continue;
+      return widget.titleOf?.call(item.id) ?? item.id;
+    }
+    return null;
+  }
+
   Widget _summary() {
     final plan = widget.plan;
     final canStart =
@@ -168,6 +178,10 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
             Text('Должное: ${plan.countOf(MixBucket.due)}'),
             Text('Недавнее: ${plan.countOf(MixBucket.recent)}'),
             Text('Лёгкое: ${plan.countOf(MixBucket.easy)}'),
+            if (canStart && _firstDueTitle != null) ...[
+              const SizedBox(height: 16),
+              Text('Сначала: $_firstDueTitle'),
+            ],
             if (canStart) ...[
               const SizedBox(height: 16),
               FilledButton(
