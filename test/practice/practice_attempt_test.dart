@@ -124,8 +124,55 @@ void main() {
     clock.advance(const Duration(hours: 20));
     await tester.tap(find.text('Холодная проверка'));
     await tester.pump();
+    for (var i = 0; i < 4; i++) {
+      await _answer(tester, 'м3');
+      if (i < 3) {
+        await tester.tap(find.text('Следующее'));
+        await tester.pump();
+      }
+    }
     expect(find.text('Освоено'), findsWidgets);
     expect(store.snapshot(competency).status, CompetencyStatus.mastered);
+  });
+
+  testWidgets('a miss on the cold review asks to practice again',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    for (var i = 0; i < 12; i++) {
+      recordPracticeAnswer(
+          store: store, catalog: catalog, setId: 'PR-03', correct: true);
+    }
+    clock.advance(const Duration(hours: 20));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PracticeRoundScreen(
+          setId: 'PR-03',
+          player: FakePracticeAudioPlayer(),
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+    await _answer(tester, 'м3');
+    await tester.tap(find.text('Холодная проверка'));
+    await tester.pump();
+    for (final label in ['м3', 'м3', 'м3', 'б3']) {
+      await _answer(tester, label);
+      if (label != 'б3') {
+        await tester.tap(find.text('Следующее'));
+        await tester.pump();
+      }
+    }
+
+    final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+    expect(find.text('Нужно повторить'), findsOneWidget);
+    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
+    expect(store.snapshot(competency).provisionalAt, isNull);
+    expect(find.text('Освоено'), findsNothing);
   });
 
   test('four of the last six correct answers stay provisionally passed', () {

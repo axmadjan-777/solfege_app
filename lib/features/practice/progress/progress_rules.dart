@@ -23,12 +23,14 @@ class ReviewStep {
     } else if (transfer) {
       next = index + 1 < intervalDays.length ? index + 1 : index;
     }
-    return ReviewStep(index: next, dueAt: now.add(Duration(days: intervalDays[next])));
+    return ReviewStep(
+        index: next, dueAt: now.add(Duration(days: intervalDays[next])));
   }
 }
 
 class MasteryDecision {
-  const MasteryDecision({required this.status, required this.markedProvisionalAt});
+  const MasteryDecision(
+      {required this.status, required this.markedProvisionalAt});
 
   final CompetencyStatus status;
   final DateTime? markedProvisionalAt;
@@ -51,17 +53,29 @@ class MasteryDecision {
   }) {
     final demoted = _recentAccuracy(attempts, demotionWindow);
     if (demoted != null && demoted < demotionAccuracyBelow) {
-      return MasteryDecision(status: CompetencyStatus.needsReview, markedProvisionalAt: provisionalAt);
+      return MasteryDecision(
+          status: CompetencyStatus.needsReview,
+          markedProvisionalAt: provisionalAt);
     }
 
     if (coldReview) {
-      final waited = provisionalAt != null && !now.isBefore(provisionalAt.add(const Duration(hours: 20)));
-      final coldAccuracy = _sessionAccuracy(attempts.where((a) => a.coldReview));
+      final waited = provisionalAt != null &&
+          !now.isBefore(provisionalAt.add(const Duration(hours: 20)));
+      final coldAccuracy =
+          _sessionAccuracy(attempts.where((a) => a.coldReview));
       final coldCount = attempts.where((a) => a.coldReview).length;
-      if (waited && coldAccuracy != null && coldAccuracy >= delayedMinAccuracy && coldCount >= delayedMinItems) {
-        return MasteryDecision(status: CompetencyStatus.mastered, markedProvisionalAt: provisionalAt);
+      final complete = coldCount >= delayedMinItems && coldAccuracy != null;
+      if (waited && complete && coldAccuracy >= delayedMinAccuracy) {
+        return MasteryDecision(
+            status: CompetencyStatus.mastered,
+            markedProvisionalAt: provisionalAt);
       }
-      return MasteryDecision(status: current, markedProvisionalAt: provisionalAt);
+      if (waited && complete) {
+        return const MasteryDecision(
+            status: CompetencyStatus.needsReview, markedProvisionalAt: null);
+      }
+      return MasteryDecision(
+          status: current, markedProvisionalAt: provisionalAt);
     }
 
     final window = _last(attempts, immediateWindow);
@@ -81,7 +95,9 @@ class MasteryDecision {
     }
 
     if (current == CompetencyStatus.locked) {
-      return MasteryDecision(status: CompetencyStatus.practicing, markedProvisionalAt: provisionalAt);
+      return MasteryDecision(
+          status: CompetencyStatus.practicing,
+          markedProvisionalAt: provisionalAt);
     }
     return MasteryDecision(status: current, markedProvisionalAt: provisionalAt);
   }
@@ -116,7 +132,8 @@ class StabilityUpdate {
   }) {
     if (!successful) return current;
     final previous = current.sessions.isEmpty ? null : current.sessions.last.at;
-    if (previous != null && at.difference(previous) < const Duration(hours: 20)) return current;
+    if (previous != null && at.difference(previous) < const Duration(hours: 20))
+      return current;
     return current.add(StabilitySession(at: at, tonality: tonality));
   }
 }

@@ -33,11 +33,17 @@ Widget practiceSetScreen({
   required CurriculumCatalog catalog,
   ProgressStore? progress,
   ValueChanged<bool>? onAnswered,
+  bool coldReview = false,
 }) {
   void record(bool correct) {
     if (progress != null) {
       recordPracticeAnswer(
-          store: progress, catalog: catalog, setId: setId, correct: correct);
+        store: progress,
+        catalog: catalog,
+        setId: setId,
+        correct: correct,
+        coldReview: coldReview,
+      );
     }
     onAnswered?.call(correct);
   }

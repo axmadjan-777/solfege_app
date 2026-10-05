@@ -35,6 +35,7 @@ class PracticeRoundScreen extends StatefulWidget {
 class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
   var _round = 0;
   var _answered = false;
+  var _coldLeft = 0;
   String? _notice;
 
   String get _competency => competencyOf(
@@ -46,18 +47,24 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
     setState(() {
       _round += 1;
       _answered = false;
-      _notice = null;
+      if (_coldLeft == 0) _notice = null;
     });
   }
 
   void _coldReview() {
-    final granted = recordColdReview(
-      store: widget.progress,
-      catalog: widget.catalog,
-      setId: widget.setId,
-      clock: widget.clock,
-    );
-    setState(() => _notice = granted ? 'Освоено' : 'Рано');
+    final marked = widget.progress.snapshot(_competency).provisionalAt;
+    final ready = marked != null &&
+        !widget.clock.now().isBefore(marked.add(const Duration(hours: 20)));
+    if (!ready) {
+      setState(() => _notice = 'Рано');
+      return;
+    }
+    setState(() {
+      _coldLeft = widget.catalog.config.masteryRules.delayedMinItems;
+      _notice = 'Холодная проверка';
+      _round += 1;
+      _answered = false;
+    });
   }
 
   @override
@@ -71,7 +78,13 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
             player: widget.player,
             catalog: widget.catalog,
             progress: widget.progress,
-            onAnswered: (_) => setState(() => _answered = true),
+            coldReview: _coldLeft > 0,
+            onAnswered: (_) {
+              setState(() {
+                if (_coldLeft > 0) _coldLeft -= 1;
+                _answered = true;
+              });
+            },
           ),
         ),
         if (_answered)
