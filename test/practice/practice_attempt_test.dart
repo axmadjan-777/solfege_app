@@ -451,6 +451,70 @@ void main() {
     expect(find.text('Устойчивость 2/3'), findsOneWidget);
     expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
   });
+
+  testWidgets('a miss on the second due cold review asks to repeat',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    for (var i = 0; i < 12; i++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+      );
+    }
+    clock.advance(const Duration(hours: 20));
+    for (final correct in [true, true, true, false]) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: correct,
+        coldReview: true,
+        sessionId: 'cold-miss',
+      );
+    }
+    clock.advance(const Duration(hours: 1));
+    recordPracticeAnswer(
+      store: store,
+      catalog: catalog,
+      setId: 'PR-03',
+      correct: true,
+    );
+    clock.advance(const Duration(hours: 20));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PracticeRoundScreen(
+          setId: 'PR-03',
+          player: FakePracticeAudioPlayer(),
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+    await _answer(tester, 'м3');
+    await tester.tap(find.text('Холодная проверка'));
+    await tester.pump();
+    for (final label in ['м3', 'м3', 'м3', 'б3']) {
+      await _answer(tester, label);
+      if (label != 'б3') {
+        await tester.tap(find.text('Следующее'));
+        await tester.pump();
+      }
+    }
+
+    final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
+    expect(store.snapshot(competency).provisionalAt, isNull);
+    expect(find.text('Нужно повторить'), findsOneWidget);
+    expect(
+        find.widgetWithText(FilledButton, 'Холодная проверка'), findsNothing);
+    expect(find.text('Холодная проверка'), findsNothing);
+  });
 }
 
 void _slip(MemoryProgressStore store, CurriculumCatalog catalog) {

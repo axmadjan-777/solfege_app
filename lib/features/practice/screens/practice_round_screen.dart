@@ -93,6 +93,10 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
               setState(() {
                 if (_coldLeft > 0) _coldLeft -= 1;
                 _answered = true;
+                if (_coldLeft == 0 &&
+                    _status != CompetencyStatus.provisionallyPassed) {
+                  _notice = null;
+                }
               });
             },
           ),
