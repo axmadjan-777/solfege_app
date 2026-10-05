@@ -291,6 +291,17 @@ class SharedPreferencesProgressStore implements ProgressStore {
   final String userId;
   final String storageKey;
   late MemoryProgressStore _memory;
+  void Function(ProgressBook book)? onBookChanged;
+
+  void _persist() {
+    _preferences.setString(storageKey, jsonEncode(book.toJson()));
+    onBookChanged?.call(book);
+  }
+
+  void adoptBook(ProgressBook next) {
+    _memory.book = next;
+    _preferences.setString(storageKey, jsonEncode(book.toJson()));
+  }
 
   @override
   ProgressBook get book => _memory.book;
@@ -302,7 +313,7 @@ class SharedPreferencesProgressStore implements ProgressStore {
   @override
   void recordSession(SessionDraft session) {
     _memory.recordSession(session);
-    _preferences.setString(storageKey, jsonEncode(book.toJson()));
+    _persist();
   }
 
   @override
@@ -311,7 +322,7 @@ class SharedPreferencesProgressStore implements ProgressStore {
   @override
   void scheduleReturnInDays(String tag, int days) {
     _memory.scheduleReturnInDays(tag, days);
-    _preferences.setString(storageKey, jsonEncode(book.toJson()));
+    _persist();
   }
 
   @override
