@@ -65,8 +65,14 @@ class _PracticeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final open = set.mvpStatus.isMvp && isTrainerOpen(set: set, catalog: catalog, isMastered: isMastered);
-    final badge = !set.mvpStatus.isMvp ? 'Скоро' : (open ? 'Открыто' : 'Закрыто');
+    final earlyIntervals = set.id == 'PR-03';
+    final open = earlyIntervals ||
+        (set.mvpStatus.isMvp && isTrainerOpen(set: set, catalog: catalog, isMastered: isMastered));
+    final badge = !set.mvpStatus.isMvp
+        ? 'Скоро'
+        : earlyIntervals
+            ? 'Стадии 1–3'
+            : (open ? 'Открыто' : 'Закрыто');
     return Card(
       key: Key('practice-${set.id}'),
       child: ListTile(

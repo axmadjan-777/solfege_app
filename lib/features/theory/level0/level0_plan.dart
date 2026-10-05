@@ -53,6 +53,7 @@ class Level0Plan {
         'L00-01' => _toneAndNoise(lesson),
         'L00-04' => _loudnessAndTimbre(lesson),
         'L00-07' => _strongBeat(lesson),
+        'L02-08' => _anacrusis(lesson),
         _ => lesson.level == 1 ? _level1(lesson) : _fromParams(lesson),
       },
     );
@@ -118,6 +119,26 @@ List<Level0Step> _loudnessAndTimbre(Lesson lesson) {
     for (var i = 0; i < lesson.checkItems; i++)
       _choice(lesson, 'check', 'Проверка тембра ${i + 1}', 'T11', timbre, 0),
     _choice(lesson, 'transfer', lesson.finalTask, 'T11', const ['фортепиано', 'гитара', 'флейта', 'электропиано'], 0),
+  ];
+}
+
+List<Level0Step> _anacrusis(Lesson lesson) {
+  const answers = ['есть затакт', 'нет затакта'];
+  return [
+    _explanation(lesson),
+    for (var i = 0; i < lesson.learningItems; i++)
+      _choice(lesson, 'guided', 'Мелодия ${i + 1}: есть затакт?', 'T02', answers, i.isEven ? 0 : 1),
+    for (var i = 0; i < lesson.checkItems; i++)
+      _choice(lesson, 'check', 'Проверка затакта ${i + 1}', 'T02', answers, 0),
+    Level0Step(
+      kind: 'transfer',
+      body: lesson.finalTask,
+      templateId: 'T03',
+      options: const ['мелодия 1', 'мелодия 2', 'мелодия 3', 'мелодия 4'],
+      correctIndexes: const {0, 2},
+      feedbackCorrect: lesson.feedbackCorrect,
+      feedbackError: lesson.feedbackFirstError,
+    ),
   ];
 }
 
