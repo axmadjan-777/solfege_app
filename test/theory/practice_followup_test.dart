@@ -10,6 +10,7 @@ import 'package:solfege_app/features/practice/progress/error_return.dart';
 import 'package:solfege_app/features/practice/progress/practice_attempt.dart';
 import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/screens/practice_followup.dart';
+import 'package:solfege_app/features/practice/trainers/error_queue.dart';
 import 'package:solfege_app/features/practice/trainers/daily_mix.dart';
 import 'package:solfege_app/features/practice/screens/practice_map_screen.dart';
 import 'package:solfege_app/features/theory/level0/level0_plan.dart';
@@ -190,6 +191,41 @@ void main() {
     await tester.pumpWidget(_mix(catalog, player, store, clock));
     expect(find.text('Должное: 0'), findsOneWidget);
     expect(find.text('Недавнее: 2'), findsOneWidget);
+  });
+
+  testWidgets('an open lesson leads the mix and a perfect retry clears it',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
+    final lesson = catalog.lesson('L00-02');
+    recordLessonResult(
+      store: store,
+      catalog: catalog,
+      lesson: lesson,
+      correct: 0,
+      total: 2,
+    );
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Должное: 8'), findsOneWidget);
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(find.text('Выше и ниже'), findsOneWidget);
+    expect(find.text('Ми относительно до'), findsNothing);
+
+    await _tap(tester, find.text('Дальше'));
+    await _tap(tester, find.text('выше'));
+    await _tap(tester, find.text('Дальше'));
+    await _tap(tester, find.text('так же'));
+    await _tap(tester, find.text('Дальше'));
+    await _tap(tester, find.text('Тренировать'));
+    expect(ErrorQueue.openTags(store.book.attempts), isEmpty);
+
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Пока нет должных заданий.'), findsOneWidget);
   });
 
   test('the catalog daily mix lasts five minutes', () {

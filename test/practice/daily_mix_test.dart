@@ -162,6 +162,34 @@ void main() {
     expect(heldOpen, isEmpty);
     expect(mixAction('T02'), MixAction.aural);
     expect(mixAction('T09'), MixAction.active);
+    expect(lessonMixAction('perception'), MixAction.aural);
+    expect(lessonMixAction('rhythm'), MixAction.active);
+    const lesson = TrainerRef(
+      id: 'L00-02',
+      competencyId: 'snd.pitch_direction',
+      action: MixAction.aural,
+    );
+    final lessonPool = poolFromBook(
+      trainers: const [],
+      lessons: const [lesson],
+      competencies: const {},
+      waiting: const [],
+      openTags: const ['L00-02'],
+      now: today,
+    );
+    expect(lessonPool.single.id, 'L00-02');
+    expect(lessonPool.single.bucket, MixBucket.due);
+    expect(
+      poolFromBook(
+        trainers: const [],
+        lessons: const [lesson],
+        competencies: const {},
+        waiting: [ScheduledReturn(tag: 'L00-02', dueAt: tomorrow)],
+        openTags: const ['L00-02'],
+        now: today,
+      ),
+      isEmpty,
+    );
     expect(
       placeDueReturns(const DailyMixPlan([]), const ['PR-08']).items.single.id,
       'PR-08',

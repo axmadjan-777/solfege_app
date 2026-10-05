@@ -132,6 +132,12 @@ MixAction mixAction(String template) {
   return MixAction.aural;
 }
 
+MixAction lessonMixAction(String skillTrack) {
+  const active = {'rhythm', 'notation', 'keyboard'};
+  if (active.contains(skillTrack)) return MixAction.active;
+  return MixAction.aural;
+}
+
 /// Срок уже наступил или компетенция просит повторения — должное.
 /// Освоенное без срока — лёгкое. Начатое раньше срока — недавнее.
 MixBucket? bucketOf(CompetencySnapshot snap, DateTime now) {
@@ -148,7 +154,7 @@ MixBucket? bucketOf(CompetencySnapshot snap, DateTime now) {
   return null;
 }
 
-/// Пул из книги. Открытая метка ошибки должная в тот же день.
+/// Пул из книги. Открытая метка ошибки или урока должная в тот же день.
 /// Назначенный возврат до своего срока в пул не входит.
 List<MixItem> poolFromBook({
   required List<TrainerRef> trainers,
@@ -156,6 +162,7 @@ List<MixItem> poolFromBook({
   required List<ScheduledReturn> waiting,
   required DateTime now,
   List<String> openTags = const [],
+  List<TrainerRef> lessons = const [],
 }) {
   final held = {
     for (final item in waiting)
@@ -163,7 +170,9 @@ List<MixItem> poolFromBook({
   };
   final open = openTags.toSet();
   final items = <MixItem>[];
+  final known = <String>{};
   for (final trainer in trainers) {
+    known.add(trainer.id);
     if (held.contains(trainer.id)) continue;
     if (open.contains(trainer.id)) {
       items.add(MixItem(
@@ -178,6 +187,15 @@ List<MixItem> poolFromBook({
     final bucket = bucketOf(snap, now);
     if (bucket == null) continue;
     items.add(MixItem(id: trainer.id, bucket: bucket, action: trainer.action));
+  }
+  for (final lesson in lessons) {
+    if (known.contains(lesson.id) || held.contains(lesson.id)) continue;
+    if (!open.contains(lesson.id)) continue;
+    items.add(MixItem(
+      id: lesson.id,
+      bucket: MixBucket.due,
+      action: lesson.action,
+    ));
   }
   return items;
 }

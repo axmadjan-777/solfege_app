@@ -6,6 +6,8 @@ import '../audio/practice_audio_player.dart';
 import '../progress/clock.dart';
 import '../progress/error_return.dart';
 import '../progress/practice_attempt.dart';
+import '../../theory/level0/level0_plan.dart';
+import '../../theory/level0/level0_player.dart';
 import '../progress/progress_store.dart';
 import '../trainers/error_queue.dart';
 import '../trainers/note_reading.dart';
@@ -104,16 +106,37 @@ Widget practiceSetScreen({
             errorReturnSuccessDays(catalog.config.raw),
           );
         },
-        taskBuilder: (item, onAnswered) => practiceSetScreen(
-          setId: item.id,
-          player: player,
-          catalog: catalog,
-          progress: progress,
-          onAnswered: onAnswered,
-          coldReview: coldReview,
-          sessionId: sessionId,
-          tonality: tonality,
-        ),
+        taskBuilder: (item, onAnswered) {
+          final lesson = catalog.findLesson(item.id);
+          if (lesson != null) {
+            return Level0Player(
+              plan: Level0Plan.fromLesson(lesson),
+              onFinished: (result) {
+                final store = progress;
+                if (store != null) {
+                  recordLessonResult(
+                    store: store,
+                    catalog: catalog,
+                    lesson: lesson,
+                    correct: result.correct,
+                    total: result.total,
+                  );
+                }
+                onAnswered(result.total > 0 && result.correct == result.total);
+              },
+            );
+          }
+          return practiceSetScreen(
+            setId: item.id,
+            player: player,
+            catalog: catalog,
+            progress: progress,
+            onAnswered: onAnswered,
+            coldReview: coldReview,
+            sessionId: sessionId,
+            tonality: tonality,
+          );
+        },
       ),
     'PR-16' => ErrorQueueScreen(
         store: progress ??
@@ -146,6 +169,17 @@ const _playableMixIds = {
   'PR-14',
 };
 
+List<TrainerRef> _lessonRefs(CurriculumCatalog catalog) {
+  return [
+    for (final lesson in catalog.lessons)
+      TrainerRef(
+        id: lesson.id,
+        competencyId: lesson.primaryCompetency,
+        action: lessonMixAction(lesson.skillTrack),
+      ),
+  ];
+}
+
 List<TrainerRef> _trainers(CurriculumCatalog catalog) {
   return [
     for (final set in catalog.practiceSets)
@@ -171,6 +205,7 @@ DailyMixPlan _mixPlan(
     waiting: progress.book.returns,
     now: now,
     openTags: ErrorQueue.openTags(progress.book.attempts),
+    lessons: _lessonRefs(catalog),
   );
   final base = buildDailyMix(seed: now.month * 31 + now.day, pool: pool);
   return placeDueReturns(base, _dueNow(progress, clock).toList());
