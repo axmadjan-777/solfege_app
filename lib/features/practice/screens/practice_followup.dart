@@ -36,6 +36,7 @@ Widget practiceSetScreen({
   bool coldReview = false,
   String? sessionId,
   String tonality = 'C',
+  Clock? clock,
 }) {
   void record(bool correct) {
     if (progress != null) {
@@ -88,6 +89,8 @@ Widget practiceSetScreen({
     'PR-14' => SingFollowup(onAnswered: record),
     'PR-15' => DailyMixScreen(
         plan: appDailyMix(),
+        clock: clock,
+        sessionLimit: dailyMixLimit(catalog.config.raw),
         taskBuilder: (item, onAnswered) => practiceSetScreen(
           setId: item.id,
           player: player,

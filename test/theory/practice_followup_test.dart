@@ -8,6 +8,7 @@ import 'package:solfege_app/features/practice/audio/practice_audio_player.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
 import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/screens/practice_followup.dart';
+import 'package:solfege_app/features/practice/trainers/daily_mix.dart';
 import 'package:solfege_app/features/practice/screens/practice_map_screen.dart';
 import 'package:solfege_app/features/theory/level0/level0_plan.dart';
 import 'package:solfege_app/features/theory/screens/theory_home_screen.dart';
@@ -139,6 +140,10 @@ void main() {
     expect(store.book.attempts, hasLength(1));
     expect(store.book.attempts.single.errorTag, 'PR-03');
     expect(store.book.attempts.single.isCorrect, isTrue);
+  });
+
+  test('the catalog daily mix lasts five minutes', () {
+    expect(dailyMixLimit(catalog.config.raw), const Duration(minutes: 5));
   });
 }
 

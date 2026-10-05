@@ -78,6 +78,16 @@ bool _hasBoth(List<MixItem> items) {
 bool pr15CanStart(bool Function(String competencyId) isMastered) =>
     isMastered('rhy.pulse_tap');
 
+/// Пять минут из `config.daily_mix.duration_min`, если поле есть.
+Duration dailyMixLimit(Map<String, dynamic> raw) {
+  final mix = raw['daily_mix'];
+  final minutes = mix is Map ? mix['duration_min'] : null;
+  if (minutes is num && minutes > 0) {
+    return Duration(minutes: minutes.toInt());
+  }
+  return const Duration(minutes: 5);
+}
+
 /// Промах исходного задания возвращается один раз в конец сессии.
 /// Промах этого повтора новое задание не добавляет.
 List<MixItem> appendSameSessionReturn({

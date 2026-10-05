@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:solfege_app/features/practice/progress/clock.dart';
 import 'package:solfege_app/features/practice/screens/daily_mix_screen.dart';
 import 'package:solfege_app/features/practice/trainers/daily_mix.dart';
 
@@ -138,5 +139,84 @@ void main() {
     await tester.pump();
     expect(find.text('Итог: верно 1 из 3'), findsOneWidget);
     expect(find.text('Заданий: 2'), findsOneWidget);
+  });
+
+  test('the mix limit reads duration_min', () {
+    expect(
+      dailyMixLimit(const {
+        'daily_mix': {'duration_min': 5}
+      }),
+      const Duration(minutes: 5),
+    );
+    expect(dailyMixLimit(const {}), const Duration(minutes: 5));
+  });
+
+  testWidgets('five minutes ends the mix before the next item', (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DailyMixScreen(
+          plan: const DailyMixPlan([
+            MixItem(
+                id: 'PR-03', bucket: MixBucket.due, action: MixAction.aural),
+            MixItem(
+                id: 'PR-08', bucket: MixBucket.easy, action: MixAction.active),
+          ]),
+          clock: clock,
+          sessionLimit: const Duration(minutes: 5),
+          taskBuilder: (item, onAnswered) => Scaffold(
+            body: FilledButton(
+              onPressed: () => onAnswered(true),
+              child: Text(item.id),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    await tester.tap(find.text('PR-03'));
+    await tester.pump();
+    clock.advance(const Duration(minutes: 5));
+    await tester.tap(find.text('Дальше'));
+    await tester.pump();
+    expect(find.text('Время вышло'), findsOneWidget);
+    expect(find.text('Итог: верно 1 из 1'), findsOneWidget);
+    expect(find.text('PR-08'), findsNothing);
+  });
+
+  testWidgets('four minutes still opens the next item', (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DailyMixScreen(
+          plan: const DailyMixPlan([
+            MixItem(
+                id: 'PR-03', bucket: MixBucket.due, action: MixAction.aural),
+            MixItem(
+                id: 'PR-08', bucket: MixBucket.easy, action: MixAction.active),
+          ]),
+          clock: clock,
+          sessionLimit: const Duration(minutes: 5),
+          taskBuilder: (item, onAnswered) => Scaffold(
+            body: FilledButton(
+              onPressed: () => onAnswered(true),
+              child: Text(item.id),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    await tester.tap(find.text('PR-03'));
+    await tester.pump();
+    clock.advance(const Duration(minutes: 4));
+    await tester.tap(find.text('Дальше'));
+    await tester.pump();
+    expect(find.text('PR-08'), findsOneWidget);
+    expect(find.text('Время вышло'), findsNothing);
   });
 }

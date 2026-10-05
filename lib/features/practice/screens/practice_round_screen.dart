@@ -88,6 +88,7 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
             coldReview: _coldLeft > 0,
             sessionId: _coldLeft > 0 ? _coldSession : null,
             tonality: _tonality,
+            clock: widget.clock,
             onAnswered: (_) {
               setState(() {
                 if (_coldLeft > 0) _coldLeft -= 1;
@@ -163,7 +164,8 @@ Widget openPractice({
   Clock? clock,
 }) {
   if (progress == null) {
-    return practiceSetScreen(setId: setId, player: player, catalog: catalog);
+    return practiceSetScreen(
+        setId: setId, player: player, catalog: catalog, clock: clock);
   }
   return PracticeRoundScreen(
     setId: setId,
