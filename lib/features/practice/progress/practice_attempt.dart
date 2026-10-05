@@ -49,7 +49,7 @@ void recordLessonResult({
       ],
       policy: catalog.config.policy(lesson.coldReviewPolicyId),
       tonality: 'C',
-      errorTag: missed == 0 ? '' : lesson.id,
+      errorTag: lesson.id,
       itemSignature: lesson.id,
     ),
   );

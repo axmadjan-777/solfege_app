@@ -93,6 +93,7 @@ Widget practiceSetScreen({
               clock: FixedClock(DateTime.utc(2026, 10, 5)),
               rules: catalog.config.masteryRules,
             ),
+        catalog: catalog,
         onColdReview: (_) {},
       ),
     _ => _UnknownPractice(setId: setId),

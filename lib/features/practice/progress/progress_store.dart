@@ -24,28 +24,39 @@ class CompetencySnapshot {
 
   Map<String, Object?> toJson() => {
         'status': status.id,
-        'stability': [for (final session in stability.sessions) session.toJson()],
+        'stability': [
+          for (final session in stability.sessions) session.toJson()
+        ],
         'interval_step': intervalStep,
         'due_at': dueAt?.toIso8601String(),
         'provisional_at': provisionalAt?.toIso8601String(),
       };
 
-  factory CompetencySnapshot.fromJson(Map<String, dynamic> json) => CompetencySnapshot(
+  factory CompetencySnapshot.fromJson(Map<String, dynamic> json) =>
+      CompetencySnapshot(
         status: CompetencyStatus.parse(json['status'] as String),
         stability: Stability(
           sessions: [
             for (final session in json['stability'] as List)
-              StabilitySession.fromJson(Map<String, dynamic>.from(session as Map)),
+              StabilitySession.fromJson(
+                  Map<String, dynamic>.from(session as Map)),
           ],
         ),
         intervalStep: json['interval_step'] as int,
-        dueAt: json['due_at'] == null ? null : DateTime.parse(json['due_at'] as String),
-        provisionalAt: json['provisional_at'] == null ? null : DateTime.parse(json['provisional_at'] as String),
+        dueAt: json['due_at'] == null
+            ? null
+            : DateTime.parse(json['due_at'] as String),
+        provisionalAt: json['provisional_at'] == null
+            ? null
+            : DateTime.parse(json['provisional_at'] as String),
       );
 }
 
 class ProgressBook {
-  const ProgressBook({required this.userId, required this.competencies, required this.attempts});
+  const ProgressBook(
+      {required this.userId,
+      required this.competencies,
+      required this.attempts});
 
   final String userId;
   final Map<String, CompetencySnapshot> competencies;
@@ -53,7 +64,9 @@ class ProgressBook {
 
   Map<String, Object?> toJson() => {
         'user_id': userId,
-        'competencies': {for (final e in competencies.entries) e.key: e.value.toJson()},
+        'competencies': {
+          for (final e in competencies.entries) e.key: e.value.toJson()
+        },
         'attempts': [for (final attempt in attempts) attempt.toJson()],
       };
 
@@ -61,7 +74,8 @@ class ProgressBook {
         userId: json['user_id'] as String? ?? 'local',
         competencies: {
           for (final entry in (json['competencies'] as Map).entries)
-            entry.key as String: CompetencySnapshot.fromJson(Map<String, dynamic>.from(entry.value as Map)),
+            entry.key as String: CompetencySnapshot.fromJson(
+                Map<String, dynamic>.from(entry.value as Map)),
         },
         attempts: [
           for (final attempt in json['attempts'] as List)
@@ -145,7 +159,7 @@ class MemoryProgressStore implements ProgressStore {
           competencyId: session.competencyId,
           sessionId: session.sessionId,
           itemSignature: '${session.itemSignature}-$i',
-          errorTag: session.correct[i] ? '' : session.errorTag,
+          errorTag: session.errorTag,
           competencyIds: [session.competencyId],
           isCorrect: session.correct[i],
           responseMs: 0,
@@ -160,7 +174,8 @@ class MemoryProgressStore implements ProgressStore {
         ),
     ];
     final attempts = [...book.attempts, ...fresh];
-    final mine = attempts.where((a) => a.competencyId == session.competencyId).toList();
+    final mine =
+        attempts.where((a) => a.competencyId == session.competencyId).toList();
     final decision = MasteryDecision.evaluate(
       current: current.status,
       provisionalAt: current.provisionalAt,
@@ -189,7 +204,8 @@ class MemoryProgressStore implements ProgressStore {
       incorrect: accuracy < rules.delayedMinAccuracy,
       transfer: session.transfer && accuracy >= rules.delayedMinAccuracy,
     );
-    final competencies = Map<String, CompetencySnapshot>.from(book.competencies);
+    final competencies =
+        Map<String, CompetencySnapshot>.from(book.competencies);
     competencies[session.competencyId] = CompetencySnapshot(
       status: decision.status,
       stability: stability,
@@ -197,7 +213,8 @@ class MemoryProgressStore implements ProgressStore {
       dueAt: step.dueAt,
       provisionalAt: decision.markedProvisionalAt,
     );
-    book = ProgressBook(userId: book.userId, competencies: competencies, attempts: attempts);
+    book = ProgressBook(
+        userId: book.userId, competencies: competencies, attempts: attempts);
   }
 
   @override
@@ -207,7 +224,10 @@ class MemoryProgressStore implements ProgressStore {
       if (attempt.errorTag.isEmpty) continue;
       latest[attempt.errorTag] = attempt.isCorrect;
     }
-    return [for (final entry in latest.entries) if (!entry.value) entry.key];
+    return [
+      for (final entry in latest.entries)
+        if (!entry.value) entry.key
+    ];
   }
 }
 
@@ -241,7 +261,8 @@ class SharedPreferencesProgressStore implements ProgressStore {
   ProgressBook get book => _memory.book;
 
   @override
-  CompetencySnapshot snapshot(String competencyId) => _memory.snapshot(competencyId);
+  CompetencySnapshot snapshot(String competencyId) =>
+      _memory.snapshot(competencyId);
 
   @override
   void recordSession(SessionDraft session) {
