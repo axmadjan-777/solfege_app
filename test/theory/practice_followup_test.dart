@@ -143,6 +143,7 @@ void main() {
     expect(find.text('Должное: 0'), findsOneWidget);
     expect(find.text('Недавнее: 2'), findsOneWidget);
     expect(find.textContaining('Сначала:'), findsNothing);
+    expect(find.text('Недавно: Интервалы на слух'), findsOneWidget);
 
     clock.advance(const Duration(days: 1));
     recordPracticeAnswer(
@@ -155,6 +156,8 @@ void main() {
     await tester.pumpWidget(_mix(catalog, player, store, clock));
     expect(find.text('Должное: 8'), findsOneWidget);
     expect(find.text('Недавнее: 2'), findsOneWidget);
+    expect(find.text('Сначала: Интервалы на слух'), findsOneWidget);
+    expect(find.text('Недавно: Ритм: пульс, эхо и чтение'), findsOneWidget);
     await tester.tap(find.text('Начать'));
     await tester.pump();
     expect(find.text('м3'), findsOneWidget);

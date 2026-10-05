@@ -148,6 +148,9 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
 
   List<String> get _dueTitles => duePreviewTitles(widget.plan, widget.titleOf);
 
+  List<String> get _recentTitles =>
+      previewTitles(widget.plan, MixBucket.recent, widget.titleOf);
+
   Widget _summary() {
     final plan = widget.plan;
     final canStart =
@@ -177,6 +180,8 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
               Text('Сначала: ${_dueTitles.first}'),
               for (final title in _dueTitles.skip(1)) Text('Ещё: $title'),
             ],
+            if (canStart)
+              for (final title in _recentTitles) Text('Недавно: $title'),
             if (canStart) ...[
               const SizedBox(height: 16),
               FilledButton(

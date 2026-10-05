@@ -463,10 +463,15 @@ void main() {
       MixItem(id: 'L00-02', bucket: MixBucket.due, action: MixAction.aural),
       MixItem(id: 'PR-03', bucket: MixBucket.due, action: MixAction.aural),
       MixItem(id: 'PR-09', bucket: MixBucket.recent, action: MixAction.active),
+      MixItem(id: 'PR-09', bucket: MixBucket.recent, action: MixAction.active),
     ]);
     expect(
       duePreviewTitles(plan, (id) => id == 'L00-02' ? 'Выше и ниже' : id),
       ['Выше и ниже', 'PR-03'],
+    );
+    expect(
+      previewTitles(plan, MixBucket.recent, (id) => id),
+      ['PR-09'],
     );
   });
 
@@ -485,6 +490,10 @@ void main() {
                 id: 'PR-09',
                 bucket: MixBucket.recent,
                 action: MixAction.active),
+            MixItem(
+                id: 'PR-09',
+                bucket: MixBucket.recent,
+                action: MixAction.active),
           ]),
           titleOf: (id) => switch (id) {
             'L00-02' => 'Выше и ниже',
@@ -499,7 +508,7 @@ void main() {
     expect(find.text('Сначала: Выше и ниже'), findsOneWidget);
     expect(find.text('Ещё: Интервалы на слух'), findsOneWidget);
     expect(find.text('Ещё: Выше и ниже'), findsNothing);
-    expect(find.textContaining('Пульс'), findsNothing);
+    expect(find.text('Недавно: Пульс'), findsOneWidget);
   });
 }
 
