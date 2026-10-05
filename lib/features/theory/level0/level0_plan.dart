@@ -60,6 +60,7 @@ class Level0Plan {
         'L03-04' => _trebleC4(lesson),
         'L03-10' => _notesAndRhythm(lesson),
         'L10-05' => _rhythmDictationMethod(lesson),
+        'L05-01' => _intervalCount(lesson),
         'L04-04' || 'L04-11' => _degreeLesson(lesson),
         _ => lesson.level == 1 ? _level1(lesson) : _fromParams(lesson),
       },
@@ -149,6 +150,16 @@ List<Level0Step> _trebleC4(Lesson lesson) {
     for (var i = 0; i < lesson.checkItems; i++)
       _choice(lesson, 'check', 'Проверка ноты ${i + 1}', 'T05', notes, 0),
     _choice(lesson, 'transfer', lesson.finalTask, 'T05', notes, 0),
+  ];
+}
+
+List<Level0Step> _intervalCount(Lesson lesson) {
+  const options = ['2', '3', '4'];
+  return [
+    _explanation(lesson),
+    _choice(lesson, 'guided', 'От до до ми', 'T01', options, 1),
+    _choice(lesson, 'guided', 'От до до фа', 'T01', options, 2),
+    _choice(lesson, 'transfer', lesson.finalTask, 'T01', options, 2),
   ];
 }
 
