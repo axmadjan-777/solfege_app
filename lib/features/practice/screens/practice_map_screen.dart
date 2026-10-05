@@ -5,6 +5,8 @@ import '../../curriculum/data/curriculum_asset_source.dart';
 import '../../curriculum/data/curriculum_catalog.dart';
 import '../../curriculum/models/practice_set.dart';
 import '../progress/progress_rules.dart';
+import '../trainers/assessment.dart';
+import 'diagnostic_screen.dart';
 
 class PracticeMapScreen extends StatelessWidget {
   const PracticeMapScreen({super.key, this.catalog, this.isMastered});
@@ -73,13 +75,34 @@ class _PracticeCard extends StatelessWidget {
         : earlyIntervals
             ? 'Стадии 1–3'
             : (open ? 'Открыто' : 'Закрыто');
+    final diagnostic = set.id == 'PR-08' || set.id == 'PR-09';
     return Card(
       key: Key('practice-${set.id}'),
-      child: ListTile(
-        title: Text(set.title),
-        subtitle: Text(badge),
-        enabled: open,
-        onTap: open ? () {} : null,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: Text(set.title),
+            subtitle: Text(badge),
+            enabled: open,
+            onTap: open ? () {} : null,
+          ),
+          if (diagnostic)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: () {
+                  final rules = AssessmentRules.fromConfig(catalog.config.raw);
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => DiagnosticScreen(rules: rules, onFinished: (_) {}),
+                    ),
+                  );
+                },
+                child: const Text('Диагностика'),
+              ),
+            ),
+        ],
       ),
     );
   }
