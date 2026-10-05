@@ -18,12 +18,14 @@ class TheoryLevelScreen extends StatelessWidget {
     required this.isMastered,
     this.needsReview,
     required this.onOpen,
+    this.onRepair,
   });
 
   final CurriculumCatalog catalog;
   final bool Function(String competencyId) isMastered;
   final bool Function(String competencyId)? needsReview;
   final ValueChanged<Lesson> onOpen;
+  final ValueChanged<Lesson>? onRepair;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,8 @@ class TheoryLevelScreen extends StatelessWidget {
               catalog: catalog,
               isMastered: isMastered,
               needsReview: needsReview,
-              onOpen: onOpen),
+              onOpen: onOpen,
+              onRepair: onRepair),
       ],
     );
   }
@@ -64,6 +67,7 @@ class _LessonTile extends StatelessWidget {
     required this.isMastered,
     required this.needsReview,
     required this.onOpen,
+    required this.onRepair,
   });
 
   final Lesson lesson;
@@ -71,6 +75,7 @@ class _LessonTile extends StatelessWidget {
   final bool Function(String competencyId) isMastered;
   final bool Function(String competencyId)? needsReview;
   final ValueChanged<Lesson> onOpen;
+  final ValueChanged<Lesson>? onRepair;
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +95,13 @@ class _LessonTile extends StatelessWidget {
       child: ListTile(
         title: Text(lesson.title),
         subtitle: Text(label),
-        enabled: gate == LessonGate.open,
-        onTap: gate == LessonGate.open ? () => onOpen(lesson) : null,
+        enabled: gate == LessonGate.open ||
+            (gate == LessonGate.repair && onRepair != null),
+        onTap: switch (gate) {
+          LessonGate.open => () => onOpen(lesson),
+          LessonGate.repair when onRepair != null => () => onRepair!(lesson),
+          _ => null,
+        },
       ),
     );
   }

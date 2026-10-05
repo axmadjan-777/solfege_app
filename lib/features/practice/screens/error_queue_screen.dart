@@ -22,6 +22,7 @@ class ErrorQueueScreen extends StatefulWidget {
     this.catalog,
     this.player,
     this.clock,
+    this.skillTrack,
   });
 
   final ProgressStore store;
@@ -29,6 +30,7 @@ class ErrorQueueScreen extends StatefulWidget {
   final CurriculumCatalog? catalog;
   final PracticeAudioPlayer? player;
   final Clock? clock;
+  final String? skillTrack;
 
   @override
   State<ErrorQueueScreen> createState() => _ErrorQueueScreenState();
@@ -37,7 +39,13 @@ class ErrorQueueScreen extends StatefulWidget {
 class _ErrorQueueScreenState extends State<ErrorQueueScreen> {
   @override
   Widget build(BuildContext context) {
-    final tags = ErrorQueue.openTags(widget.store.book.attempts);
+    final tags = widget.catalog == null || widget.skillTrack == null
+        ? ErrorQueue.openTags(widget.store.book.attempts)
+        : ErrorQueue.openTagsOnTrack(
+            attempts: widget.store.book.attempts,
+            catalog: widget.catalog!,
+            skillTrack: widget.skillTrack!,
+          );
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('Работа над ошибками')),

@@ -4,7 +4,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:solfege_app/features/curriculum/data/curriculum_catalog.dart';
+import 'package:solfege_app/features/practice/progress/clock.dart';
+import 'package:solfege_app/features/practice/progress/practice_attempt.dart';
 import 'package:solfege_app/features/practice/progress/progress_rules.dart';
+import 'package:solfege_app/features/practice/progress/progress_store.dart';
+import 'package:solfege_app/features/practice/screens/error_queue_screen.dart';
+import 'package:solfege_app/features/practice/trainers/error_queue.dart';
 import 'package:solfege_app/features/theory/screens/theory_home_screen.dart';
 
 void main() {
@@ -77,6 +82,107 @@ void main() {
           of: find.byKey(const Key('lesson-L00-02')),
           matching: find.text('Открыто')),
       findsOneWidget,
+    );
+  });
+
+  test('open tags stay on their skill track', () {
+    final store = MemoryProgressStore(
+      clock: FixedClock(DateTime.utc(2026, 10, 5, 8)),
+      rules: catalog.config.masteryRules,
+    );
+    recordLessonResult(
+      store: store,
+      catalog: catalog,
+      lesson: catalog.lesson('L00-02'),
+      correct: 0,
+      total: 2,
+    );
+    recordLessonResult(
+      store: store,
+      catalog: catalog,
+      lesson: catalog.lesson('L00-06'),
+      correct: 0,
+      total: 2,
+    );
+
+    expect(
+      ErrorQueue.openTagsOnTrack(
+        attempts: store.book.attempts,
+        catalog: catalog,
+        skillTrack: 'perception',
+      ),
+      ['L00-02'],
+    );
+    expect(
+      ErrorQueue.openTagsOnTrack(
+        attempts: store.book.attempts,
+        catalog: catalog,
+        skillTrack: 'rhythm',
+      ),
+      ['L00-06'],
+    );
+  });
+
+  testWidgets('repair row opens the error queue of that skill track',
+      (tester) async {
+    final store = MemoryProgressStore(
+      clock: FixedClock(DateTime.utc(2026, 10, 5, 8)),
+      rules: catalog.config.masteryRules,
+    );
+    recordLessonResult(
+      store: store,
+      catalog: catalog,
+      lesson: catalog.lesson('L00-02'),
+      correct: 0,
+      total: 2,
+    );
+    recordLessonResult(
+      store: store,
+      catalog: catalog,
+      lesson: catalog.lesson('L00-06'),
+      correct: 0,
+      total: 2,
+    );
+    const waiting = {
+      'snd.pitch_direction',
+      'snd.duration_contrast',
+      'snd.timbre_dynamics',
+    };
+    await tester.pumpWidget(
+      MaterialApp(
+        home: TheoryHomeScreen(
+          catalog: catalog,
+          progress: store,
+          isMastered: (id) => id == 'snd.tone_vs_noise',
+          needsReview: waiting.contains,
+        ),
+      ),
+    );
+
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('lesson-L00-02')),
+        matching: find.text('Повторение'),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Выше и ниже'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Работа над ошибками'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(ErrorQueueScreen),
+        matching: find.text('Выше и ниже'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(ErrorQueueScreen),
+        matching: find.text('Пульс'),
+      ),
+      findsNothing,
     );
   });
 }

@@ -8,6 +8,7 @@ import '../../practice/audio/synthetic_practice_audio_player.dart';
 import '../../practice/progress/clock.dart';
 import '../../practice/progress/practice_attempt.dart';
 import '../../practice/progress/progress_store.dart';
+import '../../practice/screens/error_queue_screen.dart';
 import '../../practice/screens/practice_round_screen.dart';
 import '../level0/level0_plan.dart';
 import '../level0/level0_player.dart';
@@ -90,6 +91,22 @@ class _Home extends StatelessWidget {
           catalog: catalog,
           isMastered: isMastered,
           needsReview: needsReview,
+          onRepair: progress == null
+              ? null
+              : (lesson) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => ErrorQueueScreen(
+                        store: progress!,
+                        catalog: catalog,
+                        player: player,
+                        clock: clock,
+                        skillTrack: lesson.skillTrack,
+                        onColdReview: (_) {},
+                      ),
+                    ),
+                  );
+                },
           onOpen: (lesson) {
             Navigator.of(context).push(
               MaterialPageRoute<void>(
