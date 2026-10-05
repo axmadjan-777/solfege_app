@@ -5,6 +5,7 @@ import '../../curriculum/data/curriculum_asset_source.dart';
 import '../../curriculum/data/curriculum_catalog.dart';
 import '../../practice/audio/practice_audio_player.dart';
 import '../../practice/audio/synthetic_practice_audio_player.dart';
+import '../../practice/progress/clock.dart';
 import '../../practice/progress/progress_store.dart';
 import '../../practice/screens/practice_round_screen.dart';
 import '../level0/level0_plan.dart';
@@ -12,13 +13,20 @@ import '../level0/level0_player.dart';
 import 'theory_level_screen.dart';
 
 class TheoryHomeScreen extends StatelessWidget {
-  const TheoryHomeScreen(
-      {super.key, this.catalog, this.isMastered, this.player, this.progress});
+  const TheoryHomeScreen({
+    super.key,
+    this.catalog,
+    this.isMastered,
+    this.player,
+    this.progress,
+    this.clock,
+  });
 
   final CurriculumCatalog? catalog;
   final bool Function(String competencyId)? isMastered;
   final PracticeAudioPlayer? player;
   final ProgressStore? progress;
+  final Clock? clock;
 
   bool _mastered(String id) => isMastered?.call(id) ?? false;
 
@@ -29,7 +37,8 @@ class TheoryHomeScreen extends StatelessWidget {
           catalog: catalog!,
           isMastered: _mastered,
           player: player,
-          progress: progress);
+          progress: progress,
+          clock: clock);
     }
     return FutureBuilder<CurriculumCatalog>(
       future: const CurriculumAssetSource().load(),
@@ -39,7 +48,8 @@ class TheoryHomeScreen extends StatelessWidget {
               catalog: snapshot.data!,
               isMastered: _mastered,
               player: player,
-              progress: progress);
+              progress: progress,
+              clock: clock);
         }
         if (snapshot.hasError) {
           return const Center(child: Text('Не удалось загрузить теорию'));
@@ -55,12 +65,14 @@ class _Home extends StatelessWidget {
       {required this.catalog,
       required this.isMastered,
       required this.player,
-      required this.progress});
+      required this.progress,
+      required this.clock});
 
   final CurriculumCatalog catalog;
   final bool Function(String competencyId) isMastered;
   final PracticeAudioPlayer? player;
   final ProgressStore? progress;
+  final Clock? clock;
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +96,7 @@ class _Home extends StatelessWidget {
                           player: player ?? SyntheticPracticeAudioPlayer(),
                           catalog: catalog,
                           progress: progress,
+                          clock: clock,
                         ),
                       ),
                     );

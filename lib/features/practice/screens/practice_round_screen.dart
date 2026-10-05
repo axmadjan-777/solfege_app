@@ -73,6 +73,9 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final stability = widget.progress.snapshot(_competency).stability;
+    final showSaved = !_answered &&
+        (stability.sessions.isNotEmpty || _status != CompetencyStatus.locked);
     return Stack(
       children: [
         KeyedSubtree(
@@ -93,6 +96,25 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
             },
           ),
         ),
+        if (showSaved)
+          Align(
+            alignment: Alignment.topCenter,
+            child: IgnorePointer(
+              child: Material(
+                color: Colors.transparent,
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(practiceStatusLabel(_status)),
+                      Text(stabilityLabel(stability)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         if (_answered)
           Align(
             alignment: Alignment.bottomCenter,
