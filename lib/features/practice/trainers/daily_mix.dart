@@ -1,5 +1,9 @@
 import 'dart:math';
 
+import '../progress/attempt.dart';
+import '../progress/error_return.dart';
+import '../progress/progress_store.dart';
+
 enum MixBucket { due, recent, easy }
 
 enum MixAction { aural, active }
@@ -110,7 +114,64 @@ const appMixPool = <MixItem>[
 
 DailyMixPlan appDailyMix() => buildDailyMix(seed: 1, pool: appMixPool);
 
-/// Должные возвраты встают в начало. Длина плана сохраняется.
+class TrainerRef {
+  const TrainerRef({
+    required this.id,
+    required this.competencyId,
+    required this.action,
+  });
+
+  final String id;
+  final String competencyId;
+  final MixAction action;
+}
+
+MixAction mixAction(String template) {
+  const active = {'T01', 'T06', 'T07', 'T08', 'T09', 'T10', 'T12', 'T13'};
+  if (active.contains(template)) return MixAction.active;
+  return MixAction.aural;
+}
+
+/// Срок уже наступил или компетенция просит повторения — должное.
+/// Освоенное без срока — лёгкое. Начатое раньше срока — недавнее.
+MixBucket? bucketOf(CompetencySnapshot snap, DateTime now) {
+  final overdue = snap.dueAt != null && !now.isBefore(snap.dueAt!);
+  if (overdue || snap.status == CompetencyStatus.needsReview) {
+    return MixBucket.due;
+  }
+  if (snap.status == CompetencyStatus.mastered) return MixBucket.easy;
+  if (snap.status == CompetencyStatus.practicing ||
+      snap.status == CompetencyStatus.provisionallyPassed ||
+      snap.status == CompetencyStatus.introduced) {
+    return MixBucket.recent;
+  }
+  return null;
+}
+
+/// Пул из книги. Ожидающий возврат не подменяется компетенцией, срок которой раньше.
+List<MixItem> poolFromBook({
+  required List<TrainerRef> trainers,
+  required Map<String, CompetencySnapshot> competencies,
+  required List<ScheduledReturn> waiting,
+  required DateTime now,
+}) {
+  final held = {
+    for (final item in waiting)
+      if (now.isBefore(item.dueAt)) item.tag,
+  };
+  final items = <MixItem>[];
+  for (final trainer in trainers) {
+    if (held.contains(trainer.id)) continue;
+    final snap = competencies[trainer.competencyId];
+    if (snap == null) continue;
+    final bucket = bucketOf(snap, now);
+    if (bucket == null) continue;
+    items.add(MixItem(id: trainer.id, bucket: bucket, action: trainer.action));
+  }
+  return items;
+}
+
+/// Должные возвраты встают в начало. Длина непустого плана сохраняется.
 DailyMixPlan placeDueReturns(DailyMixPlan plan, List<String> tags) {
   if (tags.isEmpty) return plan;
   final known = {for (final item in appMixPool) item.id: item};
@@ -132,6 +193,7 @@ DailyMixPlan placeDueReturns(DailyMixPlan plan, List<String> tags) {
     }
   }
   final merged = [...front, ...rest, ...skipped];
+  if (plan.items.isEmpty) return DailyMixPlan(front);
   if (merged.length <= plan.items.length) return DailyMixPlan(merged);
   return DailyMixPlan(merged.take(plan.items.length).toList());
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:solfege_app/features/practice/progress/attempt.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
 import 'package:solfege_app/features/practice/progress/error_return.dart';
+import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/screens/daily_mix_screen.dart';
 import 'package:solfege_app/features/practice/trainers/daily_mix.dart';
 
@@ -88,6 +90,58 @@ void main() {
     expect(
         find.text('Лёгкое: ${plan.countOf(MixBucket.easy)}'), findsOneWidget);
     expect(find.text('Начать'), findsNothing);
+  });
+
+  test('the book supplies the mix and a waiting return stays out', () {
+    final today = DateTime.utc(2026, 10, 5, 8);
+    final tomorrow = DateTime.utc(2026, 10, 6, 8);
+    const trainers = [
+      TrainerRef(
+          id: 'PR-03', competencyId: 'ear.interval', action: MixAction.aural),
+      TrainerRef(
+          id: 'PR-09', competencyId: 'rhy.pulse', action: MixAction.active),
+    ];
+    final early = poolFromBook(
+      trainers: trainers,
+      competencies: {
+        'ear.interval': _snap(CompetencyStatus.practicing, tomorrow),
+        'rhy.pulse': _snap(CompetencyStatus.locked, null),
+      },
+      waiting: const [],
+      now: today,
+    );
+    expect(early.map((item) => item.id), ['PR-03']);
+    expect(early.single.bucket, MixBucket.recent);
+    final due = poolFromBook(
+      trainers: trainers,
+      competencies: {
+        'ear.interval': _snap(CompetencyStatus.practicing, tomorrow),
+        'rhy.pulse': _snap(
+            CompetencyStatus.practicing, today.add(const Duration(days: 2))),
+      },
+      waiting: const [],
+      now: tomorrow,
+    );
+    final plan = buildDailyMix(seed: 1, pool: due);
+    expect(plan.countOf(MixBucket.due), 8);
+    expect(plan.items.first.id, 'PR-03');
+    final held = poolFromBook(
+      trainers: trainers,
+      competencies: {
+        'ear.interval': _snap(CompetencyStatus.practicing, tomorrow),
+      },
+      waiting: [
+        ScheduledReturn(tag: 'PR-03', dueAt: DateTime.utc(2026, 10, 9, 8)),
+      ],
+      now: tomorrow,
+    );
+    expect(held, isEmpty);
+    expect(mixAction('T02'), MixAction.aural);
+    expect(mixAction('T09'), MixAction.active);
+    expect(
+      placeDueReturns(const DailyMixPlan([]), const ['PR-08']).items.single.id,
+      'PR-08',
+    );
   });
 
   test('the app mix starts with the aural interval', () {
@@ -350,4 +404,14 @@ void main() {
     expect(find.text('Через 3 дня: PR-08'), findsOneWidget);
     expect(find.text('Завтра: PR-08'), findsNothing);
   });
+}
+
+CompetencySnapshot _snap(CompetencyStatus status, DateTime? dueAt) {
+  return CompetencySnapshot(
+    status: status,
+    stability: const Stability(),
+    intervalStep: 0,
+    dueAt: dueAt,
+    provisionalAt: null,
+  );
 }

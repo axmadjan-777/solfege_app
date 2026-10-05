@@ -163,6 +163,7 @@ class _DailyMixScreenState extends State<DailyMixScreen> {
               for (final tag in _later)
                 Text('${returnGapLabel(widget.successDays)}: $tag'),
             ],
+            if (plan.items.isEmpty) const Text('Пока нет должных заданий.'),
             Text('Заданий: ${plan.items.length}'),
             Text('Должное: ${plan.countOf(MixBucket.due)}'),
             Text('Недавнее: ${plan.countOf(MixBucket.recent)}'),

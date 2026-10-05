@@ -7,6 +7,7 @@ import 'package:solfege_app/features/curriculum/data/curriculum_catalog.dart';
 import 'package:solfege_app/features/practice/audio/practice_audio_player.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
 import 'package:solfege_app/features/practice/progress/error_return.dart';
+import 'package:solfege_app/features/practice/progress/practice_attempt.dart';
 import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/screens/practice_followup.dart';
 import 'package:solfege_app/features/practice/trainers/daily_mix.dart';
@@ -113,34 +114,54 @@ void main() {
     expect(find.text('Тапни вместе с кликом'), findsOneWidget);
   });
 
-  testWidgets('the daily mix starts the interval and records the answer',
-      (tester) async {
+  testWidgets('an empty book does not invent trainers', (tester) async {
     final store = MemoryProgressStore(
       clock: FixedClock(DateTime.utc(2026, 10, 5, 8)),
       rules: catalog.config.masteryRules,
     );
-    await tester.pumpWidget(
-      MaterialApp(
-        home: practiceSetScreen(
-          setId: 'PR-15',
-          player: player,
-          catalog: catalog,
-          progress: store,
-        ),
-      ),
+    await tester.pumpWidget(_mix(catalog, player, store, store.clock));
+    expect(find.text('Пока нет должных заданий.'), findsOneWidget);
+    expect(find.text('Начать'), findsNothing);
+    expect(find.text('м3'), findsNothing);
+  });
+
+  testWidgets('a due interval leads the recent pulse and records the answer',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
     );
-    expect(find.text('Ежедневный микс'), findsOneWidget);
-    expect(find.text('Заданий: 12'), findsOneWidget);
+    recordPracticeAnswer(
+      store: store,
+      catalog: catalog,
+      setId: 'PR-03',
+      correct: true,
+    );
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Должное: 0'), findsOneWidget);
+    expect(find.text('Недавнее: 2'), findsOneWidget);
+
+    clock.advance(const Duration(days: 1));
+    recordPracticeAnswer(
+      store: store,
+      catalog: catalog,
+      setId: 'PR-09',
+      correct: true,
+    );
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Должное: 8'), findsOneWidget);
+    expect(find.text('Недавнее: 2'), findsOneWidget);
     await tester.tap(find.text('Начать'));
     await tester.pump();
     expect(find.text('м3'), findsOneWidget);
+    expect(find.text('Пульс'), findsNothing);
     await tester.tap(find.text('м3'));
     await tester.pump();
     expect(find.text('Верно'), findsOneWidget);
-    expect(find.text('Дальше'), findsOneWidget);
-    expect(store.book.attempts, hasLength(1));
-    expect(store.book.attempts.single.errorTag, 'PR-03');
-    expect(store.book.attempts.single.isCorrect, isTrue);
+    expect(store.book.attempts.last.errorTag, 'PR-03');
+    expect(store.book.attempts.last.isCorrect, isTrue);
   });
 
   test('the catalog daily mix lasts five minutes', () {
@@ -156,20 +177,9 @@ void main() {
     );
     store.scheduleNextDayReturn('PR-08');
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: practiceSetScreen(
-          setId: 'PR-15',
-          player: player,
-          catalog: catalog,
-          progress: store,
-          clock: clock,
-        ),
-      ),
-    );
-    await tester.tap(find.text('Начать'));
-    await tester.pump();
-    expect(find.text('м3'), findsOneWidget);
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Пока нет должных заданий.'), findsOneWidget);
+    expect(find.text('Начать'), findsNothing);
 
     clock.advance(const Duration(days: 1));
     await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
@@ -218,9 +228,8 @@ void main() {
     clock.advance(const Duration(days: 1));
     await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
     await tester.pumpWidget(_mix(catalog, player, store, clock));
-    await tester.tap(find.text('Начать'));
-    await tester.pump();
-    expect(find.text('м3'), findsOneWidget);
+    expect(find.text('Пока нет должных заданий.'), findsOneWidget);
+    expect(find.text('Начать'), findsNothing);
 
     clock.advance(const Duration(days: 2));
     await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));

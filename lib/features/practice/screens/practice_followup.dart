@@ -89,7 +89,7 @@ Widget practiceSetScreen({
       ),
     'PR-14' => SingFollowup(onAnswered: record),
     'PR-15' => DailyMixScreen(
-        plan: _mixPlan(progress, clock),
+        plan: _mixPlan(catalog, progress, clock),
         clock: clock,
         sessionLimit: dailyMixLimit(catalog.config.raw),
         dueNow: _dueNow(progress, clock),
@@ -128,8 +128,50 @@ Widget practiceSetScreen({
   };
 }
 
-DailyMixPlan _mixPlan(ProgressStore? progress, Clock? clock) {
-  return placeDueReturns(appDailyMix(), _dueNow(progress, clock).toList());
+const _playableMixIds = {
+  'PR-01',
+  'PR-02',
+  'PR-03',
+  'PR-04',
+  'PR-05',
+  'PR-06',
+  'PR-07',
+  'PR-08',
+  'PR-09',
+  'PR-10',
+  'PR-11',
+  'PR-12',
+  'PR-13',
+  'PR-14',
+};
+
+List<TrainerRef> _trainers(CurriculumCatalog catalog) {
+  return [
+    for (final set in catalog.practiceSets)
+      if (_playableMixIds.contains(set.id))
+        TrainerRef(
+          id: set.id,
+          competencyId: competencyOf(set),
+          action: mixAction(set.interactionTemplate),
+        ),
+  ];
+}
+
+DailyMixPlan _mixPlan(
+  CurriculumCatalog catalog,
+  ProgressStore? progress,
+  Clock? clock,
+) {
+  if (progress == null) return appDailyMix();
+  final now = (clock ?? const SystemClock()).now();
+  final pool = poolFromBook(
+    trainers: _trainers(catalog),
+    competencies: progress.book.competencies,
+    waiting: progress.book.returns,
+    now: now,
+  );
+  final base = buildDailyMix(seed: now.month * 31 + now.day, pool: pool);
+  return placeDueReturns(base, _dueNow(progress, clock).toList());
 }
 
 Set<String> _dueNow(ProgressStore? progress, Clock? clock) {
