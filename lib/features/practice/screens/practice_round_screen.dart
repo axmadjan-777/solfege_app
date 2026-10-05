@@ -9,7 +9,8 @@ import '../progress/practice_attempt.dart';
 import '../progress/progress_store.dart';
 import 'practice_followup.dart';
 
-/// Серия ответов. Окно из 12 верных даёт `provisionally_passed`.
+/// Серия ответов. Окно из 12 при точности 0.85 даёт `provisionally_passed`.
+/// Падение последних 6 ниже 0.6 просит повторить. Новое окно 0.85 возвращает сдачу.
 /// `mastered` ставит только холодная проверка спустя 20 часов.
 class PracticeRoundScreen extends StatefulWidget {
   const PracticeRoundScreen({

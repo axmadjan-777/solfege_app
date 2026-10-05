@@ -182,6 +182,81 @@ void main() {
     expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
     expect(find.text('Холодная проверка'), findsNothing);
   });
+
+  test('eleven correct answers after the misses restore provisional status',
+      () {
+    final store = _store();
+    _slip(store, catalog);
+    final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+    final marked = store.snapshot(competency).provisionalAt;
+    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
+
+    for (var i = 0; i < 10; i++) {
+      recordPracticeAnswer(
+          store: store, catalog: catalog, setId: 'PR-03', correct: true);
+    }
+    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
+
+    recordPracticeAnswer(
+        store: store, catalog: catalog, setId: 'PR-03', correct: true);
+    expect(store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed);
+    expect(store.snapshot(competency).provisionalAt, marked);
+    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
+  });
+
+  testWidgets(
+      'the round screen returns to provisional after the window recovers',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    _slip(store, catalog);
+    final player = FakePracticeAudioPlayer();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PracticeRoundScreen(
+          setId: 'PR-03',
+          player: player,
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+
+    for (var i = 0; i < 11; i++) {
+      await _answer(tester, 'м3');
+      if (i == 9) expect(find.text('Нужно повторить'), findsOneWidget);
+      if (i < 10) {
+        await tester.tap(find.text('Следующее'));
+        await tester.pump();
+      }
+    }
+
+    expect(find.text('Предварительно сдано'), findsOneWidget);
+    expect(find.text('Холодная проверка'), findsOneWidget);
+    final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+    expect(store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed);
+    await tester.tap(find.text('Холодная проверка'));
+    await tester.pump();
+    expect(find.text('Рано'), findsOneWidget);
+    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
+  });
+}
+
+void _slip(MemoryProgressStore store, CurriculumCatalog catalog) {
+  for (var i = 0; i < 12; i++) {
+    recordPracticeAnswer(
+        store: store, catalog: catalog, setId: 'PR-03', correct: true);
+  }
+  for (final correct in [true, true, false, false, false, false]) {
+    recordPracticeAnswer(
+        store: store, catalog: catalog, setId: 'PR-03', correct: correct);
+  }
 }
 
 Future<void> _answer(WidgetTester tester, String label) async {
