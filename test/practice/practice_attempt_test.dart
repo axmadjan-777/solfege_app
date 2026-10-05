@@ -553,6 +553,23 @@ void main() {
     expect(
         find.widgetWithText(FilledButton, 'Холодная проверка'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'Следующее'), findsNothing);
+
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: practiceSetScreen(
+          setId: 'PR-15',
+          player: FakePracticeAudioPlayer(),
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+    expect(find.text('Легко: Интервалы на слух'), findsOneWidget);
+    expect(find.text('Лёгкое: 2'), findsOneWidget);
+    expect(find.textContaining('Сначала:'), findsNothing);
+    expect(find.textContaining('Недавно:'), findsNothing);
   });
 }
 
