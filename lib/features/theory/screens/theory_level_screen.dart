@@ -5,13 +5,10 @@ import '../../curriculum/data/curriculum_catalog.dart';
 import '../../curriculum/models/lesson.dart';
 import '../../practice/progress/progress_rules.dart';
 
-/// Уровни 0–4 — только MVP. Уровни 6, 7, 9 и 11 уже имеют проходимые карточки.
+/// Уровни 0–4 — только MVP. Уровни 5–11 уже имеют проходимые карточки.
 bool showsOnTheoryList(Lesson lesson) {
   if (lesson.level <= 4) return lesson.mvpStatus.isMvp;
-  return lesson.level == 6 ||
-      lesson.level == 7 ||
-      lesson.level == 9 ||
-      lesson.level == 11;
+  return lesson.level >= 5 && lesson.level <= 11;
 }
 
 class TheoryLevelScreen extends StatelessWidget {
@@ -39,8 +36,11 @@ class TheoryLevelScreen extends StatelessWidget {
         Text('Теория', style: Theme.of(context).textTheme.displaySmall),
         const SizedBox(height: 8),
         Text(
-          'Уровни 0–4 и карточки 6, 7, 9, 11',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+          'Уровни 0–4 и карточки 5–11',
+          style: Theme.of(context)
+              .textTheme
+              .bodyLarge
+              ?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
         for (final lesson in lessons)

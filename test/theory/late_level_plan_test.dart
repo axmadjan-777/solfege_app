@@ -32,13 +32,21 @@ void main() {
         .where(showsOnTheoryList)
         .map((lesson) => lesson.id)
         .toSet();
-    expect(shown, containsAll(['L06-01', 'L07-08', 'L09-08', 'L11-13']));
-    expect(shown.where((id) => id.startsWith('L05-')), isEmpty);
-    expect(shown.where((id) => id.startsWith('L08-')), isEmpty);
+    expect(
+        shown,
+        containsAll([
+          'L05-05',
+          'L06-01',
+          'L07-08',
+          'L08-11',
+          'L09-08',
+          'L10-08',
+          'L11-13'
+        ]));
 
-    final late = catalog.lessons
-        .where((lesson) => lateTheoryLevels.contains(lesson.level));
-    expect(late, hasLength(29));
+    final late =
+        catalog.lessons.where((lesson) => lateLevelSteps(lesson) != null);
+    expect(late, hasLength(56));
     for (final lesson in late) {
       final plan = Level0Plan.fromLesson(lesson);
       final script = lessonScript(lesson.id);
@@ -128,6 +136,43 @@ void main() {
     expect(_right('L11-11'), 'модуляция');
     expect(_right('L11-12'), 'V в до и I в соль');
     expect(_right('L11-13'), 'замкнута');
+    expect(_right('L05-02'), '7');
+    expect(lessonScript('L05-02').transfer!.right, '5');
+    expect(_right('L05-03'), 'большая');
+    expect(_right('L05-04'), 'большая');
+    expect(_right('L05-05'), '9');
+    expect(lessonScript('L05-05').transfer!.right, '10');
+    expect(_right('L05-06'), '0');
+    expect(lessonScript('L05-06').transfer!.right, '12');
+    expect(_right('L05-07'), 'ми');
+    expect(_right('L05-08'), 'до');
+    expect(_right('L05-09'), 'б6');
+    expect(_right('L05-10'), 'вместе');
+    expect(_right('L05-11'), '6');
+    expect(lessonScript('L05-11').transfer!.right, 'тритон');
+    expect(_right('L08-01'), 'большая, затем малая');
+    expect(_right('L08-03'), '0–3–7');
+    expect(_right('L08-04'), 'большое');
+    expect(_right('L08-05'), '0–3–6');
+    expect(_right('L08-06'), '0–4–8');
+    expect(_right('L08-07'), 'четыре');
+    expect(_right('L08-08'), 'ми');
+    expect(_right('L08-09'), 'соль');
+    expect(_right('L08-10'), 'минор');
+    expect(_right('L08-11'), 'мажор в гармоническом');
+    expect(_right('L10-01'), 'можно читать');
+    expect(_right('L10-02'), 'до');
+    expect(_right('L10-03'), 'скачок по трезвучию');
+    expect(lessonScript('L10-03').transfer!.right, 'не по трезвучию');
+    expect(_right('L10-04'), '1–3–5–1');
+    expect(_right('L10-06'), 'на тонику');
+    expect(_right('L10-07'), 'тритон');
+    expect(_right('L10-08'), 'самоотчёт');
+    expect(Level0Plan.fromLesson(catalog.lesson('L05-01')).steps[1].body,
+        'От до до ми');
+    expect(
+        Level0Plan.fromLesson(catalog.lesson('L08-02')).steps[1].options.first,
+        '0–4–7');
   });
 }
 

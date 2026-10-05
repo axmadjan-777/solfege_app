@@ -1,9 +1,14 @@
 import '../../curriculum/models/lesson.dart';
 import '../../practice/trainers/degree_dictation.dart';
 import '../../practice/trainers/harmony_and_melody.dart';
+import '../../practice/trainers/interval_direction.dart';
+import '../../practice/trainers/interval_ear.dart';
 import '../../practice/trainers/minor_degree_dictation.dart';
 import '../../practice/trainers/modes_and_sevenths.dart';
 import '../../practice/trainers/rhythm_advanced.dart';
+import '../../practice/trainers/sight_reading.dart';
+import '../../practice/trainers/triad_formulas.dart';
+import '../../practice/trainers/triad_spelling.dart';
 import '../../practice/trainers/v2_analysis.dart';
 import '../../scales/utils/solfege_notes.dart';
 import 'level0_plan.dart';
@@ -25,11 +30,14 @@ class LessonScript {
   final LessonChoice? transfer;
 }
 
-const lateTheoryLevels = {7, 9, 11};
+const lateTheoryLevels = {5, 7, 8, 9, 10, 11};
 
-/// Проходимые шаги уровней 7, 9 и 11. Уровень 6 собран отдельно. Для остальных уроков — `null`.
+const _separatePlans = {'L05-01', 'L08-02', 'L10-05'};
+
+/// Проходимые шаги уровней 5, 7–11. Уровень 6 и три ранних урока собраны отдельно.
 List<Level0Step>? lateLevelSteps(Lesson lesson) {
-  if (!lateTheoryLevels.contains(lesson.level)) return null;
+  if (!lateTheoryLevels.contains(lesson.level) ||
+      _separatePlans.contains(lesson.id)) return null;
   final script = lessonScript(lesson.id);
   final transfer = script.transfer ?? script.guided;
   return [
@@ -47,6 +55,107 @@ List<Level0Step>? lateLevelSteps(Lesson lesson) {
 
 LessonScript lessonScript(String id) {
   return switch (id) {
+    'L05-02' => _perfectIntervals(),
+    'L05-03' => _seconds(),
+    'L05-04' => _thirds(),
+    'L05-05' => _sixthsAndSevenths(),
+    'L05-06' => _unisonAndOctave(),
+    'L05-07' => LessonScript(
+        guided: LessonChoice(
+          question: 'Большая терция вверх от до',
+          right: _name(noteAbove(60, 'б3')),
+          wrong: _name(noteAbove(60, 'м3')),
+        ),
+      ),
+    'L05-08' => _downFromG(),
+    'L05-09' => LessonScript(
+        guided: LessonChoice(
+          question: 'Обращение малой терции',
+          right: inversionRule('м3') ? invertedLabel('м3') : 'ошибка',
+          wrong: 'м6',
+        ),
+      ),
+    'L05-10' => _melodicOrHarmonic(),
+    'L05-11' => _tritone(),
+    'L08-01' => _twoThirds(),
+    'L08-03' => LessonScript(
+        guided: LessonChoice(
+          question: 'Формула малого трезвучия',
+          right: TriadFormulas.classify(const [60, 63, 67]) == 'minor'
+              ? _formula(TriadFormulas.minor)
+              : 'ошибка',
+          wrong: _formula(TriadFormulas.major),
+        ),
+      ),
+    'L08-04' => _majorAgainstMinor(),
+    'L08-05' => LessonScript(
+        guided: LessonChoice(
+          question: 'Формула уменьшённого трезвучия',
+          right: TriadFormulas.classify(const [60, 63, 66]) == 'dim'
+              ? _formula(TriadFormulas.diminished)
+              : 'ошибка',
+          wrong: _formula(TriadFormulas.minor),
+        ),
+      ),
+    'L08-06' => LessonScript(
+        guided: LessonChoice(
+          question: 'Формула увеличенного трезвучия',
+          right: TriadFormulas.classify(const [60, 64, 68]) == 'aug'
+              ? _formula(TriadFormulas.augmented)
+              : 'ошибка',
+          wrong: _formula(TriadFormulas.major),
+        ),
+      ),
+    'L08-07' => _fourTriadKinds(),
+    'L08-08' => _firstInversionBass(),
+    'L08-09' => _secondInversionBass(),
+    'L08-10' => _degreesOfMajor(),
+    'L08-11' => LessonScript(
+        guided: LessonChoice(
+          question: 'V ступень минора',
+          right: harmonicMinorTriads[4] == 'major' &&
+                  naturalMinorTriads[4] == 'minor'
+              ? 'мажор в гармоническом'
+              : 'ошибка',
+          wrong: 'минор, как в натуральном',
+        ),
+      ),
+    'L10-01' => LessonScript(
+        guided: LessonChoice(
+          question: 'Фраза 1–2–3–1',
+          right: const SightPhrase([1, 2, 3, 1]).isAllowed
+              ? 'можно читать'
+              : 'ошибка',
+          wrong: 'скачок с неустоя',
+        ),
+      ),
+    'L10-02' => _readDegreeOne(),
+    'L10-03' => _triadLeaps(),
+    'L10-04' => LessonScript(
+        guided: LessonChoice(
+          question: 'Какую фразу можно удержать как эхо тонического трезвучия?',
+          right: tonicTriadMelody(const [1, 3, 5, 1]) ? '1–3–5–1' : 'ошибка',
+          wrong: '1–2–4–6',
+        ),
+      ),
+    'L10-06' => LessonScript(
+        guided: LessonChoice(
+          question:
+              'Куда должна прийти мелодия диктанта на ступенях I, III и V?',
+          right: tonicTriadMelody(const [1, 5, 3, 1]) ? 'на тонику' : 'ошибка',
+          wrong: 'на II',
+        ),
+      ),
+    'L10-07' => _findTritone(),
+    'L10-08' => LessonScript(
+        guided: LessonChoice(
+          question: 'Чем заканчивается пение без микрофона?',
+          right: !singAttemptGrantsMastered() && !singGrantsMastered('спел')
+              ? 'самоотчёт'
+              : 'ошибка',
+          wrong: 'mastered',
+        ),
+      ),
     'L07-01' => const LessonScript(
         guided: LessonChoice(
           question: 'Длительность шестнадцатой',
@@ -337,6 +446,283 @@ LessonScript _pivot() {
       question: 'Аккорд соль–си–ре принадлежит двум тональностям',
       right: same ? 'V в до и I в соль' : 'ошибка',
       wrong: 'только I в до',
+    ),
+  );
+}
+
+LessonScript _perfectIntervals() {
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Сколько полутонов в чистой квинте?',
+      right: '${IntervalEar.semitones['ч5']}',
+      wrong: '${IntervalEar.semitones['ч4']}',
+    ),
+    transfer: LessonChoice(
+      question: 'Сколько полутонов в чистой кварте?',
+      right: '${IntervalEar.semitones['ч4']}',
+      wrong: '${IntervalEar.semitones['ч5']}',
+    ),
+  );
+}
+
+LessonScript _seconds() {
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Секунда в 2 полутона',
+      right: IntervalEar.semitones['б2'] == 2 ? 'большая' : 'ошибка',
+      wrong: 'малая',
+    ),
+    transfer: LessonChoice(
+      question: 'Секунда в 1 полутон',
+      right: IntervalEar.semitones['м2'] == 1 ? 'малая' : 'ошибка',
+      wrong: 'большая',
+    ),
+  );
+}
+
+LessonScript _thirds() {
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Терция в 4 полутона',
+      right: IntervalEar.semitones['б3'] == 4 ? 'большая' : 'ошибка',
+      wrong: 'малая',
+    ),
+    transfer: LessonChoice(
+      question: 'Терция в 3 полутона',
+      right: IntervalEar.semitones['м3'] == 3 ? 'малая' : 'ошибка',
+      wrong: 'большая',
+    ),
+  );
+}
+
+LessonScript _sixthsAndSevenths() {
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Большая секста, полутоны',
+      right: '${IntervalEar.semitones['б6']}',
+      wrong: '${IntervalEar.semitones['м6']}',
+    ),
+    transfer: LessonChoice(
+      question: 'Малая септима, полутоны',
+      right: '${IntervalEar.semitones['м7']}',
+      wrong: '${IntervalEar.semitones['б7']}',
+    ),
+  );
+}
+
+LessonScript _unisonAndOctave() {
+  return LessonScript(
+    guided: const LessonChoice(
+      question: 'Сколько полутонов в приме?',
+      right: '0',
+      wrong: '12',
+    ),
+    transfer: LessonChoice(
+      question: 'Сколько полутонов в октаве?',
+      right: IntervalEar.inversion(0) == 12 ? '12' : 'ошибка',
+      wrong: '0',
+    ),
+  );
+}
+
+LessonScript _downFromG() {
+  final fifth = noteBelow(67, 'ч5');
+  final fourth = noteBelow(67, 'ч4');
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Чистая квинта вниз от соль',
+      right: !placedUpward(67, fifth) ? _name(fifth) : 'ошибка',
+      wrong: _name(fourth),
+    ),
+  );
+}
+
+LessonScript _melodicOrHarmonic() {
+  final together = intervalPlayback(
+              bassMidi: 60, steps: IntervalEar.semitones['ч5']!, harmonic: true)
+          .events
+          .length ==
+      1;
+  final inSequence = intervalPlayback(
+              bassMidi: 60,
+              steps: IntervalEar.semitones['ч5']!,
+              harmonic: false)
+          .events
+          .length ==
+      2;
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Гармонический интервал звучит',
+      right: together && inSequence ? 'вместе' : 'ошибка',
+      wrong: 'по очереди',
+    ),
+  );
+}
+
+LessonScript _tritone() {
+  final steps = IntervalEar.semitones['тритон']!;
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Сколько полутонов в тритоне?',
+      right: steps == 6 ? '6' : 'ошибка',
+      wrong: '7',
+    ),
+    transfer: LessonChoice(
+      question: 'Обращение тритона',
+      right: IntervalEar.labelFor(IntervalEar.inversion(steps)) == 'тритон'
+          ? 'тритон'
+          : 'ошибка',
+      wrong: 'ч5',
+    ),
+  );
+}
+
+LessonScript _twoThirds() {
+  final majorLower = TriadFormulas.major[1] - TriadFormulas.major[0];
+  final majorUpper = TriadFormulas.major[2] - TriadFormulas.major[1];
+  final minorLower = TriadFormulas.minor[1] - TriadFormulas.minor[0];
+  final minorUpper = TriadFormulas.minor[2] - TriadFormulas.minor[1];
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Две терции большого трезвучия снизу вверх',
+      right: majorLower == 4 && majorUpper == 3
+          ? 'большая, затем малая'
+          : 'ошибка',
+      wrong: 'малая, затем большая',
+    ),
+    transfer: LessonChoice(
+      question: 'Две терции малого трезвучия снизу вверх',
+      right: minorLower == 3 && minorUpper == 4
+          ? 'малая, затем большая'
+          : 'ошибка',
+      wrong: 'большая, затем малая',
+    ),
+  );
+}
+
+LessonScript _majorAgainstMinor() {
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Звуки 0–4–7',
+      right: TriadFormulas.classify(const [60, 64, 67]) == 'major'
+          ? 'большое'
+          : 'ошибка',
+      wrong: 'малое',
+    ),
+    transfer: LessonChoice(
+      question: 'Звуки 0–3–7',
+      right: TriadFormulas.classify(const [60, 63, 67]) == 'minor'
+          ? 'малое'
+          : 'ошибка',
+      wrong: 'большое',
+    ),
+  );
+}
+
+LessonScript _fourTriadKinds() {
+  final kinds = {
+    TriadFormulas.classify(const [60, 64, 67]),
+    TriadFormulas.classify(const [60, 63, 67]),
+    TriadFormulas.classify(const [60, 63, 66]),
+    TriadFormulas.classify(const [60, 64, 68]),
+  };
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Сколько разных видов в этих четырёх аккордах?',
+      right: kinds.length == 4 && !kinds.contains(null) ? 'четыре' : 'ошибка',
+      wrong: 'два',
+    ),
+  );
+}
+
+LessonScript _firstInversionBass() {
+  final inversion = firstInversion(const [60, 64, 67]);
+  final spelled = spellTriad(inversion);
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Бас первого обращения до-мажорного трезвучия',
+      right: spelled?.position == 'first' ? _name(inversion.first) : 'ошибка',
+      wrong: 'до',
+    ),
+  );
+}
+
+LessonScript _secondInversionBass() {
+  const chord = [67, 72, 76];
+  final spelled = spellTriad(chord);
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Бас второго обращения до-мажорного трезвучия',
+      right: spelled?.position == 'second' && spelled?.quality == 'major'
+          ? _name(chord.first)
+          : 'ошибка',
+      wrong: 'до',
+    ),
+  );
+}
+
+LessonScript _degreesOfMajor() {
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Трезвучие II ступени до мажора',
+      right:
+          TriadFormulas.classify(triadOnDegree(tonic: 60, degree: 2)) == 'minor'
+              ? 'минор'
+              : 'ошибка',
+      wrong: 'мажор',
+    ),
+    transfer: LessonChoice(
+      question: 'Трезвучие V ступени до мажора',
+      right:
+          TriadFormulas.classify(triadOnDegree(tonic: 60, degree: 5)) == 'major'
+              ? 'мажор'
+              : 'ошибка',
+      wrong: 'минор',
+    ),
+  );
+}
+
+LessonScript _readDegreeOne() {
+  final midi = 60 + DegreeDictation.semitones[0];
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'I ступень до мажора',
+      right:
+          DegreeDictation.degreeNumber(60, midi) == 1 ? _name(midi) : 'ошибка',
+      wrong: 'ре',
+    ),
+  );
+}
+
+LessonScript _triadLeaps() {
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Ход I–V',
+      right: triadLeap(1, 5) ? 'скачок по трезвучию' : 'ошибка',
+      wrong: 'ход со II',
+    ),
+    transfer: LessonChoice(
+      question: 'Ход II–VI',
+      right: triadLeap(2, 6) ? 'ошибка' : 'не по трезвучию',
+      wrong: 'скачок по трезвучию',
+    ),
+  );
+}
+
+LessonScript _findTritone() {
+  return LessonScript(
+    guided: LessonChoice(
+      question: 'Фраза со ступенями 1–4–7–1',
+      right:
+          const SightPhrase([1, 4, 7, 1]).hasTritoneLeap ? 'тритон' : 'ошибка',
+      wrong: 'всё верно',
+    ),
+    transfer: LessonChoice(
+      question: 'Фраза со ступенями 1–3–5–1',
+      right: const SightPhrase([1, 3, 5, 1]).isAllowed
+          ? 'фраза годится'
+          : 'ошибка',
+      wrong: 'тритон',
     ),
   );
 }

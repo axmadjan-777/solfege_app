@@ -21,7 +21,8 @@ void main() {
     expect(statusAfterLesson(), isNot(CompetencyStatus.mastered));
   });
 
-  testWidgets('L06-01 plays and keeps the natural-minor lesson closed', (tester) async {
+  testWidgets('L06-01 plays and keeps the natural-minor lesson closed',
+      (tester) async {
     final catalog = _catalog();
     final lesson = catalog.lesson('L06-01');
     final plan = Level0Plan.fromLesson(lesson);
@@ -29,7 +30,8 @@ void main() {
     expect(plan.trainPracticeSetIds, contains('PR-05'));
 
     Level0Result? result;
-    await tester.pumpWidget(MaterialApp(home: Level0Player(plan: plan, onFinished: (value) => result = value)));
+    await tester.pumpWidget(MaterialApp(
+        home: Level0Player(plan: plan, onFinished: (value) => result = value)));
     await _tap(tester, find.text('Дальше'));
     await _tap(tester, find.text('мажор'));
     await _tap(tester, find.text('Дальше'));
@@ -49,27 +51,45 @@ void main() {
         ),
       ),
     );
-    await tester.scrollUntilVisible(find.text('Мажор и минор: разница третьей ступени'), 400);
+    await tester.scrollUntilVisible(
+        find.byKey(const Key('lesson-L05-05')), 400);
     expect(
-      find.descendant(of: find.byKey(const Key('lesson-L06-01')), matching: find.text('Открыто')),
+      find.descendant(
+          of: find.byKey(const Key('lesson-L05-05')),
+          matching: find.text('Закрыто')),
+      findsOneWidget,
+    );
+    await tester.scrollUntilVisible(
+        find.text('Мажор и минор: разница третьей ступени'), 400);
+    expect(
+      find.descendant(
+          of: find.byKey(const Key('lesson-L06-01')),
+          matching: find.text('Открыто')),
       findsOneWidget,
     );
     await tester.scrollUntilVisible(find.text('Натуральный минор'), 400);
     expect(
-      find.descendant(of: find.byKey(const Key('lesson-L06-02')), matching: find.text('Закрыто')),
+      find.descendant(
+          of: find.byKey(const Key('lesson-L06-02')),
+          matching: find.text('Закрыто')),
       findsOneWidget,
     );
-    await tester.scrollUntilVisible(find.byKey(const Key('lesson-L07-01')), 400);
+    await tester.scrollUntilVisible(
+        find.byKey(const Key('lesson-L07-01')), 400);
     expect(
-      find.descendant(of: find.byKey(const Key('lesson-L07-01')), matching: find.text('Закрыто')),
+      find.descendant(
+          of: find.byKey(const Key('lesson-L07-01')),
+          matching: find.text('Закрыто')),
       findsOneWidget,
     );
-    await tester.scrollUntilVisible(find.byKey(const Key('lesson-L11-01')), 400);
+    await tester.scrollUntilVisible(
+        find.byKey(const Key('lesson-L11-01')), 400);
     expect(
-      find.descendant(of: find.byKey(const Key('lesson-L11-01')), matching: find.text('Закрыто')),
+      find.descendant(
+          of: find.byKey(const Key('lesson-L11-01')),
+          matching: find.text('Закрыто')),
       findsOneWidget,
     );
-    expect(find.text('Сексты и септимы'), findsNothing);
   });
 }
 
@@ -82,7 +102,8 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 
 CurriculumCatalog _catalog() {
   Map<String, dynamic> read(String name) {
-    return Map<String, dynamic>.from(jsonDecode(File('assets/curriculum/$name').readAsStringSync()) as Map);
+    return Map<String, dynamic>.from(
+        jsonDecode(File('assets/curriculum/$name').readAsStringSync()) as Map);
   }
 
   return CurriculumCatalog.fromDecoded(
