@@ -471,6 +471,80 @@ void main() {
     expect(find.textContaining('Легко:'), findsNothing);
   });
 
+  testWidgets('the new twenty hours let a cold review make the interval easy',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
+    for (var i = 0; i < 12; i++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+      );
+    }
+    clock.advance(const Duration(hours: 20));
+    for (final correct in [true, true, true, false]) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: correct,
+        coldReview: true,
+        sessionId: 'cold-miss',
+      );
+    }
+    clock.advance(const Duration(hours: 1));
+    recordPracticeAnswer(
+      store: store,
+      catalog: catalog,
+      setId: 'PR-03',
+      correct: true,
+    );
+    final marked = store.snapshot('ear.interval.m3_M3').provisionalAt;
+
+    clock.advance(const Duration(hours: 19));
+    for (var i = 0; i < 4; i++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+        coldReview: true,
+        sessionId: 'early',
+      );
+    }
+    expect(
+      store.snapshot('ear.interval.m3_M3').status,
+      CompetencyStatus.provisionallyPassed,
+    );
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Недавно: Интервалы на слух'), findsOneWidget);
+
+    clock.advance(const Duration(hours: 1));
+    expect(clock.now(), marked?.add(const Duration(hours: 20)));
+    for (var i = 0; i < 4; i++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+        coldReview: true,
+        sessionId: 'ready',
+      );
+    }
+    expect(
+        store.snapshot('ear.interval.m3_M3').status, CompetencyStatus.mastered);
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, player, store, clock));
+    expect(find.text('Легко: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Недавно:'), findsNothing);
+    expect(find.textContaining('Сначала:'), findsNothing);
+  });
+
   testWidgets('a due interval leads the recent pulse and records the answer',
       (tester) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
