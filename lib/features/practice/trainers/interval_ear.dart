@@ -2,11 +2,31 @@ import 'dart:math';
 
 import '../audio/audio_sequence.dart';
 
-/// Слуховые интервалы PR-03. Числа полутонов — единственный источник для м3, б3 и ч5.
+/// Слуховые интервалы PR-03. Число полутонов — единственный источник имени.
 class IntervalEar {
   const IntervalEar._();
 
-  static const semitones = {'м3': 3, 'б3': 4, 'ч5': 7};
+  static const semitones = {
+    'м2': 1,
+    'б2': 2,
+    'м3': 3,
+    'б3': 4,
+    'ч4': 5,
+    'тритон': 6,
+    'ч5': 7,
+    'м6': 8,
+    'б6': 9,
+    'м7': 10,
+    'б7': 11,
+  };
+
+  static const stageLabels = {
+    4: ['м3', 'б3', 'ч4', 'ч5'],
+    5: ['м2', 'б2', 'м3', 'б3', 'м7', 'б7'],
+    6: ['м6', 'б6', 'тритон', 'ч4', 'ч5', 'б2', 'м7', 'б7'],
+    7: ['м2', 'б2', 'м3', 'б3', 'ч4', 'тритон', 'ч5', 'м6', 'б6', 'м7', 'б7'],
+    8: ['м2', 'б2', 'м3', 'б3', 'ч4', 'тритон', 'ч5', 'м6', 'б6', 'м7', 'б7'],
+  };
 
   static int? classify(int steps) {
     for (final entry in semitones.entries) {
@@ -21,6 +41,9 @@ class IntervalEar {
     }
     return null;
   }
+
+  /// Обращение внутри октавы: м2 ↔ б7, ч4 ↔ ч5, тритон остаётся тритоном.
+  static int inversion(int steps) => 12 - steps;
 }
 
 class IntervalTask {
@@ -81,5 +104,28 @@ AudioSequence intervalComparison({
   ]);
 }
 
-/// Стадии 1–3 открыты параллельно уровню 2 и не ждут уроки L05.
+/// Стадии 1–3 открыты параллельно уровню 2. Стадии 4–8 ждут уроки интервалов.
 bool isEarlyIntervalStage(int stage) => stage >= 1 && stage <= 3;
+
+bool intervalStageOpen(int stage, {required bool intervalLessonsMastered}) {
+  if (isEarlyIntervalStage(stage)) return true;
+  if (stage >= 4 && stage <= 8) return intervalLessonsMastered;
+  return false;
+}
+
+/// Гармонический интервал звучит вместе, мелодический — по очереди.
+AudioSequence intervalPlayback({
+  required int bassMidi,
+  required int steps,
+  required bool harmonic,
+}) {
+  if (harmonic) {
+    return AudioSequence([
+      ChordEvent([bassMidi, bassMidi + steps]),
+    ]);
+  }
+  return AudioSequence([
+    NoteEvent(bassMidi),
+    NoteEvent(bassMidi + steps),
+  ]);
+}

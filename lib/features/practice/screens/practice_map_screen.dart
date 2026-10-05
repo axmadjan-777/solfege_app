@@ -78,7 +78,7 @@ class _PracticeCard extends StatelessWidget {
         : !set.mvpStatus.isMvp
             ? 'Скоро'
             : earlyIntervals
-                ? 'Стадии 1–3'
+                ? 'Стадии 1–8'
                 : (open ? 'Открыто' : 'Закрыто');
     final diagnostic = set.id == 'PR-08' || set.id == 'PR-09';
     return Card(

@@ -68,7 +68,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(home: PracticeMapScreen(catalog: catalog)));
     await tester.scrollUntilVisible(find.text('Интервалы на слух'), 500);
     expect(
-      find.descendant(of: find.byKey(const Key('practice-PR-03')), matching: find.text('Стадии 1–3')),
+      find.descendant(of: find.byKey(const Key('practice-PR-03')), matching: find.text('Стадии 1–8')),
       findsOneWidget,
     );
   });
