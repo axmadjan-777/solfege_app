@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../curriculum/data/curriculum_catalog.dart';
+import '../../curriculum/models/practice_set.dart';
 import '../audio/practice_audio_player.dart';
 import '../progress/attempt.dart';
 import '../progress/clock.dart';
 import '../progress/practice_attempt.dart';
 import '../progress/progress_store.dart';
 import 'practice_followup.dart';
+import 'stage_list_screen.dart';
 
 /// Серия ответов. Окно из 12 при точности 0.85 даёт `provisionally_passed`.
 /// Падение последних 6 ниже 0.6 просит повторить. Новое окно 0.85 возвращает сдачу.
@@ -178,16 +180,27 @@ Widget openPractice({
   ProgressStore? progress,
   Clock? clock,
 }) {
-  if (progress == null) {
-    return practiceSetScreen(
-        setId: setId, player: player, catalog: catalog, clock: clock);
+  if (setId == 'PR-15' || setId == 'PR-16') {
+    if (progress == null) {
+      return practiceSetScreen(
+          setId: setId, player: player, catalog: catalog, clock: clock);
+    }
+    return PracticeRoundScreen(
+      setId: setId,
+      player: player,
+      catalog: catalog,
+      progress: progress,
+      clock: clock ?? const SystemClock(),
+    );
   }
-  return PracticeRoundScreen(
-    setId: setId,
+  final PracticeSet set =
+      catalog.practiceSets.firstWhere((item) => item.id == setId);
+  return StageListScreen(
+    set: set,
     player: player,
     catalog: catalog,
     progress: progress,
-    clock: clock ?? const SystemClock(),
+    clock: clock,
   );
 }
 

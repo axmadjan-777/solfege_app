@@ -14,6 +14,7 @@ import 'package:solfege_app/features/practice/screens/practice_followup.dart';
 import 'package:solfege_app/features/practice/trainers/error_queue.dart';
 import 'package:solfege_app/features/practice/trainers/daily_mix.dart';
 import 'package:solfege_app/features/practice/screens/practice_map_screen.dart';
+import 'package:solfege_app/features/practice/trainers/stage_catalog.dart';
 import 'package:solfege_app/features/theory/level0/level0_plan.dart';
 import 'package:solfege_app/features/theory/screens/theory_home_screen.dart';
 
@@ -77,9 +78,32 @@ void main() {
     await tester.scrollUntilVisible(find.text('Интервалы на слух'), 400);
     await tester.tap(find.text('Интервалы на слух'));
     await tester.pumpAndSettle();
-    expect(find.text('м3'), findsOneWidget);
-    expect(find.text('б3'), findsOneWidget);
-    await tester.tap(find.text('м3'));
+    expect(find.text('Шире или уже'), findsOneWidget);
+    expect(find.text('Малая и большая терция'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('stage-PR-03-4')),
+        matching: find.text('Скоро'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('stage-PR-03-2')),
+        matching: find.text('Закрыто'),
+      ),
+      findsOneWidget,
+    );
+    final set = catalog.practiceSets.firstWhere((item) => item.id == 'PR-03');
+    final plan = buildStageSession(
+      set: set,
+      stage: 1,
+      seed: stageSessionSeed('PR-03', 1, 0),
+    );
+    await tester.tap(find.text('Шире или уже'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ноты скрыты'), findsOneWidget);
+    await tester.tap(find.text(plan.tasks.first.answer));
     await tester.pump();
     expect(find.text('Верно'), findsOneWidget);
   });
@@ -113,6 +137,8 @@ void main() {
     await _tap(tester, find.text('Тренировать'));
     await tester.pumpAndSettle();
     expect(find.text('Пульс'), findsOneWidget);
+    await tester.tap(find.text('Пульс'));
+    await tester.pumpAndSettle();
     expect(find.text('Тапни вместе с кликом'), findsOneWidget);
   });
 

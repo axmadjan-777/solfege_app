@@ -59,12 +59,31 @@ class ProgressBook {
     required this.competencies,
     required this.attempts,
     this.returns = const [],
+    this.passedStages = const <String, List<int>>{},
   });
 
   final String userId;
   final Map<String, CompetencySnapshot> competencies;
   final List<AttemptRecord> attempts;
   final List<ScheduledReturn> returns;
+
+  /// Сданные стадии тренажёра: `PR-01` → `[1, 2]`.
+  final Map<String, List<int>> passedStages;
+
+  ProgressBook copyWith({
+    Map<String, CompetencySnapshot>? competencies,
+    List<AttemptRecord>? attempts,
+    List<ScheduledReturn>? returns,
+    Map<String, List<int>>? passedStages,
+  }) {
+    return ProgressBook(
+      userId: userId,
+      competencies: competencies ?? this.competencies,
+      attempts: attempts ?? this.attempts,
+      returns: returns ?? this.returns,
+      passedStages: passedStages ?? this.passedStages,
+    );
+  }
 
   Map<String, Object?> toJson() => {
         'user_id': userId,
@@ -73,6 +92,7 @@ class ProgressBook {
         },
         'attempts': [for (final attempt in attempts) attempt.toJson()],
         'returns': [for (final item in returns) item.toJson()],
+        'passed_stages': passedStages,
       };
 
   factory ProgressBook.fromJson(Map<String, dynamic> json) => ProgressBook(
@@ -90,6 +110,14 @@ class ProgressBook {
           for (final item in json['returns'] as List? ?? const [])
             ScheduledReturn.fromJson(Map<String, dynamic>.from(item as Map)),
         ],
+        passedStages: {
+          for (final entry
+              in (json['passed_stages'] as Map? ?? const <String, dynamic>{})
+                  .entries)
+            entry.key as String: [
+              for (final value in entry.value as List) (value as num).toInt(),
+            ],
+        },
       );
 
   static ProgressBook empty({String userId = 'local'}) =>
@@ -132,6 +160,8 @@ abstract interface class ProgressStore {
   void scheduleNextDayReturn(String tag);
 
   void scheduleReturnInDays(String tag, int days);
+
+  void markStagePassed(String setId, int stage);
 
   List<String> openErrorTags();
 }
@@ -226,12 +256,7 @@ class MemoryProgressStore implements ProgressStore {
       dueAt: step.dueAt,
       provisionalAt: decision.markedProvisionalAt,
     );
-    book = ProgressBook(
-      userId: book.userId,
-      competencies: competencies,
-      attempts: attempts,
-      returns: book.returns,
-    );
+    book = book.copyWith(competencies: competencies, attempts: attempts);
   }
 
   @override
@@ -239,10 +264,7 @@ class MemoryProgressStore implements ProgressStore {
 
   @override
   void scheduleReturnInDays(String tag, int days) {
-    book = ProgressBook(
-      userId: book.userId,
-      competencies: book.competencies,
-      attempts: book.attempts,
+    book = book.copyWith(
       returns: scheduleAfter(
         current: book.returns,
         tag: tag,
@@ -250,6 +272,17 @@ class MemoryProgressStore implements ProgressStore {
         days: days,
       ),
     );
+  }
+
+  @override
+  void markStagePassed(String setId, int stage) {
+    final next = {
+      for (final entry in book.passedStages.entries)
+        entry.key: List<int>.of(entry.value),
+    };
+    final stages = next.putIfAbsent(setId, () => <int>[]);
+    if (!stages.contains(stage)) stages.add(stage);
+    book = book.copyWith(passedStages: next);
   }
 
   @override
@@ -322,6 +355,12 @@ class SharedPreferencesProgressStore implements ProgressStore {
   @override
   void scheduleReturnInDays(String tag, int days) {
     _memory.scheduleReturnInDays(tag, days);
+    _persist();
+  }
+
+  @override
+  void markStagePassed(String setId, int stage) {
+    _memory.markStagePassed(setId, stage);
     _persist();
   }
 

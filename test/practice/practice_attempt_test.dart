@@ -12,6 +12,7 @@ import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/screens/practice_followup.dart';
 import 'package:solfege_app/features/practice/screens/practice_map_screen.dart';
 import 'package:solfege_app/features/practice/screens/practice_round_screen.dart';
+import 'package:solfege_app/features/practice/trainers/stage_catalog.dart';
 
 void main() {
   late CurriculumCatalog catalog;
@@ -39,7 +40,15 @@ void main() {
     await tester.scrollUntilVisible(find.text('Интервалы на слух'), 400);
     await tester.tap(find.text('Интервалы на слух'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('м3'));
+    final set = catalog.practiceSets.firstWhere((item) => item.id == 'PR-03');
+    final plan = buildStageSession(
+      set: set,
+      stage: 1,
+      seed: stageSessionSeed('PR-03', 1, store.book.attempts.length),
+    );
+    await tester.tap(find.text('Шире или уже'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(plan.tasks.first.answer));
     await tester.pump();
 
     final competency = competencyOf(
