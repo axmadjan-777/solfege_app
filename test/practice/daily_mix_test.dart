@@ -11,23 +11,30 @@ void main() {
     MixItem(id: 'PR-08', bucket: MixBucket.easy, action: MixAction.active),
   ];
 
-  test('twelve items follow 70/20/10, start as a block, and include both actions', () {
+  test(
+      'twelve items follow 70/20/10, start as a block, and include both actions',
+      () {
     final plan = buildDailyMix(seed: 3, pool: pool);
 
     expect(plan.items, hasLength(12));
     expect(plan.countOf(MixBucket.due), 8);
     expect(plan.countOf(MixBucket.recent), 2);
     expect(plan.countOf(MixBucket.easy), 2);
-    expect(plan.items.take(4).every((item) => item.bucket == MixBucket.due), isTrue);
+    expect(plan.items.take(4).every((item) => item.bucket == MixBucket.due),
+        isTrue);
     expect(plan.items.any((item) => item.action == MixAction.aural), isTrue);
     expect(plan.items.any((item) => item.action == MixAction.active), isTrue);
-    expect(plan.items.every((item) => pool.any((source) => source.id == item.id)), isTrue);
+    expect(
+        plan.items.every((item) => pool.any((source) => source.id == item.id)),
+        isTrue);
   });
 
   test('an aural-only pool does not invent an active item', () {
     final plan = buildDailyMix(
       seed: 1,
-      pool: const [MixItem(id: 'PR-01', bucket: MixBucket.due, action: MixAction.aural)],
+      pool: const [
+        MixItem(id: 'PR-01', bucket: MixBucket.due, action: MixAction.aural)
+      ],
     );
 
     expect(plan.items.every((item) => item.action == MixAction.aural), isTrue);
@@ -44,8 +51,55 @@ void main() {
     await tester.pumpWidget(MaterialApp(home: DailyMixScreen(plan: plan)));
 
     expect(find.text('Заданий: 12'), findsOneWidget);
-    expect(find.text('Должное: ${plan.countOf(MixBucket.due)}'), findsOneWidget);
-    expect(find.text('Недавнее: ${plan.countOf(MixBucket.recent)}'), findsOneWidget);
-    expect(find.text('Лёгкое: ${plan.countOf(MixBucket.easy)}'), findsOneWidget);
+    expect(
+        find.text('Должное: ${plan.countOf(MixBucket.due)}'), findsOneWidget);
+    expect(find.text('Недавнее: ${plan.countOf(MixBucket.recent)}'),
+        findsOneWidget);
+    expect(
+        find.text('Лёгкое: ${plan.countOf(MixBucket.easy)}'), findsOneWidget);
+    expect(find.text('Начать'), findsNothing);
+  });
+
+  test('the app mix starts with the aural interval', () {
+    final plan = appDailyMix();
+    expect(plan.items, hasLength(12));
+    expect(plan.items.first.id, 'PR-03');
+    expect(plan.items.first.action, MixAction.aural);
+    expect(plan.items.any((item) => item.action == MixAction.active), isTrue);
+  });
+
+  testWidgets('each planned item is answered before the total', (tester) async {
+    const plan = DailyMixPlan([
+      MixItem(id: 'PR-03', bucket: MixBucket.due, action: MixAction.aural),
+      MixItem(id: 'PR-08', bucket: MixBucket.easy, action: MixAction.active),
+    ]);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DailyMixScreen(
+          plan: plan,
+          taskBuilder: (item, onAnswered) => Scaffold(
+            body: FilledButton(
+              onPressed: () => onAnswered(item.id == 'PR-03'),
+              child: Text(item.id),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Заданий: 2'), findsOneWidget);
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    await tester.tap(find.text('PR-03'));
+    await tester.pump();
+    expect(find.text('Дальше'), findsOneWidget);
+    await tester.tap(find.text('Дальше'));
+    await tester.pump();
+    await tester.tap(find.text('PR-08'));
+    await tester.pump();
+    await tester.tap(find.text('Итог'));
+    await tester.pump();
+    expect(find.text('Итог: верно 1 из 2'), findsOneWidget);
+    expect(find.text('Заданий: 2'), findsOneWidget);
   });
 }

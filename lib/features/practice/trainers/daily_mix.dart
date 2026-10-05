@@ -17,7 +17,8 @@ class DailyMixPlan {
 
   final List<MixItem> items;
 
-  int countOf(MixBucket bucket) => items.where((item) => item.bucket == bucket).length;
+  int countOf(MixBucket bucket) =>
+      items.where((item) => item.bucket == bucket).length;
 }
 
 /// 12 заданий: 70% должное и ошибки, 20% недавнее, 10% лёгкое.
@@ -44,22 +45,29 @@ DailyMixPlan buildDailyMix({
   return DailyMixPlan([...picked.take(blockSize), ...tail]);
 }
 
-List<MixItem> _fill(List<MixItem> pool, MixBucket bucket, int target, Random random) {
+List<MixItem> _fill(
+    List<MixItem> pool, MixBucket bucket, int target, Random random) {
   final source = pool.where((item) => item.bucket == bucket).toList();
   if (source.isEmpty || target <= 0) return const [];
-  return [for (var i = 0; i < target; i++) source[random.nextInt(source.length)]];
+  return [
+    for (var i = 0; i < target; i++) source[random.nextInt(source.length)]
+  ];
 }
 
 void _keepBothActions(List<MixItem> picked, List<MixItem> pool) {
   final poolHasBoth = _hasBoth(pool);
   if (!poolHasBoth || _hasBoth(picked) || picked.isEmpty) return;
-  final missing = picked.any((item) => item.action == MixAction.aural) ? MixAction.active : MixAction.aural;
+  final missing = picked.any((item) => item.action == MixAction.aural)
+      ? MixAction.active
+      : MixAction.aural;
   final index = picked.indexWhere(
-    (item) => pool.any((candidate) => candidate.bucket == item.bucket && candidate.action == missing),
+    (item) => pool.any((candidate) =>
+        candidate.bucket == item.bucket && candidate.action == missing),
   );
   if (index < 0) return;
   final bucket = picked[index].bucket;
-  picked[index] = pool.firstWhere((candidate) => candidate.bucket == bucket && candidate.action == missing);
+  picked[index] = pool.firstWhere(
+      (candidate) => candidate.bucket == bucket && candidate.action == missing);
 }
 
 bool _hasBoth(List<MixItem> items) {
@@ -67,4 +75,15 @@ bool _hasBoth(List<MixItem> items) {
       items.any((item) => item.action == MixAction.active);
 }
 
-bool pr15CanStart(bool Function(String competencyId) isMastered) => isMastered('rhy.pulse_tap');
+bool pr15CanStart(bool Function(String competencyId) isMastered) =>
+    isMastered('rhy.pulse_tap');
+
+/// Пул уже собранных тренажёров. Первые задания — слуховой интервал.
+const appMixPool = <MixItem>[
+  MixItem(id: 'PR-03', bucket: MixBucket.due, action: MixAction.aural),
+  MixItem(id: 'PR-09', bucket: MixBucket.recent, action: MixAction.active),
+  MixItem(id: 'PR-01', bucket: MixBucket.recent, action: MixAction.aural),
+  MixItem(id: 'PR-08', bucket: MixBucket.easy, action: MixAction.active),
+];
+
+DailyMixPlan appDailyMix() => buildDailyMix(seed: 1, pool: appMixPool);

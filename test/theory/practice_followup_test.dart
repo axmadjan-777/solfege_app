@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:solfege_app/features/curriculum/data/curriculum_catalog.dart';
 import 'package:solfege_app/features/practice/audio/practice_audio_player.dart';
+import 'package:solfege_app/features/practice/progress/clock.dart';
+import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/screens/practice_followup.dart';
 import 'package:solfege_app/features/practice/screens/practice_map_screen.dart';
 import 'package:solfege_app/features/theory/level0/level0_plan.dart';
@@ -107,6 +109,36 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Пульс'), findsOneWidget);
     expect(find.text('Тапни вместе с кликом'), findsOneWidget);
+  });
+
+  testWidgets('the daily mix starts the interval and records the answer',
+      (tester) async {
+    final store = MemoryProgressStore(
+      clock: FixedClock(DateTime.utc(2026, 10, 5, 8)),
+      rules: catalog.config.masteryRules,
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: practiceSetScreen(
+          setId: 'PR-15',
+          player: player,
+          catalog: catalog,
+          progress: store,
+        ),
+      ),
+    );
+    expect(find.text('Ежедневный микс'), findsOneWidget);
+    expect(find.text('Заданий: 12'), findsOneWidget);
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(find.text('м3'), findsOneWidget);
+    await tester.tap(find.text('м3'));
+    await tester.pump();
+    expect(find.text('Верно'), findsOneWidget);
+    expect(find.text('Дальше'), findsOneWidget);
+    expect(store.book.attempts, hasLength(1));
+    expect(store.book.attempts.single.errorTag, 'PR-03');
+    expect(store.book.attempts.single.isCorrect, isTrue);
   });
 }
 

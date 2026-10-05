@@ -86,7 +86,19 @@ Widget practiceSetScreen({
         onFinished: record,
       ),
     'PR-14' => SingFollowup(onAnswered: record),
-    'PR-15' => DailyMixScreen(plan: _dailyMix()),
+    'PR-15' => DailyMixScreen(
+        plan: appDailyMix(),
+        taskBuilder: (item, onAnswered) => practiceSetScreen(
+          setId: item.id,
+          player: player,
+          catalog: catalog,
+          progress: progress,
+          onAnswered: onAnswered,
+          coldReview: coldReview,
+          sessionId: sessionId,
+          tonality: tonality,
+        ),
+      ),
     'PR-16' => ErrorQueueScreen(
         store: progress ??
             MemoryProgressStore(
@@ -99,24 +111,6 @@ Widget practiceSetScreen({
       ),
     _ => _UnknownPractice(setId: setId),
   };
-}
-
-DailyMixPlan _dailyMix() {
-  return buildDailyMix(
-    seed: 1,
-    count: 4,
-    pool: [
-      for (var i = 0; i < 6; i++)
-        MixItem(id: 'due-$i', bucket: MixBucket.due, action: MixAction.aural),
-      for (var i = 0; i < 3; i++)
-        MixItem(
-            id: 'recent-$i',
-            bucket: MixBucket.recent,
-            action: MixAction.active),
-      for (var i = 0; i < 2; i++)
-        MixItem(id: 'easy-$i', bucket: MixBucket.easy, action: MixAction.aural),
-    ],
-  );
 }
 
 class MelodyFollowup extends StatelessWidget {
