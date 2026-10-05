@@ -489,6 +489,12 @@ void main() {
     expect(bucketOf(snap, tomorrow), MixBucket.due);
   });
 
+  test('needs review is due before the timestamp', () {
+    final tomorrow = DateTime.utc(2026, 10, 6, 8);
+    final snap = _snap(CompetencyStatus.needsReview, tomorrow);
+    expect(bucketOf(snap, DateTime.utc(2026, 10, 5, 8)), MixBucket.due);
+  });
+
   testWidgets('the summary names each due task once', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
