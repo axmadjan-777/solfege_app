@@ -59,8 +59,16 @@ void main() {
       find.descendant(of: find.byKey(const Key('lesson-L06-02')), matching: find.text('Закрыто')),
       findsOneWidget,
     );
-    expect(find.text('Шестнадцатые'), findsNothing);
-    expect(find.text('Септаккорд: четыре звука'), findsNothing);
+    await tester.scrollUntilVisible(find.byKey(const Key('lesson-L07-01')), 400);
+    expect(
+      find.descendant(of: find.byKey(const Key('lesson-L07-01')), matching: find.text('Закрыто')),
+      findsOneWidget,
+    );
+    await tester.scrollUntilVisible(find.byKey(const Key('lesson-L11-01')), 400);
+    expect(
+      find.descendant(of: find.byKey(const Key('lesson-L11-01')), matching: find.text('Закрыто')),
+      findsOneWidget,
+    );
     expect(find.text('Сексты и септимы'), findsNothing);
   });
 }

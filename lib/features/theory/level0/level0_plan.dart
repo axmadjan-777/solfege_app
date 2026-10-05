@@ -1,6 +1,7 @@
 import '../../curriculum/models/lesson.dart';
 import '../../practice/progress/attempt.dart';
 import '../../scales/utils/solfege_notes.dart';
+import 'late_level_plan.dart';
 
 /// Потолок урока. `mastered` ставит только отложенная проверка.
 CompetencyStatus statusAfterLesson() => CompetencyStatus.provisionallyPassed;
@@ -51,12 +52,13 @@ class Level0Plan {
       lessonId: lesson.id,
       title: lesson.title,
       primaryCompetency: lesson.primaryCompetency,
-      trainPracticeSetIds: lesson.level == 6
+      trainPracticeSetIds: lesson.level == 6 || lateTheoryLevels.contains(lesson.level)
           ? lesson.practiceSetIds
           : lesson.id == 'L04-04' || lesson.id == 'L04-11'
               ? const ['PR-01']
               : const [],
-      steps: switch (lesson.id) {
+      steps: lateLevelSteps(lesson) ??
+          switch (lesson.id) {
         'L00-01' => _toneAndNoise(lesson),
         'L00-04' => _loudnessAndTimbre(lesson),
         'L00-07' => _strongBeat(lesson),

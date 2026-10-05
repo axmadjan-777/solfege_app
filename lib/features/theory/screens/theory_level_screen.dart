@@ -5,6 +5,15 @@ import '../../curriculum/data/curriculum_catalog.dart';
 import '../../curriculum/models/lesson.dart';
 import '../../practice/progress/progress_rules.dart';
 
+/// Уровни 0–4 — только MVP. Уровни 6, 7, 9 и 11 уже имеют проходимые карточки.
+bool showsOnTheoryList(Lesson lesson) {
+  if (lesson.level <= 4) return lesson.mvpStatus.isMvp;
+  return lesson.level == 6 ||
+      lesson.level == 7 ||
+      lesson.level == 9 ||
+      lesson.level == 11;
+}
+
 class TheoryLevelScreen extends StatelessWidget {
   const TheoryLevelScreen({
     super.key,
@@ -19,7 +28,7 @@ class TheoryLevelScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lessons = catalog.lessons.where(_onTheoryMap).toList()
+    final lessons = catalog.lessons.where(showsOnTheoryList).toList()
       ..sort((a, b) {
         final byLevel = a.level.compareTo(b.level);
         return byLevel != 0 ? byLevel : a.order.compareTo(b.order);
@@ -30,20 +39,19 @@ class TheoryLevelScreen extends StatelessWidget {
         Text('Теория', style: Theme.of(context).textTheme.displaySmall),
         const SizedBox(height: 8),
         Text(
-          'Уровни 0–4 и уровень 6',
+          'Уровни 0–4 и карточки 6, 7, 9, 11',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
         for (final lesson in lessons)
-          _LessonTile(lesson: lesson, catalog: catalog, isMastered: isMastered, onOpen: onOpen),
+          _LessonTile(
+              lesson: lesson,
+              catalog: catalog,
+              isMastered: isMastered,
+              onOpen: onOpen),
       ],
     );
   }
-}
-
-bool _onTheoryMap(Lesson lesson) {
-  if (lesson.mvpStatus.isMvp && lesson.level <= 4) return true;
-  return lesson.level == 6 && lesson.mvpStatus.id == 'v1.1';
 }
 
 class _LessonTile extends StatelessWidget {
@@ -61,7 +69,8 @@ class _LessonTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final open = isLessonOpen(lesson: lesson, catalog: catalog, isMastered: isMastered);
+    final open =
+        isLessonOpen(lesson: lesson, catalog: catalog, isMastered: isMastered);
     return Card(
       key: Key('lesson-${lesson.id}'),
       child: ListTile(
