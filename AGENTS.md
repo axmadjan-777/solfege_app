@@ -68,6 +68,10 @@ See [README.md](README.md) for Supabase schema, email auth, and deployment detai
 | Twilio (via Supabase) | Phone OTP only | Optional |
 | GitHub Pages | Production deploy | CI only; not needed for local dev |
 
+### Curriculum and practice
+
+Autonomous work on theory lessons and practice trainers follows [docs/curriculum/AGENT_PROMPT.md](docs/curriculum/AGENT_PROMPT.md). Check the branch with `bash tool/verify.sh` (analyze, curriculum JSON extraction, tests).
+
 ### Gotchas
 
 - Do not commit `dart_defines.json` or use the **service_role** secret in the client.
