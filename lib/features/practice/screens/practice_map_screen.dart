@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../coach/coach_layer.dart';
 import '../../curriculum/data/curriculum_asset_source.dart';
 import '../../curriculum/data/curriculum_catalog.dart';
 import '../../curriculum/models/practice_set.dart';
@@ -86,7 +87,11 @@ class _MapBody extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            Text('Практика', style: Theme.of(context).textTheme.displaySmall),
+            CoachTarget(
+              id: 'practice-heading',
+              child: Text('Практика',
+                  style: Theme.of(context).textTheme.displaySmall),
+            ),
             const SizedBox(height: 16),
             for (final set in catalog.practiceSets)
               _PracticeCard(

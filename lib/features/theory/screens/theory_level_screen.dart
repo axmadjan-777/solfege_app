@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../coach/coach_layer.dart';
 import '../../curriculum/data/curriculum_catalog.dart';
 import '../../curriculum/models/lesson.dart';
 import '../../practice/progress/progress_rules.dart';
@@ -90,7 +91,7 @@ class _LessonTile extends StatelessWidget {
       LessonGate.locked => 'Закрыто',
       LessonGate.repair => 'Повторение',
     };
-    return Card(
+    final card = Card(
       key: Key('lesson-${lesson.id}'),
       child: ListTile(
         title: Text(lesson.title),
@@ -98,11 +99,18 @@ class _LessonTile extends StatelessWidget {
         enabled: gate == LessonGate.open ||
             (gate == LessonGate.repair && onRepair != null),
         onTap: switch (gate) {
-          LessonGate.open => () => onOpen(lesson),
+          LessonGate.open => () {
+              if (lesson.id == 'L00-01') {
+                CoachScope.maybeOf(context)?.note('open-lesson');
+              }
+              onOpen(lesson);
+            },
           LessonGate.repair when onRepair != null => () => onRepair!(lesson),
           _ => null,
         },
       ),
     );
+    if (lesson.id != 'L00-01') return card;
+    return CoachTarget(id: 'lesson-first', child: card);
   }
 }
