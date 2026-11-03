@@ -1,79 +1,131 @@
-# AGENTS.md
+# Инструкции для агента
 
-## Cursor Cloud specific instructions
+## Область работы
 
-### Product overview
+Выполняй текущую задачу пользователя до проверяемого результата. Roadmap,
+исторический план и найденные дефекты сами по себе не разрешают новые задачи.
+«Продолжай» относится к незавершённой согласованной задаче. После её завершения
+сообщи результат; не запускай следующий пункт roadmap автоматически.
 
-Single Flutter web/mobile client (`solfege_app`) for ear training (scales, solfège notation, auth). There is no backend in this repo — auth and profiles use hosted **Supabase** (`https://zehmcszijutthmeswtci.supabase.co`).
+Ограничения пользователя определяют режим работы: при аудите только читай;
+при задаче на документацию или харнесс не меняй приложение. Обычные обратимые
+решения внутри задачи принимай самостоятельно. Спрашивай при недостающем
+продуктовом решении или действии за пределами разрешённого.
 
-### Toolchain
+## Что читать и чему доверять
 
-- **Flutter SDK** is installed at `$HOME/flutter` (stable channel). `~/.bashrc` adds it to `PATH`.
-- Use `"$HOME/flutter/bin/flutter"` if a non-login shell does not pick up `PATH`.
-- **Web development** works out of the box (Chrome is available). Android SDK and Linux desktop GTK deps are **not** installed; mobile/desktop builds are optional.
+1. Прочитай этот файл и [pubspec.yaml](pubspec.yaml).
+2. Установи состояние копии: `git status --short`, текущая ветка, HEAD, remotes
+   и локальные изменения. Не затирай и не включай чужие правки.
+3. Открой нужный раздел [README](README.md) и задачу в
+   [roadmap](docs/product_roadmap.md). Проследи код по импортам.
+4. Для теории и практики используй
+   [промпт задачи](docs/curriculum/AGENT_PROMPT.md). Большую
+   [спецификацию](docs/curriculum/spec.md) читай по найденным заголовкам и ID,
+   не загружай целиком.
 
-### First-time secrets (required for auth / full app flow)
+Поведение подтверждается кодом проверяемого коммита и воспроизводимым сценарием.
+Документация описывает ожидания и ограничения. Несовпадение фиксируй явно,
+не исправляй требования молча ради зелёного теста. Наличие кода, зелёный CI и
+продуктовая приёмка — разные статусы. Открытый PR не считается частью `main`.
 
-Create `dart_defines.json` from the template (gitignored):
+[План I0–I25](docs/curriculum/MVP_IMPLEMENTATION_PLAN.md) — архив решений,
+не исполняемая инструкция. Локальные `.cursor/plans/` — материалы сессии,
+не общие правила. Дублировать этот файл в `.cursor/rules` не нужно.
 
-```bash
-cp dart_defines.example.json dart_defines.json
-# Set SUPABASE_PUBLISHABLE_KEY from Supabase Dashboard → Project Settings → API
-```
+## Цикл одной задачи
 
-**Cursor Cloud Agents:** if the VM secret `SUPABASE_PUBLISHABLE_KEY` is set, generate the file without committing it:
+1. Коротко зафиксируй результат для пользователя, границы изменений и сценарий
+   приёмки. Для дефекта воспроизведи его или укажи точное доказательство.
+2. Проверь исходное состояние затронутого сценария. Читай связанные файлы.
+   Выбери минимальное законченное изменение в рамках задачи.
+3. Выполни изменение и нужные проверки поведения. Для логики используй
+   фиксированные часы/seed, для звука — фейковый плеер. Unit/widget-тесты
+   не должны обращаться к живым Supabase/Gemini.
+4. Обнови документацию по таблице ниже. Запусти целевую проверку, затем
+   `bash tool/verify.sh`. Исправь вызванные задачей ошибки. Исходный дефект вне
+   области задачи назови отдельно: не пропускай проверку ради успеха и не
+   расширяй задачу молча.
+5. Просмотри diff, `git diff --check`, `git status --short`: только согласованные
+   файлы, без секретов и случайного обновления зависимостей.
+6. Только после проверки выполняй разрешённые операции Git/PR. Pre-commit
+   дополнительно проверяет отдельную копию staged-файлов. Не обходи его через
+   `--no-verify` или подмену команды ради зелёного результата.
+7. Сообщи изменение поведения, проверки, ограничения и остаток работы.
+   При красной обязательной проверке не объявляй задачу принятой.
 
-```bash
-python3 - <<'PY'
-import json, os
-with open("dart_defines.json", "w", encoding="utf-8") as f:
-    json.dump({
-        "SUPABASE_URL": "https://zehmcszijutthmeswtci.supabase.co",
-        "SUPABASE_PUBLISHABLE_KEY": os.environ["SUPABASE_PUBLISHABLE_KEY"],
-    }, f, indent=2)
-    f.write("\n")
-PY
-```
+## Документы и условия обновления
 
-Without this file, the app runs but shows **«Supabase не настроен»**. Offline unit/widget tests do not need Supabase.
+Обновляй документ вместе с изменением, которое сделало его неверным.
+Не меняй дату проверки факта без повторной проверки.
 
-**Full browser E2E** (scales tab, profiles) also needs a registered Supabase user. Email signup is subject to Supabase rate limits; use an existing test account or disable email confirmation in the Supabase dashboard for local dev.
+| Файл | Содержимое | Условие обновления |
+|---|---|---|
+| `AGENTS.md` | Постоянные правила и границы автономии | Изменился рабочий цикл, проверки или источники инструкций |
+| `README.md` | Запуск, архитектура, хранение, команды | Изменились вкладки, сервисы, хранилища, настройка или CI |
+| `docs/product_roadmap.md` | Состояние и очередь с критериями приёмки | Принята задача, есть реализация, проверка, merge или доказанное ограничение |
+| `docs/curriculum/AGENT_PROMPT.md` | Шаблон учебной задачи и ограничения | Изменился способ постановки, правила контента или критерии готовности |
+| `docs/curriculum/spec.md` | Требования и исходные JSON-блоки | Согласовано изменение содержания/схем; затем извлечение и проверка |
+| `docs/curriculum/MVP_IMPLEMENTATION_PLAN.md` | Исторический снимок I0–I25 | Только исправление архива с пометкой, не текущий статус |
+| `ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md` | Инструкция к стартовому изображению iOS | Изменился способ подготовки или подключения ресурса |
 
-### Common commands
+Новому поддерживаемому `.md` нужны назначение, условие обновления и ссылка из
+ближайшего документа. В PR описывай итоговое изменение и проверки, не историю чата.
 
-| Task | Command |
-|------|---------|
-| Install deps | `flutter pub get` |
-| Lint / analyze | `flutter analyze` |
-| Tests | `flutter test` |
-| Run web (preferred) | `./run_web.sh` |
-| Run web (manual) | `flutter run -d web-server --dart-define-from-file=dart_defines.json` |
-| Run Chrome | `flutter run -d chrome --dart-define-from-file=dart_defines.json` |
-| Stop web-server | `./stop_web.sh` |
+## Среда и команды
 
-See [README.md](README.md) for Supabase schema, email auth, and deployment details.
+Версии Flutter и Deno заданы в [tool/toolchain.env](tool/toolchain.env), одинаково
+для локальной проверки и CI. Нужны Bash и Python 3. Способы выбора SDK и установка
+хука описаны в README. Не обновляй системный SDK автоматически.
 
-### Running the web app in Cloud Agent VMs
+| Задача | Команда |
+|---|---|
+| Обязательные проверки рабочей копии | `bash tool/verify.sh` |
+| Независимая проверка подготовленного коммита | `bash tool/qa_staged.sh` |
+| Подключение pre-commit в этой копии | `bash tool/install_hooks.sh` |
+| Зависимости без изменения lock-файла | `flutter pub get --enforce-lockfile` |
+| Сверка контента со спецификацией | `python3 tool/extract_curriculum.py --check` |
+| Web с конфигурацией | `./run_web.sh` |
+| Остановка web-сервера этой копии | `./stop_web.sh` |
 
-- `./run_web.sh` requires a valid `dart_defines.json` (not the `YOUR_PUBLISHABLE_KEY` placeholder).
-- For smoke tests without keys: `flutter run -d web-server --web-port=8080 --web-hostname=0.0.0.0` — serves at `http://127.0.0.1:8080` with the config-error screen.
-- **Hot reload does not apply `--dart-define` changes**; quit (`q`) and restart after editing `dart_defines.json`.
-- Long-running `flutter run` should use **tmux** (see cloud agent shell guidelines).
+Харнесс не требует ключей: анализ, JSON, Flutter-тесты, TypeScript, тесты Edge
+Function с подменой внешних вызовов и сборка web. Загрузка SDK/пакетов может
+требовать сеть. Это не проверка живой БД, почты, слышимого звука, ответа Gemini
+или полного пользовательского пути.
 
-### External services
+В Cursor Cloud Flutter может находиться в `$HOME/flutter`; наличие Chrome,
+Android SDK и других инструментов проверяй, не считай гарантированным.
+Для длительного запуска можно использовать tmux. Без ключей
+`flutter run -d web-server` показывает «Supabase не настроен» — это проверка
+запуска, не приёмка основного приложения.
 
-| Service | Required for | Notes |
-|---------|--------------|-------|
-| Supabase cloud | Auth, profiles, E2E login | Apply `supabase/schema.sql` once in SQL Editor |
-| Twilio (via Supabase) | Phone OTP only | Optional |
-| GitHub Pages | Production deploy | CI only; not needed for local dev |
+## Сервисы и данные
 
-### Curriculum and practice
+В репозитории есть Flutter-клиент и серверная Supabase Edge Function
+`supabase/functions/gemini-chat/`. Auth и профили используют hosted Supabase;
+учебный прогресс текущего `main` локальный. Ограничения перечислены в roadmap.
+Телефонный вход отключён в UI.
 
-Autonomous work on theory lessons and practice trainers follows [docs/curriculum/AGENT_PROMPT.md](docs/curriculum/AGENT_PROMPT.md). Check the branch with `bash tool/verify.sh` (analyze, curriculum JSON extraction, tests).
+Для ручной проверки с входом нужны тестовый аккаунт и локальный
+`dart_defines.json` из шаблона. Не печатай ключи и не коммить этот файл.
+`service_role` и `GEMINI_API_KEY` не передавай во Flutter. Смена `--dart-define`
+требует полного перезапуска. Живой Supabase, SQL, письма и деплой трогай только
+в задаче, которая разрешает эти действия. Не отключай подтверждение email
+в общем проекте ради локального теста.
 
-### Gotchas
+## Git и PR
 
-- Do not commit `dart_defines.json` or use the **service_role** secret in the client.
-- `run_web.sh` exits early if keys are missing or still templated.
-- zsh users: blank lines after `\` break multi-line `flutter run` commands (see README).
+Не фиксируй имя рабочей ветки или номер «текущего» PR в постоянных инструкциях.
+Перед разрешённой работой проверь их состояние. После merge старой ветки новую
+задачу начинай от актуального `main`; по умолчанию имя `codex/<короткое-имя>`.
+Не продолжай смерженную ветку как будто её PR ещё открыт.
+
+Один PR — одна связная задача. Коммит и push — после зелёных проверок и diff.
+Если они не разрешены, оставь проверенные локальные изменения. Добавляй
+конкретные пути, не `git add -A`. Не переписывай чужие коммиты; force-push,
+merge и удаление веток требуют соответствующего разрешения. Инструмент GitHub
+выбирай из доступных, не привязывай процесс к специальному API одного агента.
+
+Локальный hook можно обойти средствами Git; он не заменяет CI и защиту `main`.
+Обязательность CI перед merge задаётся правилом GitHub отдельно. Наличие правила
+нужно проверить, а не предполагать.

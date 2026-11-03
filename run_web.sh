@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
+# shellcheck source=tool/toolchain.sh
+source tool/toolchain.sh
 
 if [[ ! -f dart_defines.json ]]; then
   echo "Файл dart_defines.json не найден."
@@ -16,4 +18,4 @@ if grep -q 'YOUR_PUBLISHABLE_KEY' dart_defines.json; then
 fi
 
 echo "Запуск с ключами из dart_defines.json (нужен полный перезапуск после смены файла, не hot reload)."
-exec flutter run -d web-server --dart-define-from-file=dart_defines.json "$@"
+exec "$FLUTTER_BIN" run -d web-server --dart-define-from-file=dart_defines.json "$@"
