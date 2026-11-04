@@ -6,8 +6,9 @@ import '../../curriculum/models/practice_set.dart';
 import '../audio/audio_sequence.dart';
 import '../audio/practice_audio_player.dart';
 import '../progress/clock.dart';
-import '../progress/practice_attempt.dart';
+import '../progress/attempt.dart';
 import '../progress/progress_store.dart';
+import '../progress/stage_progress.dart';
 import '../trainers/degree_dictation.dart';
 import '../trainers/interval_ear.dart';
 import '../trainers/stage_catalog.dart';
@@ -24,6 +25,7 @@ class StageRunScreen extends StatefulWidget {
     required this.clock,
     required this.seed,
     this.progress,
+    this.reviewCompetencyId,
   });
 
   final PracticeSet set;
@@ -33,6 +35,7 @@ class StageRunScreen extends StatefulWidget {
   final ProgressStore? progress;
   final Clock clock;
   final int seed;
+  final String? reviewCompetencyId;
 
   @override
   State<StageRunScreen> createState() => _StageRunScreenState();
@@ -42,6 +45,8 @@ class _StageRunScreenState extends State<StageRunScreen> {
   late StageSessionPlan _plan;
   late int _seed;
   late DateTime _started;
+  late String _sessionId;
+  String? _blockedReason;
   var _index = 0;
   var _correct = 0;
   var _wrongs = 0;
@@ -52,6 +57,7 @@ class _StageRunScreenState extends State<StageRunScreen> {
   int? _wrongBar;
   final _picks = <String>[];
   final _taps = <int>[];
+  final _responseMs = <int>[];
 
   StageTask get _task => _plan.tasks[_index];
 
@@ -59,16 +65,53 @@ class _StageRunScreenState extends State<StageRunScreen> {
   void initState() {
     super.initState();
     _seed = widget.seed;
-    _plan = buildStageSession(
-      set: widget.set,
-      stage: widget.stage,
-      seed: _seed,
-    );
     _started = widget.clock.now();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _play());
+    _sessionId =
+        '${widget.set.id}/${widget.stage}/${_started.microsecondsSinceEpoch}/$_seed';
+    _createPlan();
+    if (_blockedReason == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _play());
+    }
+  }
+
+  void _createPlan() {
+    _blockedReason = stageUnavailableReason(widget.set.id, widget.stage);
+    if (_blockedReason != null) return;
+    final reviewId = widget.reviewCompetencyId;
+    if (reviewId != null) {
+      final store = widget.progress;
+      if (store == null) {
+        _blockedReason = 'Для проверки нужен сохранённый прогресс';
+        return;
+      }
+      _blockedReason = stageReviewBlockReason(
+        catalog: widget.catalog,
+        set: widget.set,
+        stage: widget.stage,
+        competencyId: reviewId,
+        store: store,
+        now: widget.clock.now(),
+      );
+      if (_blockedReason != null) return;
+      _plan = buildStageReviewSession(
+        catalog: widget.catalog,
+        set: widget.set,
+        stage: widget.stage,
+        competencyId: reviewId,
+        seed: _seed,
+      );
+    } else {
+      _plan =
+          buildStageSession(set: widget.set, stage: widget.stage, seed: _seed);
+    }
   }
 
   void _play() {
+    if (!mounted || _blockedReason != null || _finished) return;
+    if (_task.input == StageInput.tap) {
+      _taps.clear();
+      _started = widget.clock.now();
+    }
     final audio = _task.audio;
     if (audio == null) return;
     widget.player.play(audio);
@@ -82,16 +125,24 @@ class _StageRunScreenState extends State<StageRunScreen> {
 
   void _grade(String value) {
     if (_feedback != null || _finished) return;
+    final elapsed = widget.clock.now().difference(_started).inMilliseconds;
+    final responseMs = elapsed < 0 ? 0 : elapsed;
+    _responseMs.add(elapsed);
     final ok = value == _task.answer;
     if (ok) _correct += 1;
     final store = widget.progress;
     if (store != null) {
-      recordPracticeAnswer(
+      recordStageAnswer(
         store: store,
         catalog: widget.catalog,
-        setId: widget.set.id,
+        set: widget.set,
+        stage: widget.stage,
+        task: _task,
         correct: ok,
-        tonality: _task.tonality,
+        sessionId: _sessionId,
+        reviewCompetencyId: widget.reviewCompetencyId,
+        now: widget.clock.now(),
+        responseMs: responseMs,
       );
     }
     if (!ok) {
@@ -101,9 +152,8 @@ class _StageRunScreenState extends State<StageRunScreen> {
     setState(() {
       _feedback = ok ? 'Верно' : 'Пока не то';
       _detail = ok ? _plan.correctFeedback : _plan.errorFeedback;
-      _wrongBar = ok || !_task.namesBars
-          ? null
-          : wrongBarOf(value, _task.answer);
+      _wrongBar =
+          ok || !_task.namesBars ? null : wrongBarOf(value, _task.answer);
     });
   }
 
@@ -133,8 +183,7 @@ class _StageRunScreenState extends State<StageRunScreen> {
         !DegreeDictation.needsComparison(correctDegree, chosenDegree)) {
       return;
     }
-    final shift =
-        DegreeDictation.semitones[chosenDegree - 1] -
+    final shift = DegreeDictation.semitones[chosenDegree - 1] -
         DegreeDictation.semitones[correctDegree - 1];
     widget.player.play(
       TonalPrompt.comparative(
@@ -172,8 +221,10 @@ class _StageRunScreenState extends State<StageRunScreen> {
 
   void _advance() {
     if (_index + 1 >= _plan.tasks.length) {
-      final passed = _plan.passed(_correct);
-      if (passed) widget.progress?.markStagePassed(widget.set.id, widget.stage);
+      final passed = _plan.passed(_correct, responseMs: _responseMs);
+      if (passed && widget.reviewCompetencyId == null) {
+        widget.progress?.markStagePassed(widget.set.id, widget.stage);
+      }
       setState(() => _finished = true);
       return;
     }
@@ -193,14 +244,13 @@ class _StageRunScreenState extends State<StageRunScreen> {
   void _retry() {
     setState(() {
       _seed += 1;
-      _plan = buildStageSession(
-        set: widget.set,
-        stage: widget.stage,
-        seed: _seed,
-      );
+      _createPlan();
+      _sessionId =
+          '${widget.set.id}/${widget.stage}/${widget.clock.now().microsecondsSinceEpoch}/$_seed';
       _index = 0;
       _correct = 0;
       _wrongs = 0;
+      _responseMs.clear();
       _finished = false;
       _feedback = null;
       _detail = null;
@@ -215,6 +265,13 @@ class _StageRunScreenState extends State<StageRunScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_blockedReason != null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(widget.set.title)),
+        body: Padding(
+            padding: const EdgeInsets.all(24), child: Text(_blockedReason!)),
+      );
+    }
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(_plan.title)),
@@ -226,18 +283,31 @@ class _StageRunScreenState extends State<StageRunScreen> {
   }
 
   Widget _summary() {
-    final passed = _plan.passed(_correct);
+    final passed = _plan.passed(_correct, responseMs: _responseMs);
+    final reviewId = widget.reviewCompetencyId;
+    final reviewPassed = reviewId != null &&
+        widget.progress?.snapshot(reviewId).status == CompetencyStatus.mastered;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          passed ? 'Сдано' : 'Пока не сдано',
+          reviewId == null
+              ? (passed ? 'Сдано' : 'Пока не сдано')
+              : (reviewPassed ? 'Навык освоен' : 'Нужно повторить тренировку'),
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 12),
         Text('$_correct из ${_plan.tasks.length}'),
+        if (_plan.passMetric == 'median_response_ms') ...[
+          if (_responseMs.any((sample) => sample < 0))
+            const Text('Системные часы изменились. Повторите скоростной раунд.')
+          else
+            Text(
+                'Медиана ответа: ${medianResponseMs(_responseMs)?.round() ?? 0} мс; '
+                'нужно не более ${_plan.responseThresholdMs} мс'),
+        ],
         const SizedBox(height: 24),
-        if (!passed)
+        if (!passed && reviewId == null)
           FilledButton(onPressed: _retry, child: const Text('Ещё раз')),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),

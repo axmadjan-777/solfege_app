@@ -44,8 +44,8 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
   var _tonality = 'C';
 
   String get _competency => competencyOf(
-    widget.catalog.practiceSets.firstWhere((set) => set.id == widget.setId),
-  );
+        widget.catalog.practiceSets.firstWhere((set) => set.id == widget.setId),
+      );
 
   CompetencyStatus get _status => widget.progress.snapshot(_competency).status;
 
@@ -66,16 +66,17 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
   }
 
   void _coldReview() {
+    final profile = practiceReviewPolicy(widget.catalog, widget.setId);
     final marked = widget.progress.snapshot(_competency).provisionalAt;
-    final ready =
-        marked != null &&
-        !widget.clock.now().isBefore(marked.add(const Duration(hours: 20)));
+    final ready = marked != null &&
+        !widget.clock.now().isBefore(marked
+            .add(Duration(hours: profile.policy.firstDelayRangeHours.$1)));
     if (!ready) {
       setState(() => _notice = 'Рано');
       return;
     }
     setState(() {
-      _coldLeft = widget.catalog.config.masteryRules.delayedMinItems;
+      _coldLeft = profile.rules.delayedMinItems;
       _coldSession =
           '${widget.setId}-cold-${widget.clock.now().microsecondsSinceEpoch}';
       _notice = 'Холодная проверка';
@@ -87,8 +88,7 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
   @override
   Widget build(BuildContext context) {
     final stability = widget.progress.snapshot(_competency).stability;
-    final showSaved =
-        !_answered &&
+    final showSaved = !_answered &&
         (stability.sessions.isNotEmpty || _status != CompetencyStatus.locked);
     return Stack(
       children: [

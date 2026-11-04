@@ -7,7 +7,6 @@ import 'package:solfege_app/features/practice/progress/clock.dart';
 import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/trainers/degree_dictation.dart';
 import 'package:solfege_app/features/practice/trainers/rhythm_dictation.dart';
-import 'package:solfege_app/features/practice/trainers/sight_reading.dart';
 import 'package:solfege_app/features/practice/trainers/stage_catalog.dart';
 import 'package:test/test.dart';
 
@@ -42,8 +41,10 @@ void main() {
       };
       for (final set in catalog.practiceSets) {
         for (final stage in set.stages) {
-          if (!stage.mvpStatus.isMvp || !playable.contains(set.id)) {
-            if (playable.contains(set.id) && !stage.mvpStatus.isMvp) {
+          if (!stage.mvpStatus.isMvp ||
+              !playable.contains(set.id) ||
+              stageUnavailableReason(set.id, stage.stage) != null) {
+            if (playable.contains(set.id)) {
               expect(
                 () => buildStageSession(set: set, stage: stage.stage, seed: 1),
                 throwsStateError,
@@ -66,7 +67,10 @@ void main() {
             isTrue,
             reason: '${set.id} ${stage.stage}',
           );
-          expect(plan.passed(plan.tasks.length), isTrue);
+          expect(
+              plan.passed(plan.tasks.length,
+                  responseMs: List.filled(plan.tasks.length, 1000)),
+              isTrue);
           expect(plan.passed(0), isFalse);
           final low = stage.params['midi_low'];
           final high = stage.params['midi_high'];
@@ -85,6 +89,27 @@ void main() {
       }
     },
   );
+
+  test('PR-08 speed stage requires a measured median within the declared limit',
+      () {
+    final plan =
+        buildStageSession(set: catalog.practiceSet('PR-08'), stage: 3, seed: 1);
+    expect(plan.passMetric, 'median_response_ms');
+    expect(plan.responseThresholdMs, 2000);
+    expect(plan.passed(plan.tasks.length), isFalse);
+    expect(
+        plan.passed(plan.tasks.length,
+            responseMs: List.filled(plan.tasks.length, 2000)),
+        isTrue);
+    expect(
+        plan.passed(plan.tasks.length,
+            responseMs: List.filled(plan.tasks.length, 2001)),
+        isFalse);
+    expect(plan.passed(0, responseMs: List.filled(plan.tasks.length, 1000)),
+        isFalse);
+    expect(medianResponseMs([3000, 1000, 1000, 3000]), 2000);
+    expect(medianResponseMs([3000, 1000, 2000]), 2000);
+  });
 
   test('PR-01 hides notes, credits the octave and changes register', () {
     final set = catalog.practiceSet('PR-01');
@@ -126,9 +151,8 @@ void main() {
     expect(offers[1].access, StageAccess.locked);
     expect(offers[3].access, StageAccess.soon);
     final heard = buildStageSession(set: intervals, stage: 2, seed: 3);
-    final signatures = heard.tasks
-        .map((task) => task.soundedMidi.join(':'))
-        .toSet();
+    final signatures =
+        heard.tasks.map((task) => task.soundedMidi.join(':')).toSet();
     expect(signatures, hasLength(heard.tasks.length));
     expect(heard.tasks.every((task) => task.choices.contains('ч5')), isFalse);
 
@@ -177,6 +201,18 @@ void main() {
           reason: bar,
         );
       }
+      final played = task.audio!.events.skip(task.beats * 2 + 1).toList();
+      final totalMs = played.fold<int>(
+          0,
+          (total, event) =>
+              total +
+              switch (event) {
+                NoteEvent(:final durationMs) => durationMs,
+                RestEvent(:final durationMs) => durationMs,
+                ChordEvent(:final durationMs) => durationMs,
+              });
+      expect(totalMs, task.beats * 2 * 750);
+      expect(played.whereType<NoteEvent>(), isNotEmpty);
     }
     expect(wrongBarOf('четверть / половинная', 'четверть / четверть'), 2);
     expect(wrongBarOf('четверть / четверть', 'четверть / четверть'), isNull);
@@ -201,20 +237,25 @@ void main() {
     expect(task.toleranceMs, 120);
   });
 
-  test('a sight phrase ends on the tonic without a tritone', () {
-    final plan = buildStageSession(
-      set: catalog.practiceSet('PR-13'),
-      stage: 1,
-      seed: 4,
-    );
-    const names = ['до', 'ре', 'ми', 'фа', 'соль', 'ля', 'си'];
-    for (final task in plan.tasks) {
-      final degrees = [
-        for (final name in task.answer.split(' ')) names.indexOf(name) + 1,
-      ];
-      expect(SightPhrase(degrees).isAllowed, isTrue, reason: task.answer);
-      expect(task.showNotation, isTrue);
+  test('unscored rhythm stages stay unavailable and do not block later stages',
+      () {
+    for (final id in ['PR-13', 'PR-09', 'PR-01']) {
+      final set = catalog.practiceSet(id);
+      final offers =
+          stageOffers(set, {for (final stage in set.stages) stage.stage});
+      for (final offer in offers) {
+        if (stageUnavailableReason(id, offer.stage) != null) {
+          expect(offer.access, StageAccess.soon);
+          expect(offer.unavailableReason, contains('ритма'));
+          expect(() => buildStageSession(set: set, stage: offer.stage, seed: 4),
+              throwsStateError);
+        }
+      }
     }
+    final degrees = stageOffers(
+        catalog.practiceSet('PR-01'), {for (var i = 1; i <= 10; i++) i});
+    expect(degrees.firstWhere((offer) => offer.stage == 12).access,
+        StageAccess.open);
   });
 
   test('a passed stage survives the next answer and a reload', () {

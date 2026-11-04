@@ -156,9 +156,12 @@ void main() {
       clock.advance(const Duration(hours: 20));
       await tester.tap(find.text('Холодная проверка'));
       await tester.pump();
-      for (var i = 0; i < 4; i++) {
+      for (var i = 0;
+          i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+          i++) {
         await _answer(tester, 'м3');
-        if (i < 3) {
+        if (i + 1 <
+            catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
           await tester.tap(find.text('Следующее'));
           await tester.pump();
         }
@@ -199,9 +202,20 @@ void main() {
     await _answer(tester, 'м3');
     await tester.tap(find.text('Холодная проверка'));
     await tester.pump();
-    for (final label in ['м3', 'м3', 'м3', 'б3']) {
+    for (final label in [
+      ...List<String>.filled(
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2,
+          'м3'),
+      'б3',
+      'б3'
+    ]) {
       await _answer(tester, label);
-      if (label != 'б3') {
+      if (store.book.attempts
+              .where((attempt) =>
+                  attempt.coldReview &&
+                  attempt.sessionId == store.book.attempts.last.sessionId)
+              .length <
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
         await tester.tap(find.text('Следующее'));
         await tester.pump();
       }
@@ -215,9 +229,13 @@ void main() {
     expect(store.snapshot(competency).provisionalAt, isNull);
     expect(find.text('Освоено'), findsNothing);
 
-    await tester.tap(find.text('Следующее'));
-    await tester.pump();
-    await _answer(tester, 'м3');
+    for (var repeat = 0;
+        repeat < catalog.config.masteryRules.immediateWindow;
+        repeat++) {
+      await tester.tap(find.text('Следующее'));
+      await tester.pump();
+      await _answer(tester, 'м3');
+    }
     final restored = store.snapshot(competency).provisionalAt;
     expect(find.text('Предварительно сдано'), findsOneWidget);
     expect(
@@ -234,9 +252,11 @@ void main() {
     clock.advance(const Duration(hours: 20));
     await tester.tap(find.text('Холодная проверка'));
     await tester.pump();
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0;
+        i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+        i++) {
       await _answer(tester, 'м3');
-      if (i < 3) {
+      if (i + 1 < catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
         await tester.tap(find.text('Следующее'));
         await tester.pump();
       }
@@ -596,7 +616,13 @@ void main() {
       );
     }
     clock.advance(const Duration(hours: 20));
-    for (final correct in [true, true, true, false]) {
+    for (final correct in [
+      ...List<bool>.filled(
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2,
+          true),
+      false,
+      false
+    ]) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -607,12 +633,12 @@ void main() {
       );
     }
     clock.advance(const Duration(hours: 1));
-    recordPracticeAnswer(
-      store: store,
-      catalog: catalog,
-      setId: 'PR-03',
-      correct: true,
-    );
+    for (var repeat = 0;
+        repeat < catalog.config.masteryRules.immediateWindow;
+        repeat++) {
+      recordPracticeAnswer(
+          store: store, catalog: catalog, setId: 'PR-03', correct: true);
+    }
     clock.advance(const Duration(hours: 20));
     await tester.pumpWidget(
       MaterialApp(
@@ -628,9 +654,20 @@ void main() {
     await _answer(tester, 'м3');
     await tester.tap(find.text('Холодная проверка'));
     await tester.pump();
-    for (final label in ['м3', 'м3', 'м3', 'б3']) {
+    for (final label in [
+      ...List<String>.filled(
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2,
+          'м3'),
+      'б3',
+      'б3'
+    ]) {
       await _answer(tester, label);
-      if (label != 'б3') {
+      if (store.book.attempts
+              .where((attempt) =>
+                  attempt.coldReview &&
+                  attempt.sessionId == store.book.attempts.last.sessionId)
+              .length <
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
         await tester.tap(find.text('Следующее'));
         await tester.pump();
       }
@@ -658,7 +695,7 @@ void main() {
       findsNothing,
     );
 
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 11; i++) {
       await tester.tap(find.text('Следующее'));
       await tester.pump();
       await _answer(tester, 'м3');
@@ -678,9 +715,11 @@ void main() {
     clock.advance(const Duration(hours: 20));
     await tester.tap(find.text('Холодная проверка'));
     await tester.pump();
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0;
+        i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+        i++) {
       await _answer(tester, 'м3');
-      if (i < 3) {
+      if (i + 1 < catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
         await tester.tap(find.text('Следующее'));
         await tester.pump();
       }

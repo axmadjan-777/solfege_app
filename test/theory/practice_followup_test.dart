@@ -376,7 +376,9 @@ void main() {
     expect(find.text('Недавно: Интервалы на слух'), findsOneWidget);
     expect(find.textContaining('Легко:'), findsNothing);
 
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0;
+        i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+        i++) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -411,7 +413,9 @@ void main() {
       );
     }
     clock.advance(const Duration(hours: 20));
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0;
+        i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2;
+        i++) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -429,14 +433,16 @@ void main() {
     await tester.pumpWidget(_mix(catalog, player, store, clock));
     expect(find.text('Недавно: Интервалы на слух'), findsOneWidget);
 
-    recordPracticeAnswer(
-      store: store,
-      catalog: catalog,
-      setId: 'PR-03',
-      correct: false,
-      coldReview: true,
-      sessionId: 'cold-miss',
-    );
+    for (var miss = 0; miss < 2; miss++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: false,
+        coldReview: true,
+        sessionId: 'cold-miss',
+      );
+    }
     expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
     expect(store.snapshot(competency).provisionalAt, isNull);
     await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
@@ -464,7 +470,13 @@ void main() {
     }
     final firstMark = store.snapshot('ear.interval.m3_M3').provisionalAt;
     clock.advance(const Duration(hours: 20));
-    for (final correct in [true, true, true, false]) {
+    for (final correct in [
+      ...List<bool>.filled(
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2,
+          true),
+      false,
+      false
+    ]) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -475,12 +487,12 @@ void main() {
       );
     }
     clock.advance(const Duration(hours: 1));
-    recordPracticeAnswer(
-      store: store,
-      catalog: catalog,
-      setId: 'PR-03',
-      correct: true,
-    );
+    for (var repeat = 0;
+        repeat < catalog.config.masteryRules.immediateWindow;
+        repeat++) {
+      recordPracticeAnswer(
+          store: store, catalog: catalog, setId: 'PR-03', correct: true);
+    }
     final restored = store.snapshot('ear.interval.m3_M3');
     expect(restored.status, CompetencyStatus.provisionallyPassed);
     expect(restored.provisionalAt, clock.now());
@@ -489,7 +501,9 @@ void main() {
     expect(find.text('Недавно: Интервалы на слух'), findsOneWidget);
     expect(find.textContaining('Сначала:'), findsNothing);
 
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0;
+        i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+        i++) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -526,7 +540,13 @@ void main() {
       );
     }
     clock.advance(const Duration(hours: 20));
-    for (final correct in [true, true, true, false]) {
+    for (final correct in [
+      ...List<bool>.filled(
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2,
+          true),
+      false,
+      false
+    ]) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -537,16 +557,18 @@ void main() {
       );
     }
     clock.advance(const Duration(hours: 1));
-    recordPracticeAnswer(
-      store: store,
-      catalog: catalog,
-      setId: 'PR-03',
-      correct: true,
-    );
+    for (var repeat = 0;
+        repeat < catalog.config.masteryRules.immediateWindow;
+        repeat++) {
+      recordPracticeAnswer(
+          store: store, catalog: catalog, setId: 'PR-03', correct: true);
+    }
     final marked = store.snapshot('ear.interval.m3_M3').provisionalAt;
 
     clock.advance(const Duration(hours: 19));
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0;
+        i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+        i++) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -565,7 +587,9 @@ void main() {
 
     clock.advance(const Duration(hours: 1));
     expect(clock.now(), marked?.add(const Duration(hours: 20)));
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0;
+        i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+        i++) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -603,7 +627,13 @@ void main() {
       );
     }
     clock.advance(const Duration(hours: 20));
-    for (final correct in [true, true, true, false]) {
+    for (final correct in [
+      ...List<bool>.filled(
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2,
+          true),
+      false,
+      false
+    ]) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -614,16 +644,18 @@ void main() {
       );
     }
     clock.advance(const Duration(hours: 1));
-    recordPracticeAnswer(
-      store: store,
-      catalog: catalog,
-      setId: 'PR-03',
-      correct: true,
-    );
+    for (var repeat = 0;
+        repeat < catalog.config.masteryRules.immediateWindow;
+        repeat++) {
+      recordPracticeAnswer(
+          store: store, catalog: catalog, setId: 'PR-03', correct: true);
+    }
     final marked = store.snapshot('ear.interval.m3_M3').provisionalAt;
     clock.advance(const Duration(hours: 20));
     expect(clock.now(), marked?.add(const Duration(hours: 20)));
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0;
+        i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2;
+        i++) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -640,14 +672,16 @@ void main() {
     await tester.pumpWidget(_mix(catalog, player, store, clock));
     expect(find.text('Недавно: Интервалы на слух'), findsOneWidget);
 
-    recordPracticeAnswer(
-      store: store,
-      catalog: catalog,
-      setId: 'PR-03',
-      correct: false,
-      coldReview: true,
-      sessionId: 'second',
-    );
+    for (var miss = 0; miss < 2; miss++) {
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: false,
+        coldReview: true,
+        sessionId: 'second',
+      );
+    }
     final failed = store.snapshot('ear.interval.m3_M3');
     expect(failed.status, CompetencyStatus.needsReview);
     expect(failed.provisionalAt, isNull);

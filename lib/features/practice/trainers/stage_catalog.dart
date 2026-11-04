@@ -35,11 +35,13 @@ class StageOffer {
     required this.stage,
     required this.title,
     required this.access,
+    this.unavailableReason,
   });
 
   final int stage;
   final String title;
   final StageAccess access;
+  final String? unavailableReason;
 }
 
 class StageTask {
@@ -60,6 +62,7 @@ class StageTask {
     this.soundedMidi = const [],
     this.bassMidi,
     this.namesBars = false,
+    this.competencyIds = const [],
   });
 
   final String prompt;
@@ -79,12 +82,34 @@ class StageTask {
   final int? bassMidi;
   final bool namesBars;
 
+  /// Только навыки, которые действительно проверяет это задание.
+  final List<String> competencyIds;
+
+  StageTask withCompetencies(List<String> ids) => StageTask(
+        prompt: prompt,
+        answer: answer,
+        input: input,
+        choices: choices,
+        tiles: tiles,
+        sequenceLength: sequenceLength,
+        audio: audio,
+        showNotation: showNotation,
+        visible: visible,
+        beats: beats,
+        gapMs: gapMs,
+        toleranceMs: toleranceMs,
+        tonality: tonality,
+        soundedMidi: soundedMidi,
+        bassMidi: bassMidi,
+        namesBars: namesBars,
+        competencyIds: ids,
+      );
+
   bool get answerable {
     return switch (input) {
       StageInput.choice => choices.contains(answer),
-      StageInput.sequence =>
-        answer.split(' ').length == sequenceLength &&
-            answer.split(' ').every(tiles.contains),
+      StageInput.sequence => answer.split(' ').length == sequenceLength &&
+          answer.split(' ').every(tiles.contains),
       StageInput.tap => beats > 0 && gapMs > 0 && toleranceMs > 0,
     };
   }
@@ -100,6 +125,8 @@ class StageSessionPlan {
     required this.minItems,
     required this.correctFeedback,
     required this.errorFeedback,
+    this.passMetric,
+    this.responseThresholdMs,
   });
 
   final String setId;
@@ -110,15 +137,35 @@ class StageSessionPlan {
   final int minItems;
   final String correctFeedback;
   final String errorFeedback;
+  final String? passMetric;
+  final int? responseThresholdMs;
 
-  bool passed(int correct) {
-    return DegreeDictation.passed(
+  bool passed(int correct, {List<int> responseMs = const []}) {
+    final accurate = DegreeDictation.passed(
       correct: correct,
       total: tasks.length,
       minAccuracy: minAccuracy,
       minItems: minItems,
     );
+    if (!accurate) return false;
+    if (passMetric != 'median_response_ms') return true;
+    if (responseThresholdMs == null ||
+        responseMs.length != tasks.length ||
+        responseMs.any((sample) => sample < 0)) {
+      return false;
+    }
+    final median = medianResponseMs(responseMs);
+    return median != null && median <= responseThresholdMs!;
   }
+}
+
+double? medianResponseMs(List<int> samples) {
+  if (samples.isEmpty) return null;
+  final ordered = [...samples]..sort();
+  final middle = ordered.length ~/ 2;
+  return ordered.length.isOdd
+      ? ordered[middle].toDouble()
+      : (ordered[middle - 1] + ordered[middle]) / 2;
 }
 
 int stageSessionSeed(String setId, int stage, int attemptCount) {
@@ -131,12 +178,14 @@ List<StageOffer> stageOffers(PracticeSet set, Set<int> passed) {
   final offers = <StageOffer>[];
   int? previousMvp;
   for (final stage in set.stages) {
-    if (!stage.mvpStatus.isMvp) {
+    final unavailable = stageUnavailableReason(set.id, stage.stage);
+    if (!stage.mvpStatus.isMvp || unavailable != null) {
       offers.add(
         StageOffer(
           stage: stage.stage,
           title: stage.title,
           access: StageAccess.soon,
+          unavailableReason: unavailable,
         ),
       );
       continue;
@@ -154,6 +203,17 @@ List<StageOffer> stageOffers(PracticeSet set, Set<int> passed) {
   return offers;
 }
 
+/// Эти прежние генераторы ещё не оценивают ритм ответа. Их нельзя сдавать
+/// и использовать как доказательство освоения перечисленных в каталоге навыков.
+String? stageUnavailableReason(String setId, int stage) {
+  if (setId == 'PR-01' && stage == 11 ||
+      setId == 'PR-09' && (stage == 3 || stage == 4) ||
+      setId == 'PR-13') {
+    return 'Скоро: оценка ритма ответа ещё не готова';
+  }
+  return null;
+}
+
 StageSessionPlan buildStageSession({
   required PracticeSet set,
   required int stage,
@@ -163,6 +223,8 @@ StageSessionPlan buildStageSession({
   if (!spec.mvpStatus.isMvp) {
     throw StateError('${set.id} стадия $stage вне MVP');
   }
+  final unavailable = stageUnavailableReason(set.id, stage);
+  if (unavailable != null) throw StateError(unavailable);
   final random = Random(seed);
   final tasks = switch (set.id) {
     'PR-01' => _degrees(spec, random),
@@ -185,12 +247,78 @@ StageSessionPlan buildStageSession({
     setId: set.id,
     stage: stage,
     title: spec.title,
-    tasks: tasks,
+    tasks: [
+      for (final task in tasks)
+        task.withCompetencies(_assessedCompetencies(set.id, spec, task)),
+    ],
     minAccuracy: (spec.pass['min_accuracy'] as num).toDouble(),
     minItems: (spec.pass['min_items'] as num).toInt(),
+    passMetric: spec.pass['metric'] as String?,
+    responseThresholdMs: (spec.pass['threshold_ms'] as num?)?.toInt(),
     correctFeedback: spec.feedback['correct'] as String? ?? 'Верно',
     errorFeedback: spec.feedback['first_error'] as String? ?? 'Пока не то',
   );
+}
+
+List<String> _assessedCompetencies(
+  String setId,
+  PracticeStage stage,
+  StageTask task,
+) {
+  final ids = stage.competencyIds.toSet();
+  switch (setId) {
+    case 'PR-01':
+      if (ids.any((id) => id.startsWith('ear.degree.major.'))) {
+        final id = 'ear.degree.major.${task.answer}';
+        return ids.contains(id) ? [id] : const [];
+      }
+      break;
+    case 'PR-03':
+      if (stage.stage == 3 && task.answer != 'ч4' && task.answer != 'ч5') {
+        return const [];
+      }
+      break;
+    case 'PR-04':
+      if (stage.stage == 2) {
+        return [task.answer == 'ми' ? 'int.thirds' : 'int.perfect_5_4'];
+      }
+      break;
+    case 'PR-06':
+      final kind = switch (task.answer) {
+        'большое' => 'major',
+        'малое' => 'minor',
+        'уменьшённое' => 'dim',
+        'увеличенное' => 'aug',
+        _ => '',
+      };
+      return [
+        if (ids.contains('ear.triad.$kind')) 'ear.triad.$kind',
+        if (ids.contains('chd.compare_four_types')) 'chd.compare_four_types',
+      ];
+    case 'PR-07':
+      if (stage.stage == 1) {
+        return [
+          task.soundedMidi.contains(63) ? 'chd.minor_triad' : 'chd.major_triad',
+        ];
+      }
+      break;
+    case 'PR-08':
+      if (stage.stage == 2) {
+        final midi = task.soundedMidi.single;
+        return [
+          if (midi >= 69 && midi <= 79) 'not.read_treble_a4_g5',
+          if (midi <= 60 || midi >= 81) 'not.ledger_lines',
+        ];
+      }
+      break;
+    case 'PR-10':
+      return [
+        if (ids.contains('wrt.rhythm_dictation')) 'wrt.rhythm_dictation',
+        if (ids.contains('rhy.rests') && task.answer.contains('пауза'))
+          'rhy.rests',
+      ];
+  }
+  return ids.toList();
 }
 
 bool tapsMatchGrid(
@@ -219,9 +347,8 @@ List<String> splitRhythmBar(String bar) {
   final words = <String>[];
   var index = 0;
   while (index < parts.length) {
-    final pair = index + 1 < parts.length
-        ? '${parts[index]} ${parts[index + 1]}'
-        : '';
+    final pair =
+        index + 1 < parts.length ? '${parts[index]} ${parts[index + 1]}' : '';
     if (compounds.contains(pair)) {
       words.add(pair);
       index += 2;
@@ -538,8 +665,8 @@ List<StageTask> _wider(int count, int low, int high, Random random) {
     var first = pool[random.nextInt(pool.length)];
     var second = pool[random.nextInt(pool.length)];
     var guard = 0;
-    while ((second == first || !seen.add('$bass:$first:$second')) &&
-        guard < 20) {
+    while (
+        (second == first || !seen.add('$bass:$first:$second')) && guard < 20) {
       first = pool[random.nextInt(pool.length)];
       second = pool[random.nextInt(pool.length)];
       guard += 1;
@@ -734,7 +861,7 @@ List<StageTask> _triads(PracticeStage stage, Random random) {
     ];
   }
   final kinds = stage.stage == 1
-      ? const ['major']
+      ? const ['major', 'minor']
       : const ['major', 'minor', 'dim', 'aug'];
   const spoken = {
     'major': 'большое',
@@ -766,13 +893,14 @@ List<StageTask> _notes(PracticeStage stage, Random random) {
   final count = _count(stage);
   final pool = switch (stage.stage) {
     1 => const [60, 62, 64, 65, 67],
+    2 => const [60, 69, 71, 72, 74, 76, 77, 79, 81, 84],
+    3 => const [69, 71, 72, 74, 76, 77, 79],
     4 => const [48, 50, 52, 53, 55, 57, 59, 60],
     5 => const [48, 53, 60, 64, 67, 72, 79],
     _ => const [57, 60, 64, 67, 71, 74, 79],
   };
-  final choices = stage.stage == 1
-      ? const ['до', 'ре', 'ми', 'фа', 'соль']
-      : _syllables;
+  final choices =
+      stage.stage == 1 ? const ['до', 'ре', 'ми', 'фа', 'соль'] : _syllables;
   final bass = stage.stage == 4 || stage.stage == 5;
   return [
     for (var i = 0; i < count; i++)
@@ -891,15 +1019,34 @@ StageTask _rhythmChoice(
   while (patterns.length < 3) {
     patterns.add(List.filled(beats, 'четверть').join(' '));
   }
+  final answer = patterns.first;
+  patterns.shuffle(random);
   return StageTask(
     prompt: bars == 1 ? 'Какой ритм прозвучал?' : 'Какие такты прозвучали?',
-    answer: patterns.first,
+    answer: answer,
     input: StageInput.choice,
     choices: patterns,
     namesBars: true,
     beats: beats,
     showNotation: false,
-    audio: metronomeClicks(bpm: 80, beats: beats),
+    audio: AudioSequence([
+      ...metronomeClicks(bpm: 80, beats: beats).events,
+      const RestEvent(300),
+      for (final bar in answer.split(' / '))
+        for (final token in splitRhythmBar(bar))
+          if (token.contains('пауза'))
+            RestEvent(token.startsWith('половинная') ? 1500 : 750)
+          else
+            NoteEvent(
+              76,
+              durationMs: switch (token) {
+                'восьмая' => 375,
+                'половинная' => 1500,
+                'целая' => 3000,
+                _ => 750,
+              },
+            ),
+    ]),
   );
 }
 
@@ -947,8 +1094,8 @@ List<StageTask> _sight(PracticeStage stage, Random random) {
 
 StageTask _phraseTask(Random random, int bpm) {
   final degrees = _allowedPhrase(random);
-  final spelling = [for (final degree in degrees) _syllables[degree - 1]]
-      .join(' ');
+  final spelling =
+      [for (final degree in degrees) _syllables[degree - 1]].join(' ');
   return StageTask(
     prompt: bpm == 0 ? 'Сыграй высоту фразы' : 'Сыграй фразу в ритме',
     answer: spelling,

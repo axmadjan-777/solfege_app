@@ -9,6 +9,7 @@ import 'package:solfege_app/features/practice/progress/attempt.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
 import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/progress/practice_attempt.dart';
+import 'package:solfege_app/features/practice/progress/stage_progress.dart';
 import 'package:solfege_app/features/practice/screens/practice_map_screen.dart';
 import 'package:solfege_app/features/practice/screens/stage_list_screen.dart';
 import 'package:solfege_app/features/practice/screens/practice_round_screen.dart';
@@ -27,6 +28,138 @@ void main() {
       competencies: _read('competencies.json'),
       lessons: _read('lessons.json'),
     );
+  });
+
+  testWidgets(
+      'stage list opens independent delayed review and keeps stage pass separate',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 11, 5, 9));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final set = catalog.practiceSet('PR-01');
+    final spec = set.stages.firstWhere((stage) => stage.stage == 2);
+    for (final id in spec.competencyIds) {
+      final plan = buildStageSession(set: set, stage: 2, seed: 1);
+      final task =
+          plan.tasks.firstWhere((task) => task.competencyIds.contains(id));
+      final profile = stageCompetencyPolicy(
+          catalog: catalog, stage: spec, competencyId: id);
+      for (var i = 0; i < profile.rules.immediateWindow; i++) {
+        recordStageAnswer(
+            store: store,
+            catalog: catalog,
+            set: set,
+            stage: 2,
+            task: task,
+            correct: true,
+            sessionId: 'training-$id-$i',
+            now: clock.now());
+      }
+    }
+    store.markStagePassed('PR-01', 1);
+    store.markStagePassed('PR-01', 2);
+    const id = 'ear.degree.major.1';
+    const reviewKey = Key('stage-review-PR-01-2-ear.degree.major.1');
+    Widget screen() => MaterialApp(
+            home: StageListScreen(
+          key: UniqueKey(),
+          set: set,
+          player: FakePracticeAudioPlayer(),
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ));
+    await tester.pumpWidget(screen());
+    final early = tester.widget<TextButton>(find.byKey(reviewKey));
+    expect(early.onPressed, isNull);
+    expect(find.textContaining('Холодная проверка через'), findsWidgets);
+    clock.advance(Duration(
+        hours: stageCompetencyPolicy(
+                catalog: catalog, stage: spec, competencyId: id)
+            .policy
+            .firstDelayRangeHours
+            .$1));
+    await tester.pumpWidget(screen());
+    await _tap(tester, find.byKey(reviewKey));
+    await tester.pumpAndSettle();
+    final run = tester.widget<StageRunScreen>(find.byType(StageRunScreen));
+    final review = buildStageReviewSession(
+        catalog: catalog, set: set, stage: 2, competencyId: id, seed: run.seed);
+    for (var i = 0; i < review.tasks.length; i++) {
+      await _tap(tester, find.text(review.tasks[i].answer));
+      await _tap(
+          tester, find.text(i + 1 == review.tasks.length ? 'Итог' : 'Дальше'));
+    }
+    expect(find.text('Навык освоен'), findsOneWidget);
+    expect(store.snapshot(id).status, CompetencyStatus.mastered);
+    expect(store.snapshot('ear.degree.major.5').status,
+        CompetencyStatus.provisionallyPassed);
+    expect(store.book.passedStages['PR-01'], [1, 2]);
+    expect(store.book.competencies, isNot(contains('sca.tonic')));
+  });
+
+  testWidgets('direct early cold-review entry cannot grade or write an answer',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 11, 5));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final set = catalog.practiceSet('PR-01');
+    final spec = set.stages.firstWhere((stage) => stage.stage == 4);
+    const id = 'ear.degree.major.2';
+    final task = buildStageSession(set: set, stage: 4, seed: 2)
+        .tasks
+        .firstWhere((task) => task.competencyIds.contains(id));
+    final profile =
+        stageCompetencyPolicy(catalog: catalog, stage: spec, competencyId: id);
+    for (var i = 0; i < profile.rules.immediateWindow; i++) {
+      recordStageAnswer(
+          store: store,
+          catalog: catalog,
+          set: set,
+          stage: 4,
+          task: task,
+          correct: true,
+          sessionId: 'learn-$i',
+          now: clock.now());
+    }
+    final before = store.book.attempts.length;
+    await tester.pumpWidget(MaterialApp(
+        home: StageRunScreen(
+      set: set,
+      stage: 4,
+      player: FakePracticeAudioPlayer(),
+      catalog: catalog,
+      clock: clock,
+      seed: 1,
+      progress: store,
+      reviewCompetencyId: id,
+    )));
+    expect(find.textContaining('Холодная проверка через'), findsOneWidget);
+    expect(find.byType(FilledButton), findsNothing);
+    expect(store.book.attempts, hasLength(before));
+    expect(store.snapshot(id).status, CompetencyStatus.provisionallyPassed);
+  });
+
+  testWidgets(
+      'rhythm stages without an answer judge show an explanation and no bypass',
+      (tester) async {
+    final store = MemoryProgressStore(
+        clock: FixedClock(DateTime.utc(2026, 11, 5)),
+        rules: catalog.config.masteryRules);
+    await tester.pumpWidget(MaterialApp(
+        home: StageListScreen(
+      set: catalog.practiceSet('PR-13'),
+      player: FakePracticeAudioPlayer(),
+      catalog: catalog,
+      progress: store,
+    )));
+    expect(find.textContaining('оценка ритма'), findsWidgets);
+    expect(find.byKey(const Key('practice-review')), findsNothing);
+    final tile =
+        tester.widget<ListTile>(find.byKey(const Key('stage-PR-13-1')));
+    expect(tile.enabled, isFalse);
+    expect(tile.onTap, isNull);
+    expect(store.book.attempts, isEmpty);
   });
 
   testWidgets('legacy minor practice still opens its existing trainer', (
@@ -90,9 +223,12 @@ void main() {
       await tester.pumpAndSettle();
       await _tap(tester, find.text('м3'));
       await _tap(tester, find.text('Холодная проверка'));
-      for (var i = 0; i < catalog.config.masteryRules.delayedMinItems; i++) {
+      for (var i = 0;
+          i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+          i++) {
         await _tap(tester, find.text('м3'));
-        if (i + 1 < catalog.config.masteryRules.delayedMinItems) {
+        if (i + 1 <
+            catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
           await _tap(tester, find.text('Следующее'));
         }
       }
@@ -159,6 +295,126 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('a delayed pulse replay resets partial taps and the cue clock',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 11, 5));
+    final set = catalog.practiceSet('PR-09');
+    final plan = buildStageSession(set: set, stage: 1, seed: 1);
+    final task = plan.tasks.first;
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    await tester.pumpWidget(MaterialApp(
+        home: StageRunScreen(
+      set: set,
+      stage: 1,
+      player: FakePracticeAudioPlayer(),
+      catalog: catalog,
+      clock: clock,
+      seed: 1,
+      progress: store,
+    )));
+    await tester.pump();
+    clock.advance(Duration(milliseconds: task.gapMs));
+    await _tap(tester, find.textContaining('Доля'));
+    expect(find.text('Доля (1 из ${task.beats})'), findsOneWidget);
+
+    clock.advance(const Duration(seconds: 10));
+    await _tap(tester, find.text('Ещё раз (3)'));
+    expect(find.text('Доля (0 из ${task.beats})'), findsOneWidget);
+    for (var i = 0; i < task.beats; i++) {
+      clock.advance(Duration(milliseconds: task.gapMs));
+      await _tap(tester, find.textContaining('Доля'));
+    }
+    expect(find.text('Верно'), findsOneWidget);
+    expect(store.book.attempts.single.isCorrect, isTrue);
+    expect(store.book.attempts.single.responseMs, task.gapMs * task.beats);
+  });
+
+  testWidgets(
+      'speed stage rejects slow correct answers and stores real response durations',
+      (tester) async {
+    tester.view.physicalSize = const Size(900, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    Future<void> tapVisible(Finder finder) async {
+      await tester.ensureVisible(finder);
+      await tester.pump();
+      expect(finder.hitTestable(), findsOneWidget);
+      await tester.tap(finder.hitTestable());
+      await tester.pump();
+    }
+
+    final clock = FixedClock(DateTime.utc(2026, 11, 5));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final set = catalog.practiceSet('PR-08');
+    final plan = buildStageSession(set: set, stage: 3, seed: 1);
+    Widget screen(Key key) => MaterialApp(
+            home: StageRunScreen(
+          key: key,
+          set: set,
+          stage: 3,
+          player: FakePracticeAudioPlayer(),
+          catalog: catalog,
+          clock: clock,
+          seed: 1,
+          progress: store,
+        ));
+    await tester.pumpWidget(screen(const Key('slow-run')));
+    await tester.pump();
+    for (var i = 0; i < plan.tasks.length; i++) {
+      clock.advance(const Duration(seconds: 3));
+      await tapVisible(find.text(plan.tasks[i].answer));
+      await tapVisible(
+          find.text(i + 1 == plan.tasks.length ? 'Итог' : 'Дальше'));
+    }
+    expect(find.text('Пока не сдано'), findsOneWidget);
+    expect(find.textContaining('Медиана ответа: 3000 мс'), findsOneWidget);
+    expect(store.book.passedStages['PR-08'], isNull);
+    expect(store.book.attempts.every((attempt) => attempt.responseMs == 3000),
+        isTrue);
+
+    await tester.pumpWidget(screen(const Key('backward-clock-run')));
+    await tester.pump();
+    for (var i = 0; i < plan.tasks.length; i++) {
+      clock.advance(const Duration(seconds: -1));
+      await tapVisible(find.text(plan.tasks[i].answer));
+      await tapVisible(
+          find.text(i + 1 == plan.tasks.length ? 'Итог' : 'Дальше'));
+    }
+    expect(find.text('Пока не сдано'), findsOneWidget);
+    expect(find.text('Системные часы изменились. Повторите скоростной раунд.'),
+        findsOneWidget);
+    expect(store.book.passedStages['PR-08'], isNull);
+    expect(
+        store.book.attempts
+            .skip(plan.tasks.length)
+            .every((attempt) => attempt.responseMs == 0),
+        isTrue);
+
+    await tester.pumpWidget(screen(const Key('fast-run')));
+    await tester.pump();
+    for (var i = 0; i < plan.tasks.length; i++) {
+      clock.advance(const Duration(seconds: 1));
+      await tapVisible(find.text(plan.tasks[i].answer));
+      await tapVisible(
+          find.text(i + 1 == plan.tasks.length ? 'Итог' : 'Дальше'));
+    }
+    expect(find.text('Сдано'), findsOneWidget);
+    expect(find.textContaining('Медиана ответа: 1000 мс'), findsOneWidget);
+    expect(store.book.passedStages['PR-08'], [3]);
+    expect(
+        store.book.attempts
+            .skip(plan.tasks.length * 2)
+            .every((attempt) => attempt.responseMs == 1000),
+        isTrue);
+    final restored = ProgressBook.fromJson(
+        jsonDecode(jsonEncode(store.book.toJson())) as Map<String, dynamic>);
+    expect(restored.attempts.first.responseMs, 3000);
+    expect(restored.attempts.last.responseMs, 1000);
   });
 
   testWidgets('four taps on the grid count as the pulse', (tester) async {

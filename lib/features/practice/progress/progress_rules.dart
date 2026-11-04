@@ -51,17 +51,11 @@ class MasteryDecision {
     required int delayedMinItems,
     required double demotionAccuracyBelow,
     required int demotionWindow,
+    Duration minimumDelay = const Duration(hours: 20),
   }) {
-    final demoted = _recentAccuracy(attempts, demotionWindow);
-    if (demoted != null && demoted < demotionAccuracyBelow) {
-      return MasteryDecision(
-          status: CompetencyStatus.needsReview,
-          markedProvisionalAt: provisionalAt);
-    }
-
     if (coldReview) {
       final waited = provisionalAt != null &&
-          !now.isBefore(provisionalAt.add(const Duration(hours: 20)));
+          !now.isBefore(provisionalAt.add(minimumDelay));
       final coldAttempts = _currentColdReview(attempts);
       final coldAccuracy = _sessionAccuracy(coldAttempts);
       final coldCount = coldAttempts.length;
@@ -77,6 +71,13 @@ class MasteryDecision {
       }
       return MasteryDecision(
           status: current, markedProvisionalAt: provisionalAt);
+    }
+
+    final demoted = _recentAccuracy(attempts, demotionWindow);
+    if (demoted != null && demoted < demotionAccuracyBelow) {
+      return MasteryDecision(
+          status: CompetencyStatus.needsReview,
+          markedProvisionalAt: provisionalAt);
     }
 
     final window = _last(attempts, immediateWindow);
