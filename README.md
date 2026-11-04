@@ -37,9 +37,9 @@ Flutter-приложение для обучения музыке: теория,
 
 ## Требования и SDK
 
-- Точные версии **Flutter и Deno** — в [tool/toolchain.env](tool/toolchain.env).
+- Точные версии **Flutter, Deno и Node.js** — в [tool/toolchain.env](tool/toolchain.env).
   Flutter закреплён по успешному [CI-прогону](https://github.com/axmadjan-777/solfege_app/actions/runs/37341857670).
-- Git, Bash, Python 3. Для полного web-сценария — браузер и тестовый аккаунт.
+- Git, Bash, Python 3 и npm (с Node.js из `tool/toolchain.env`). Для полного web-сценария — браузер и тестовый аккаунт.
 - `environment.sdk` в `pubspec.yaml` задаёт диапазон **Dart**, не версию Flutter.
   Используйте закреплённый Flutter, совместимый с существующим `pubspec.lock`.
 - Android/iOS SDK нужны только для соответствующих сборок, не для основного QA.
@@ -63,6 +63,14 @@ bash tool/verify.sh
 Для нестандартного пути передайте, например, `FLUTTER_BIN=/path/to/flutter/bin/flutter`.
 Для IDE отдельно выберите тот же SDK. Обновление зависимостей — отдельное
 согласованное изменение; обычная проверка не переписывает `pubspec.lock`.
+
+Для SQL-проверок нужен закреплённый Node.js из [официальных выпусков](https://nodejs.org/en/download).
+`bash tool/verify_database.sh` устанавливает зафиксированный PGlite через `npm ci`
+в игнорируемый `tool/database/node_modules/` и проверяет миграции на изолированном
+PostgreSQL в памяти. Внешнего подключения, Docker или ключей БД нет.
+`bash tool/verify_database.sh --mutation-test` дополнительно проверяет, что тесты
+обнаруживают намеренно открытую политику чтения. Реальные параллельные серверные
+транзакции и состояние hosted Supabase этот прогон не подтверждает.
 
 ## Запуск приложения
 
@@ -133,6 +141,13 @@ hot reload не перечитывает `--dart-define`. В zsh не остав
 supabase functions deploy gemini-chat --project-ref zehmcszijutthmeswtci
 ```
 
+Новые возможности БД поставляются отдельными версионированными SQL-файлами
+в [supabase/migrations](supabase/migrations/). Их применяют к выбранному проекту
+до публикации соответствующего клиента. Локальный SQL-QA проверяет применение
+дважды, ограничения, права двух пользователей и откат ошибок, но не применяет
+миграции к живому Supabase. Перед выпуском отдельно проверяется присутствие
+нужных таблиц/RPC и сценарии на выделенных QA-аккаунтах.
+
 ## QA и pre-commit
 
 Общий QA — автоматические проверки из [tool/verify.sh](tool/verify.sh), без
@@ -142,12 +157,13 @@ supabase functions deploy gemini-chat --project-ref zehmcszijutthmeswtci
 Полная команда — `bash tool/verify.sh`. Она проверяет документацию, версии SDK и выполняет:
 
 1. Python-тесты инструментов разработки; проверки Git-хука используют временные репозитории.
-2. `flutter pub get --enforce-lockfile` и анализ без повторного `pub get`.
-3. Сверку JSON с исходными блоками спецификации.
-4. Все Flutter unit/widget-тесты.
-5. Одну проверку типов обработчика Edge Function и его тестов, затем сами тесты
+2. Миграции и SQL/RLS-проверки в изолированном PostgreSQL; при наличии нотного тренажёра — декодирование и высота MP3 через ffmpeg.
+3. `flutter pub get --enforce-lockfile` и анализ без повторного `pub get`.
+4. Сверку JSON с исходными блоками спецификации.
+5. Все Flutter unit/widget-тесты.
+6. Одну проверку типов обработчика Edge Function и его тестов, затем сами тесты
    с подменёнными Auth/Gemini, без повторной проверки типов, сетевых и env-разрешений Deno.
-6. Release-сборку web без production-ключей.
+7. Release-сборку web без production-ключей.
 
 Любая ошибка останавливает пайплайн. QA не изменяет исходники; кэши и сборка
 могут появляться в игнорируемых каталогах. SQL/RLS на живой БД, браузерный путь

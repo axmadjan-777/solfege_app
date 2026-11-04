@@ -64,7 +64,8 @@ void main() {
     expect(find.text('Что такое бемоль?'), findsOneWidget);
     expect(find.text('Не удалось получить ответ'), findsOneWidget);
     expect(find.text('Повторить'), findsOneWidget);
-    expect(find.text('Запрос не дошёл. Проверьте подключение и повторите.'), findsOneWidget);
+    expect(find.text('Запрос не дошёл. Проверьте подключение и повторите.'),
+        findsOneWidget);
 
     await tester.tap(find.text('Повторить'));
     await tester.pumpAndSettle();
@@ -85,7 +86,8 @@ void main() {
     );
     await tester.pump();
 
-    await tester.enterText(find.byKey(const Key('ai_chat_input')), 'Что такое такт?');
+    await tester.enterText(
+        find.byKey(const Key('ai_chat_input')), 'Что такое такт?');
     await tester.tap(find.byKey(const Key('ai_chat_send')));
     await tester.pump();
 
@@ -100,11 +102,13 @@ void main() {
     expect(find.text(thinkingPhrases[1]), findsNothing);
   });
 
-  testWidgets('saved history appears and a new exchange is stored', (tester) async {
+  testWidgets('saved history appears and a new exchange is stored',
+      (tester) async {
     final history = MemoryAiChatHistory(
       seed: const [
         AiChatMessage(role: AiChatRole.user, text: 'Что такое диез?'),
-        AiChatMessage(role: AiChatRole.model, text: 'Диез повышает на полутон.'),
+        AiChatMessage(
+            role: AiChatRole.model, text: 'Диез повышает на полутон.'),
       ],
     );
     final service = _FakeAiChatService();
@@ -126,6 +130,73 @@ void main() {
     expect(saved[2].role, AiChatRole.user);
     expect(saved[3].role, AiChatRole.model);
     expect(saved.every((message) => message.stored), isTrue);
+  });
+
+  testWidgets(
+      'refresh keeps saved rows and unsaved exchange without duplicating either',
+      (tester) async {
+    final history = _FailingAppendHistory();
+    await tester.pumpWidget(MaterialApp(
+        home:
+            AiChatScreen(chatService: _FakeAiChatService(), history: history)));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byKey(const Key('ai_chat_input')), 'Новый вопрос');
+    await tester.tap(find.byKey(const Key('ai_chat_send')));
+    await tester.pumpAndSettle();
+    for (var index = 0; index < 2; index++) {
+      await tester.tap(find.text('Обновить'));
+      await tester.pumpAndSettle();
+      expect(find.text('Сохранённый вопрос'), findsOneWidget);
+      expect(find.text('Сохранённый ответ'), findsOneWidget);
+      expect(find.text('Новый вопрос'), findsOneWidget);
+      expect(find.textContaining('До мажор: до, ре, ми'), findsOneWidget);
+    }
+  });
+
+  testWidgets(
+      'switching account hides A messages and ignores a late Gemini reply',
+      (tester) async {
+    final history = _ScopedHistory();
+    addTearDown(history.changes.close);
+    final answer = Completer<String>();
+    await tester.pumpWidget(MaterialApp(
+        home: AiChatScreen(
+            chatService: _GateService(answer.future), history: history)));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byKey(const Key('ai_chat_input')), 'Личный вопрос A');
+    await tester.tap(find.byKey(const Key('ai_chat_send')));
+    await tester.pump();
+    history.switchTo('B');
+    await tester.pumpAndSettle();
+    expect(find.text('История B'), findsOneWidget);
+    expect(find.text('Личный вопрос A'), findsNothing);
+    answer.complete('Поздний ответ A');
+    await tester.pumpAndSettle();
+    expect(find.text('Поздний ответ A'), findsNothing);
+    expect(history.rows['B'], hasLength(1));
+  });
+
+  testWidgets(
+      'switching during save prevents sending old history under the new account',
+      (tester) async {
+    final history = _ScopedHistory()..appendGate = Completer<void>();
+    addTearDown(history.changes.close);
+    final service = _FakeAiChatService();
+    await tester.pumpWidget(MaterialApp(
+        home: AiChatScreen(chatService: service, history: history)));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byKey(const Key('ai_chat_input')), 'Вопрос до смены');
+    await tester.tap(find.byKey(const Key('ai_chat_send')));
+    await tester.pump();
+    history.switchTo('B');
+    history.appendGate!.complete();
+    await tester.pumpAndSettle();
+    expect(service.receivedMessages, isNull);
+    expect(find.text('Вопрос до смены'), findsNothing);
+    expect(find.text('История B'), findsOneWidget);
   });
 
   testWidgets('a broken history load can be refreshed', (tester) async {
@@ -160,5 +231,53 @@ class _BrokenHistory implements AiChatHistory {
   @override
   Future<List<AiChatMessage>> load() async {
     throw const AiChatHistoryException('Не удалось открыть прошлые сообщения.');
+  }
+}
+
+class _FailingAppendHistory implements AiChatHistory {
+  @override
+  Future<List<AiChatMessage>> load() async => const [
+        AiChatMessage(
+            role: AiChatRole.user, text: 'Сохранённый вопрос', stored: true),
+        AiChatMessage(
+            role: AiChatRole.model, text: 'Сохранённый ответ', stored: true),
+      ];
+  @override
+  Future<AiChatMessage> append(AiChatMessage message) async =>
+      throw const AiChatHistoryException('offline');
+}
+
+class _ScopedHistory implements AccountScopedAiChatHistory {
+  final changes = StreamController<String?>.broadcast(sync: true);
+  var owner = 'A';
+  Completer<void>? appendGate;
+  final rows = <String, List<AiChatMessage>>{
+    'A': [
+      const AiChatMessage(
+          role: AiChatRole.model, text: 'История A', stored: true)
+    ],
+    'B': [
+      const AiChatMessage(
+          role: AiChatRole.model, text: 'История B', stored: true)
+    ],
+  };
+  void switchTo(String next) {
+    owner = next;
+    changes.add(next);
+  }
+
+  @override
+  String get currentOwnerId => owner;
+  @override
+  Stream<String?> get ownerChanges => changes.stream;
+  @override
+  Future<List<AiChatMessage>> load() async => List.of(rows[owner]!);
+  @override
+  Future<AiChatMessage> append(AiChatMessage message) async {
+    final target = owner;
+    await appendGate?.future;
+    final saved = message.markStored();
+    rows[target]!.add(saved);
+    return saved;
   }
 }

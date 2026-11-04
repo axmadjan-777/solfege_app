@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -21,8 +23,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   late final AiChatService _chatService =
       widget.chatService ?? GeminiAiChatService();
-  late final AiChatHistory _history =
-      widget.history ?? SupabaseAiChatHistory();
+  late final AiChatHistory _history = widget.history ?? SupabaseAiChatHistory();
   final _messages = <AiChatMessage>[];
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
@@ -31,34 +32,72 @@ class _AiChatScreenState extends State<AiChatScreen> {
   bool _loadingHistory = true;
   String? _errorDetails;
   String? _historyWarning;
+  int _generation = 0;
+  int _historyLoad = 0;
+  String? _owner;
+  StreamSubscription<String?>? _ownerSubscription;
 
   @override
   void initState() {
     super.initState();
+    final history = _history;
+    if (history is AccountScopedAiChatHistory) {
+      _owner = history.currentOwnerId;
+      _ownerSubscription = history.ownerChanges.listen(_onOwnerChanged);
+    }
     _loadHistory();
   }
 
+  void _onOwnerChanged(String? owner) {
+    if (!mounted || owner == _owner) return;
+    _owner = owner;
+    _generation += 1;
+    setState(() {
+      _messages.clear();
+      _inputController.clear();
+      _isLoading = false;
+      _loadingHistory = true;
+      _errorDetails = null;
+      _historyWarning = null;
+    });
+    _loadHistory();
+  }
+
+  bool _isCurrent(int generation, String? owner) {
+    final history = _history;
+    return mounted &&
+        generation == _generation &&
+        (history is! AccountScopedAiChatHistory ||
+            history.currentOwnerId == owner);
+  }
+
   Future<void> _loadHistory() async {
+    final generation = _generation;
+    final owner = _owner;
+    final load = ++_historyLoad;
+    if (mounted) setState(() => _loadingHistory = true);
     try {
       final saved = await _history.load();
-      if (!mounted) return;
+      if (!_isCurrent(generation, owner) || load != _historyLoad) return;
       setState(() {
-        if (_messages.isEmpty) {
-          _messages.addAll(saved);
-        } else {
-          _messages.insertAll(0, saved);
-        }
+        final pending = _messages.where((message) => !message.stored).toList();
+        _messages
+          ..clear()
+          ..addAll(saved)
+          ..addAll(pending);
         _loadingHistory = false;
-        _historyWarning = null;
+        _historyWarning = pending.isEmpty
+            ? null
+            : 'Сообщение осталось только на этом экране.';
       });
     } on AiChatHistoryException catch (error) {
-      if (!mounted) return;
+      if (!_isCurrent(generation, owner) || load != _historyLoad) return;
       setState(() {
         _loadingHistory = false;
         _historyWarning = error.message;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!_isCurrent(generation, owner) || load != _historyLoad) return;
       setState(() {
         _loadingHistory = false;
         _historyWarning = 'Не удалось открыть прошлые сообщения.';
@@ -68,6 +107,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   @override
   void dispose() {
+    _ownerSubscription?.cancel();
     _inputController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -75,7 +115,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   Future<void> _send() async {
     final question = _inputController.text.trim();
-    if (_isLoading || question.isEmpty) return;
+    if (_isLoading || _loadingHistory || question.isEmpty) return;
     if (question.length > _maxMessageLength) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -87,7 +127,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
     setState(() {
       _messages.add(
-        AiChatMessage(role: AiChatRole.user, text: question),
+        AiChatMessage(
+          role: AiChatRole.user,
+          text: question,
+          id: newChatMessageId(),
+        ),
       );
       _inputController.clear();
       _errorDetails = null;
@@ -96,16 +140,23 @@ class _AiChatScreenState extends State<AiChatScreen> {
     await _requestAnswer();
   }
 
-  Future<void> _remember(AiChatMessage message) async {
+  Future<void> _remember(
+    AiChatMessage message,
+    int generation,
+    String? owner,
+  ) async {
     if (message.stored) return;
     try {
       final stored = await _history.append(message);
-      if (!mounted) return;
+      if (!_isCurrent(generation, owner)) return;
       final index = _messages.indexOf(message);
       if (index < 0) return;
-      setState(() => _messages[index] = stored);
+      setState(() {
+        _messages[index] = stored;
+        if (_messages.every((item) => item.stored)) _historyWarning = null;
+      });
     } catch (_) {
-      if (!mounted) return;
+      if (!_isCurrent(generation, owner)) return;
       setState(
         () => _historyWarning = 'Сообщение осталось только на этом экране.',
       );
@@ -114,29 +165,37 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   Future<void> _requestAnswer() async {
     if (_isLoading || _messages.isEmpty) return;
+    final generation = _generation;
+    final owner = _owner;
     setState(() {
       _isLoading = true;
       _errorDetails = null;
     });
     _scrollToEnd();
 
-    await _remember(_messages.last);
+    await _remember(_messages.last, generation, owner);
+    if (!_isCurrent(generation, owner)) return;
     try {
       final answer = await _chatService.send(List.unmodifiable(_messages));
-      if (!mounted) return;
-      final reply = AiChatMessage(role: AiChatRole.model, text: answer);
+      if (!_isCurrent(generation, owner)) return;
+      final reply = AiChatMessage(
+        role: AiChatRole.model,
+        text: answer,
+        id: newChatMessageId(),
+      );
       setState(() => _messages.add(reply));
-      await _remember(reply);
+      await _remember(reply, generation, owner);
     } on AiChatException catch (error) {
-      if (!mounted) return;
+      if (!_isCurrent(generation, owner)) return;
       setState(() => _errorDetails = error.message);
     } catch (_) {
-      if (!mounted) return;
+      if (!_isCurrent(generation, owner)) return;
       setState(
-        () => _errorDetails = 'Запрос не дошёл. Проверьте подключение и повторите.',
+        () => _errorDetails =
+            'Запрос не дошёл. Проверьте подключение и повторите.',
       );
     } finally {
-      if (mounted) {
+      if (_isCurrent(generation, owner)) {
         setState(() => _isLoading = false);
         _scrollToEnd();
       }
@@ -169,7 +228,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   children: [
                     Expanded(child: Text(_historyWarning!)),
                     TextButton(
-                      onPressed: _loadHistory,
+                      onPressed:
+                          _isLoading || _loadingHistory ? null : _loadHistory,
                       child: const Text('Обновить'),
                     ),
                   ],
@@ -264,6 +324,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
             child: TextField(
               key: const Key('ai_chat_input'),
               controller: _inputController,
+              readOnly: _loadingHistory,
               minLines: 1,
               maxLines: 4,
               maxLength: _maxMessageLength,
@@ -278,7 +339,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           const SizedBox(width: 10),
           IconButton.filled(
             key: const Key('ai_chat_send'),
-            onPressed: _isLoading ? null : _send,
+            onPressed: _isLoading || _loadingHistory ? null : _send,
             tooltip: 'Отправить',
             icon: const Icon(Icons.arrow_upward_rounded),
           ),
