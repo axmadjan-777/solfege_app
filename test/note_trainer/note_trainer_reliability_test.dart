@@ -95,6 +95,51 @@ Future<void> _finish(NoteTrainerController controller) async {
 }
 
 void main() {
+  testWidgets(
+      'warmup forwards owner changes to the pushed memory trainer route',
+      (tester) async {
+    tester.view.physicalSize = const Size(900, 1100);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repository = _Repository();
+    final changes = StreamController<String?>.broadcast();
+    addTearDown(changes.close);
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: WarmupSection(
+      userId: 'A',
+      repository: repository,
+      userChanges: changes.stream,
+      player: _Player(),
+      wait: (_) async {},
+    ))));
+    await tester.pumpAndSettle();
+    final card = find.byKey(const Key('song-card-yesterday'));
+    await tester
+        .tap(find.descendant(of: card, matching: find.byType(FilledButton)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump();
+    expect(find.byType(NoteTrainerScreen), findsOneWidget);
+    changes.add('B');
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(const Key('trainer-error')), findsOneWidget);
+    expect(find.text('Yesterday'), findsNothing);
+    for (final note in ['G4', 'F4', 'F4']) {
+      final key = find.byKey(Key('piano-key-$note'));
+      await tester.ensureVisible(key);
+      expect(key.hitTestable(), findsOneWidget);
+      await tester.tap(key);
+      await tester.pump();
+    }
+    expect(repository.saves, 0);
+    expect((await repository.fetchSongsWithProgress('A')).first.isCompleted,
+        isFalse);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   test('rapid taps cannot count the same awaited note twice', () async {
     final repository = _Repository();
     final player = _Player();

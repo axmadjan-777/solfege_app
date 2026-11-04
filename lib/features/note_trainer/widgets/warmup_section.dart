@@ -152,6 +152,7 @@ class _WarmupSectionState extends State<WarmupSection> {
           repository: repository,
           player: widget.player,
           wait: widget.wait,
+          userChanges: widget.userChanges,
         ),
       ),
     );
