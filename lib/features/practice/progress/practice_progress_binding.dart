@@ -18,7 +18,13 @@ class PracticeProgressBinding {
   final Clock clock;
 }
 
-Future<PracticeProgressBinding> loadPracticeProgress() async {
+Future<PracticeProgressBinding> loadPracticeProgress({
+  required String userId,
+}) async {
+  if (userId.trim().isEmpty || userId == 'local') {
+    throw ArgumentError.value(
+        userId, 'userId', 'A signed-in account is required');
+  }
   final catalog = await const CurriculumAssetSource().load();
   final preferences = await SharedPreferences.getInstance();
   const clock = SystemClock();
@@ -29,6 +35,7 @@ Future<PracticeProgressBinding> loadPracticeProgress() async {
       preferences: preferences,
       clock: clock,
       rules: catalog.config.masteryRules,
+      userId: userId,
     ),
   );
 }

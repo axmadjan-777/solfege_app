@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:solfege_app/features/curriculum/data/curriculum_asset_source.dart';
+import 'package:solfege_app/features/curriculum/data/curriculum_catalog.dart';
+import 'package:solfege_app/features/practice/audio/practice_audio_player.dart';
+import 'package:solfege_app/features/practice/progress/practice_attempt.dart';
+import 'package:solfege_app/features/practice/screens/practice_followup.dart';
+import 'package:solfege_app/features/theory/level0/level0_player.dart';
 import 'package:solfege_app/features/practice/progress/attempt.dart';
 import 'package:solfege_app/features/practice/progress/clock.dart';
 import 'package:solfege_app/features/practice/progress/error_return.dart';
@@ -8,6 +14,9 @@ import 'package:solfege_app/features/practice/screens/daily_mix_screen.dart';
 import 'package:solfege_app/features/practice/trainers/daily_mix.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late CurriculumCatalog catalog;
+  setUpAll(() async => catalog = await const CurriculumAssetSource().load());
   const pool = [
     MixItem(id: 'PR-01', bucket: MixBucket.due, action: MixAction.aural),
     MixItem(id: 'PR-09', bucket: MixBucket.due, action: MixAction.active),
@@ -194,6 +203,172 @@ void main() {
       placeDueReturns(const DailyMixPlan([]), const ['PR-08']).items.single.id,
       'PR-08',
     );
+  });
+
+  test(
+      'visited lessons supply recent/easy work without duplicating a dedicated trainer or bypassing holds',
+      () {
+    final today = DateTime.utc(2026, 11, 4);
+    final tomorrow = today.add(const Duration(days: 1));
+    const lesson = TrainerRef(
+        id: 'L00-02',
+        competencyId: 'snd.pitch_direction',
+        action: MixAction.aural);
+    final snapshots = {
+      'snd.pitch_direction': _snap(CompetencyStatus.practicing, tomorrow)
+    };
+    final recent = poolFromBook(
+        trainers: const [],
+        lessons: const [lesson],
+        competencies: snapshots,
+        waiting: const [],
+        now: today);
+    expect(recent.single.id, lesson.id);
+    expect(recent.single.bucket, MixBucket.recent);
+    expect(
+        poolFromBook(trainers: const [], lessons: const [
+          lesson
+        ], competencies: {
+          'snd.pitch_direction': _snap(CompetencyStatus.mastered, tomorrow)
+        }, waiting: const [], now: today)
+            .single
+            .bucket,
+        MixBucket.easy);
+    expect(
+        poolFromBook(
+            trainers: const [],
+            lessons: const [lesson],
+            competencies: snapshots,
+            waiting: [ScheduledReturn(tag: lesson.id, dueAt: tomorrow)],
+            now: today),
+        isEmpty);
+    const trainer = TrainerRef(
+        id: 'PR-own',
+        competencyId: 'snd.pitch_direction',
+        action: MixAction.aural);
+    final dedicated = poolFromBook(
+        trainers: const [trainer],
+        lessons: const [lesson],
+        competencies: snapshots,
+        waiting: const [],
+        now: today);
+    expect(dedicated.map((item) => item.id), ['PR-own']);
+    expect(
+        poolFromBook(
+            trainers: const [trainer],
+            lessons: const [lesson],
+            competencies: snapshots,
+            waiting: [ScheduledReturn(tag: trainer.id, dueAt: tomorrow)],
+            now: today),
+        isEmpty);
+    final errors = poolFromBook(
+        trainers: const [trainer],
+        lessons: const [lesson],
+        competencies: snapshots,
+        waiting: const [],
+        openTags: [lesson.id],
+        now: today);
+    expect(errors.where((item) => item.id == lesson.id).single.bucket,
+        MixBucket.due);
+  });
+
+  testWidgets(
+      'fresh completed tone and pitch lessons give PR-15 real startable work',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 11, 4));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final tone = catalog.lesson('L00-01');
+    // Valid production history: lesson11 + control answer, then four delayed
+    // correct answers. No statuses are assigned directly for this regression.
+    store.recordSession(SessionDraft(
+        competencyId: tone.primaryCompetency,
+        sessionId: 'tone-immediate',
+        correct: List.filled(12, true),
+        policy: catalog.config.policy(tone.coldReviewPolicyId),
+        tonality: 'C',
+        errorTag: tone.id));
+    clock.advance(const Duration(hours: 20));
+    store.recordSession(SessionDraft(
+        competencyId: tone.primaryCompetency,
+        sessionId: 'tone-cold',
+        correct: List.filled(4, true),
+        coldReview: true,
+        policy: catalog.config.policy(tone.coldReviewPolicyId),
+        tonality: 'C',
+        errorTag: tone.id));
+    final pitch = catalog.lesson('L00-02');
+    recordLessonResult(
+        store: store, catalog: catalog, lesson: pitch, correct: 2, total: 2);
+    expect(store.snapshot(tone.primaryCompetency).status,
+        CompetencyStatus.mastered);
+    expect(store.snapshot(pitch.primaryCompetency).status,
+        CompetencyStatus.practicing);
+    await tester.pumpWidget(MaterialApp(
+        home: practiceSetScreen(
+            setId: 'PR-15',
+            player: FakePracticeAudioPlayer(),
+            catalog: catalog,
+            progress: store,
+            clock: clock)));
+    final mix = tester.widget<DailyMixScreen>(find.byType(DailyMixScreen));
+    expect(mix.plan.items, isNotEmpty);
+    expect(mix.plan.items.map((item) => item.id).toSet(), {tone.id, pitch.id});
+    expect(mix.plan.countOf(MixBucket.recent), 2);
+    expect(mix.plan.countOf(MixBucket.easy), 2);
+    expect(mix.plan.countOf(MixBucket.due), 0);
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    expect(tester.widget<Level0Player>(find.byType(Level0Player)).plan.lessonId,
+        pitch.id);
+    for (final label in ['Дальше', 'выше', 'Дальше', 'так же', 'Дальше']) {
+      await tester.tap(find.text(label));
+      await tester.pump();
+    }
+    expect(store.book.attempts, hasLength(20));
+    await tester.tap(find.text('Продолжить'));
+    await tester.pump();
+    expect(find.text('Дальше'), findsOneWidget);
+    expect(store.book.attempts, hasLength(20));
+  });
+
+  testWidgets(
+      'unvisited lessons do not enter PR-15 merely from a competency snapshot',
+      (tester) async {
+    final clock = FixedClock(DateTime.utc(2026, 11, 4));
+    final store =
+        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final pitch = catalog.lesson('L00-02');
+    store.recordSession(SessionDraft(
+        competencyId: pitch.primaryCompetency,
+        sessionId: 'unrelated',
+        correct: [true],
+        policy: catalog.config.policy(pitch.coldReviewPolicyId),
+        tonality: 'C',
+        errorTag: 'not-a-visited-lesson'));
+    await tester.pumpWidget(MaterialApp(
+        home: practiceSetScreen(
+            setId: 'PR-15',
+            player: FakePracticeAudioPlayer(),
+            catalog: catalog,
+            progress: store,
+            clock: clock)));
+    expect(
+        tester.widget<DailyMixScreen>(find.byType(DailyMixScreen)).plan.items,
+        isEmpty);
+    expect(find.text('Начать'), findsNothing);
+    store.scheduleReturnInDays(pitch.id, 0);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(MaterialApp(
+        home: practiceSetScreen(
+            setId: 'PR-15',
+            player: FakePracticeAudioPlayer(),
+            catalog: catalog,
+            progress: store,
+            clock: clock)));
+    expect(
+        tester.widget<DailyMixScreen>(find.byType(DailyMixScreen)).plan.items,
+        isEmpty);
   });
 
   test('the app mix starts with the aural interval', () {

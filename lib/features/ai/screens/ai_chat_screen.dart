@@ -267,11 +267,17 @@ class _MessageBubble extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: isUser ? null : Border.all(color: AppColors.border),
         ),
-        child: SelectableText(
-          message.text,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: isUser ? AppColors.textOnAccent : AppColors.textPrimary,
-              ),
+        child: Semantics(
+          identifier: 'ai-message-${message.role.name}',
+          label: message.text,
+          excludeSemantics: true,
+          child: SelectableText(
+            message.text,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color:
+                      isUser ? AppColors.textOnAccent : AppColors.textPrimary,
+                ),
+          ),
         ),
       ),
     );

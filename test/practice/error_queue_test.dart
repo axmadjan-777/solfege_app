@@ -105,11 +105,13 @@ void main() {
     await _tap(tester, find.text('Дальше'));
     await _tap(tester, find.text('так же'));
     await _tap(tester, find.text('Дальше'));
-    await _tap(tester, find.text('Тренировать'));
+    expect(store.book.attempts, hasLength(4));
+    await _tap(tester, find.text('К ошибкам'));
     await tester.pumpAndSettle();
 
     expect(find.text('Очередь пуста. Новых ошибок нет.'), findsOneWidget);
     expect(ErrorQueue.openTags(store.book.attempts), isEmpty);
+    expect(store.book.attempts, hasLength(4));
     expect(store.snapshot(lesson.primaryCompetency).status,
         isNot(CompetencyStatus.mastered));
   });

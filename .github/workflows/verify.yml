@@ -3,19 +3,52 @@ name: Verify
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      update_visual_baselines:
+        description: Generate Linux visual baselines; this does not satisfy required QA checks
+        type: boolean
+        default: false
   workflow_call:
+    inputs:
+      update_visual_baselines:
+        type: boolean
+        default: false
+    secrets:
+      QA_PROJECT_REF:
+        required: false
+      QA_SUPABASE_URL:
+        required: false
+      QA_SUPABASE_PUBLISHABLE_KEY:
+        required: false
+      QA_USER_A_EMAIL:
+        required: false
+      QA_USER_A_PASSWORD:
+        required: false
+      QA_USER_A_ID:
+        required: false
+      QA_USER_B_EMAIL:
+        required: false
+      QA_USER_B_PASSWORD:
+        required: false
+      QA_USER_B_ID:
+        required: false
 
 permissions:
   contents: read
 
-concurrency:
-  group: verify-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   verify:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    name: ${{ inputs.update_visual_baselines == true && 'visual-baselines' || 'verify' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    # Cancel only obsolete offline QA, never an in-flight live restore.
+    concurrency:
+      group: verify-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}-${{ inputs.update_visual_baselines == true && 'baselines' || 'normal' }}
+      cancel-in-progress: true
+    outputs:
+      scope: ${{ steps.scope.outputs.mode }}
+      baseline_only: ${{ steps.scope.outputs.baseline_only }}
+      source_tree: ${{ steps.target.outputs.tree }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,14 +59,22 @@ jobs:
         id: scope
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          GENERATE_BASELINES: ${{ inputs.update_visual_baselines == true }}
         run: |
           scope=full
           if [[ -n "$BASE_SHA" ]] && git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
             git diff --check "$BASE_SHA" HEAD
-            scope=$(git diff --no-renames --name-only -z "$BASE_SHA" HEAD | python3 tool/qa_scope.py)
+            if [[ "$GENERATE_BASELINES" != true ]]; then
+              scope=$(git diff --no-renames --name-only -z "$BASE_SHA" HEAD | python3 tool/qa_scope.py)
+            fi
           fi
           echo "mode=$scope" >> "$GITHUB_OUTPUT"
-          echo "QA scope: $scope"
+          echo "baseline_only=$GENERATE_BASELINES" >> "$GITHUB_OUTPUT"
+          echo "QA scope: $scope; baseline generation: $GENERATE_BASELINES"
+
+      - name: Identify the exact source tree
+        id: target
+        run: echo "tree=$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
 
       - name: Read pinned toolchain
         if: steps.scope.outputs.mode == 'full'
@@ -52,12 +93,231 @@ jobs:
         with:
           deno-version: ${{ steps.toolchain.outputs.DENO_VERSION }}
 
-      - name: Run independent QA
+      - uses: actions/setup-node@v6
+        if: steps.scope.outputs.mode == 'full'
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Install pinned browser dependencies
+        if: steps.scope.outputs.mode == 'full'
+        run: npm ci --prefix tool/browser --ignore-scripts
+
+      - name: Install the Chromium revision pinned by Playwright
+        if: steps.scope.outputs.mode == 'full'
+        working-directory: tool/browser
+        run: npx --no-install playwright install --with-deps chromium
+
+      - name: Run independent offline QA
+        if: steps.scope.outputs.baseline_only != 'true'
         env:
           QA_MODE: ${{ steps.scope.outputs.mode }}
+          QA_SOURCE_TREE: ${{ steps.target.outputs.tree }}
         run: |
           if [[ "$QA_MODE" == docs ]]; then
             bash tool/verify.sh --docs-only
           else
             bash tool/verify.sh
           fi
+
+      - name: Deliberately generate Linux visual baselines
+        if: steps.scope.outputs.baseline_only == 'true'
+        env:
+          QA_SOURCE_TREE: ${{ steps.target.outputs.tree }}
+        run: bash tool/verify_browser.sh --update-snapshots
+
+      - name: Check the transferable QA bundle
+        if: success() && steps.scope.outputs.mode == 'full' && steps.scope.outputs.baseline_only != 'true'
+        run: |
+          test -f build/qa-web/index.html
+          test -f build/qa-web/main.dart.js
+          test -f build/browser-run.json
+
+      - name: Upload the QA bundle for the live job
+        if: success() && steps.scope.outputs.mode == 'full' && steps.scope.outputs.baseline_only != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-web-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            build/qa-web
+            build/browser-run.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload generated Linux baselines
+        if: always() && steps.scope.outputs.baseline_only == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tool/browser/snapshots/linux
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload offline browser evidence
+        if: always() && steps.scope.outputs.mode == 'full'
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-offline-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            build/browser-results
+            build/browser-report
+            build/browser-server.log
+            build/browser-run.json
+            tool/browser/snapshots/linux
+          if-no-files-found: warn
+          retention-days: 14
+
+  live-acceptance:
+    name: ${{ inputs.update_visual_baselines == true && 'baseline-only' || 'live-acceptance' }}
+    needs: verify
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    concurrency:
+      group: ${{ (needs.verify.outputs.scope == 'docs' || inputs.update_visual_baselines == true) && format('live-not-required-{0}-{1}', github.run_id, github.run_attempt) || 'solfege-hosted-live-acceptance' }}
+      cancel-in-progress: false
+    steps:
+      - name: Enforce live prerequisites without exposing credentials
+        id: gate
+        env:
+          QA_SCOPE: ${{ needs.verify.outputs.scope }}
+          OFFLINE_RESULT: ${{ needs.verify.result }}
+          BASELINE_ONLY: ${{ inputs.update_visual_baselines == true }}
+          TRUSTED_CONTEXT: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)) }}
+        run: |
+          echo "trusted=$TRUSTED_CONTEXT" >> "$GITHUB_OUTPUT"
+          if [[ "$BASELINE_ONLY" == true ]]; then
+            echo "mode=baseline_only" >> "$GITHUB_OUTPUT"
+            echo "Baseline generator: live acceptance is not run and no required live check is supplied."
+            exit 0
+          fi
+          if [[ "$OFFLINE_RESULT" == success && "$QA_SCOPE" == docs ]]; then
+            echo "mode=not_required" >> "$GITHUB_OUTPUT"
+            echo "Live acceptance not_required for ordinary docs-only changes."
+            exit 0
+          fi
+          echo "mode=full" >> "$GITHUB_OUTPUT"
+          if [[ "$OFFLINE_RESULT" != success || "$QA_SCOPE" != full ]]; then
+            echo "Offline QA did not pass; live acceptance is blocked." >&2
+            exit 1
+          fi
+          if [[ "$TRUSTED_CONTEXT" != true ]]; then
+            echo "Fork or untrusted event: live acceptance is blocked without credentials." >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.mode == 'full'
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Verify matching checkout and pinned SDK
+        if: steps.gate.outputs.mode == 'full'
+        id: toolchain
+        env:
+          EXPECTED_SOURCE_TREE: ${{ needs.verify.outputs.source_tree }}
+        run: |
+          test -n "$EXPECTED_SOURCE_TREE"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$EXPECTED_SOURCE_TREE"
+          sed -n '/^DENO_VERSION=/p' tool/toolchain.env >> "$GITHUB_OUTPUT"
+
+      - uses: denoland/setup-deno@v2
+        if: steps.gate.outputs.mode == 'full'
+        with:
+          deno-version: ${{ steps.toolchain.outputs.DENO_VERSION }}
+
+      - uses: actions/setup-node@v6
+        if: steps.gate.outputs.mode == 'full'
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Install pinned live browser dependencies
+        if: steps.gate.outputs.mode == 'full'
+        run: npm ci --prefix tool/browser --ignore-scripts
+
+      - name: Install the pinned live Chromium
+        if: steps.gate.outputs.mode == 'full'
+        working-directory: tool/browser
+        run: npx --no-install playwright install --with-deps chromium
+
+      - name: Download the verified QA bundle
+        if: steps.gate.outputs.mode == 'full'
+        uses: actions/download-artifact@v4
+        with:
+          name: qa-web-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build
+
+      - name: Verify hosted Auth, profiles, RLS and Gemini
+        if: steps.gate.outputs.mode == 'full'
+        id: live_services
+        env:
+          QA_LIVE: '1'
+          QA_PROJECT_REF: ${{ secrets.QA_PROJECT_REF }}
+          QA_SUPABASE_URL: ${{ secrets.QA_SUPABASE_URL }}
+          QA_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.QA_SUPABASE_PUBLISHABLE_KEY }}
+          QA_USER_A_EMAIL: ${{ secrets.QA_USER_A_EMAIL }}
+          QA_USER_A_PASSWORD: ${{ secrets.QA_USER_A_PASSWORD }}
+          QA_USER_A_ID: ${{ secrets.QA_USER_A_ID }}
+          QA_USER_B_EMAIL: ${{ secrets.QA_USER_B_EMAIL }}
+          QA_USER_B_PASSWORD: ${{ secrets.QA_USER_B_PASSWORD }}
+          QA_USER_B_ID: ${{ secrets.QA_USER_B_ID }}
+        run: bash tool/verify_live.sh
+
+      - name: Verify the actual browser login, profile and chat
+        if: steps.gate.outputs.mode == 'full'
+        id: live_browser
+        env:
+          QA_SOURCE_TREE: ${{ needs.verify.outputs.source_tree }}
+          QA_LIVE: '1'
+          QA_PROJECT_REF: ${{ secrets.QA_PROJECT_REF }}
+          QA_SUPABASE_URL: ${{ secrets.QA_SUPABASE_URL }}
+          QA_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.QA_SUPABASE_PUBLISHABLE_KEY }}
+          QA_USER_A_EMAIL: ${{ secrets.QA_USER_A_EMAIL }}
+          QA_USER_A_PASSWORD: ${{ secrets.QA_USER_A_PASSWORD }}
+          QA_USER_A_ID: ${{ secrets.QA_USER_A_ID }}
+          QA_USER_B_EMAIL: ${{ secrets.QA_USER_B_EMAIL }}
+          QA_USER_B_PASSWORD: ${{ secrets.QA_USER_B_PASSWORD }}
+          QA_USER_B_ID: ${{ secrets.QA_USER_B_ID }}
+        run: bash tool/verify_browser.sh --live --reuse-build
+
+      - name: Record a credential-free live gate summary
+        if: always()
+        env:
+          GATE_MODE: ${{ steps.gate.outputs.mode }}
+          TRUSTED_CONTEXT: ${{ steps.gate.outputs.trusted }}
+          OFFLINE_RESULT: ${{ needs.verify.result }}
+          SERVICES_RESULT: ${{ steps.live_services.outcome }}
+          BROWSER_RESULT: ${{ steps.live_browser.outcome }}
+          SOURCE_TREE: ${{ needs.verify.outputs.source_tree }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          mode = os.environ['GATE_MODE']
+          results = {key: os.environ[key] for key in ('OFFLINE_RESULT', 'SERVICES_RESULT', 'BROWSER_RESULT')}
+          status = mode if mode in ('not_required', 'baseline_only') else (
+              'passed' if mode == 'full' and os.environ['TRUSTED_CONTEXT'] == 'true'
+              and results['OFFLINE_RESULT'] == results['SERVICES_RESULT'] == results['BROWSER_RESULT'] == 'success' else 'blocked'
+          )
+          payload = {'schemaVersion': 1, 'mode': mode, 'status': status,
+                     'trusted': os.environ['TRUSTED_CONTEXT'] == 'true',
+                     'sourceTree': os.environ['SOURCE_TREE'], 'results': results}
+          for directory in ('build/qa-live', 'build/browser-live-results'):
+              path = Path(directory)
+              path.mkdir(parents=True, exist_ok=True)
+              (path / 'ci-gate.json').write_text(json.dumps(payload, indent=2) + '\n')
+          PY
+
+      - name: Upload sanitized live evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-acceptance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            build/qa-live
+            build/browser-live-results
+          if-no-files-found: error
+          retention-days: 14

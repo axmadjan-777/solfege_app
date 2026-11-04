@@ -20,6 +20,8 @@ class TheoryLevelScreen extends StatelessWidget {
     this.needsReview,
     required this.onOpen,
     this.onRepair,
+    this.onReview,
+    this.reviewAvailable,
   });
 
   final CurriculumCatalog catalog;
@@ -27,6 +29,8 @@ class TheoryLevelScreen extends StatelessWidget {
   final bool Function(String competencyId)? needsReview;
   final ValueChanged<Lesson> onOpen;
   final ValueChanged<Lesson>? onRepair;
+  final ValueChanged<Lesson>? onReview;
+  final bool Function(Lesson lesson)? reviewAvailable;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +59,9 @@ class TheoryLevelScreen extends StatelessWidget {
               isMastered: isMastered,
               needsReview: needsReview,
               onOpen: onOpen,
-              onRepair: onRepair),
+              onRepair: onRepair,
+              onReview: onReview,
+              showReview: reviewAvailable?.call(lesson) ?? false),
       ],
     );
   }
@@ -69,6 +75,8 @@ class _LessonTile extends StatelessWidget {
     required this.needsReview,
     required this.onOpen,
     required this.onRepair,
+    required this.onReview,
+    required this.showReview,
   });
 
   final Lesson lesson;
@@ -77,6 +85,8 @@ class _LessonTile extends StatelessWidget {
   final bool Function(String competencyId)? needsReview;
   final ValueChanged<Lesson> onOpen;
   final ValueChanged<Lesson>? onRepair;
+  final ValueChanged<Lesson>? onReview;
+  final bool showReview;
 
   @override
   Widget build(BuildContext context) {
@@ -93,21 +103,37 @@ class _LessonTile extends StatelessWidget {
     };
     final card = Card(
       key: Key('lesson-${lesson.id}'),
-      child: ListTile(
-        title: Text(lesson.title),
-        subtitle: Text(label),
-        enabled: gate == LessonGate.open ||
-            (gate == LessonGate.repair && onRepair != null),
-        onTap: switch (gate) {
-          LessonGate.open => () {
-              if (lesson.id == 'L00-01') {
-                CoachScope.maybeOf(context)?.note('open-lesson');
-              }
-              onOpen(lesson);
-            },
-          LessonGate.repair when onRepair != null => () => onRepair!(lesson),
-          _ => null,
-        },
+      child: Column(
+        children: [
+          Semantics(
+            identifier: 'lesson-${lesson.id}',
+            child: ListTile(
+              title: Text(lesson.title),
+              subtitle: Text(label),
+              enabled: gate == LessonGate.open ||
+                  (gate == LessonGate.repair && onRepair != null),
+              onTap: switch (gate) {
+                LessonGate.open => () {
+                    if (lesson.id == 'L00-01') {
+                      CoachScope.maybeOf(context)?.note('open-lesson');
+                    }
+                    onOpen(lesson);
+                  },
+                LessonGate.repair when onRepair != null => () =>
+                    onRepair!(lesson),
+                _ => null,
+              },
+            ),
+          ),
+          if (showReview && onReview != null)
+            Semantics(
+              identifier: 'lesson-review-open-${lesson.id}',
+              child: TextButton(
+                onPressed: () => onReview!(lesson),
+                child: const Text('Контрольная практика'),
+              ),
+            ),
+        ],
       ),
     );
     if (lesson.id != 'L00-01') return card;

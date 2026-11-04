@@ -93,7 +93,8 @@ class _ErrorQueueScreenState extends State<ErrorQueueScreen> {
         MaterialPageRoute<void>(
           builder: (routeContext) => Level0Player(
             plan: Level0Plan.fromLesson(lesson),
-            onFinished: (result) {
+            continueLabel: 'К ошибкам',
+            onCompleted: (result) {
               recordLessonResult(
                 store: widget.store,
                 catalog: catalog,
@@ -101,8 +102,8 @@ class _ErrorQueueScreenState extends State<ErrorQueueScreen> {
                 correct: result.correct,
                 total: result.total,
               );
-              Navigator.of(routeContext).pop();
             },
+            onFinished: (_) => Navigator.of(routeContext).pop(),
           ),
         ),
       );

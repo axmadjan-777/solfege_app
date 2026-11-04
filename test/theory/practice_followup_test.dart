@@ -688,7 +688,8 @@ void main() {
     expect(find.text('Недавнее: 2'), findsOneWidget);
   });
 
-  testWidgets('an open lesson leads the mix and a perfect retry clears it',
+  testWidgets(
+      'an open lesson leads the mix and a perfect retry clears its error tag',
       (tester) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
@@ -716,12 +717,15 @@ void main() {
     await _tap(tester, find.text('Дальше'));
     await _tap(tester, find.text('так же'));
     await _tap(tester, find.text('Дальше'));
-    await _tap(tester, find.text('Тренировать'));
+    await _tap(tester, find.text('Продолжить'));
     expect(ErrorQueue.openTags(store.book.attempts), isEmpty);
 
     await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
     await tester.pumpWidget(_mix(catalog, player, store, clock));
-    expect(find.text('Пока нет должных заданий.'), findsOneWidget);
+    // Clearing an error must not erase a visited lesson's ordinary practice.
+    expect(store.snapshot(lesson.primaryCompetency).status,
+        CompetencyStatus.practicing);
+    expect(find.text('Недавно: Выше и ниже'), findsOneWidget);
   });
 
   testWidgets('two open errors are both named before the mix starts',

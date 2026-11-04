@@ -47,6 +47,11 @@ void main() {
     await _tap(tester, find.text('Дальше'));
     await _tap(tester, find.text('так же'));
     await _tap(tester, find.text('Дальше'));
+    expect(store.book.attempts, hasLength(2));
+    await _tap(tester, find.text('Тренировать'));
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
     await _tap(tester, find.text('Тренировать'));
 
     final snapshot = store.snapshot(lesson.primaryCompetency);
@@ -82,6 +87,7 @@ void main() {
     await _tap(tester, find.text('Дальше'));
     await _tap(tester, find.text('выше'));
     await _tap(tester, find.text('Дальше'));
+    expect(store.book.attempts, hasLength(2));
     await _tap(tester, find.text('Тренировать'));
 
     expect(store.book.attempts, hasLength(2));

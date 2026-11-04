@@ -9,7 +9,8 @@ sealed class AudioEvent {
 }
 
 class ChordEvent extends AudioEvent {
-  const ChordEvent(this.midi, {this.durationMs = 700, this.volume = practiceAudioVolume});
+  const ChordEvent(this.midi,
+      {this.durationMs = 700, this.volume = practiceAudioVolume});
 
   final List<int> midi;
   final int durationMs;
@@ -17,9 +18,22 @@ class ChordEvent extends AudioEvent {
 }
 
 class NoteEvent extends AudioEvent {
-  const NoteEvent(this.midi, {this.durationMs = 1000, this.volume = practiceAudioVolume});
+  const NoteEvent(this.midi,
+      {this.durationMs = 1000, this.volume = practiceAudioVolume});
 
   final int midi;
+  final int durationMs;
+  final double volume;
+}
+
+class NoiseEvent extends AudioEvent {
+  const NoiseEvent(
+    this.seed, {
+    this.durationMs = 700,
+    this.volume = practiceAudioVolume,
+  });
+
+  final int seed;
   final int durationMs;
   final double volume;
 }
@@ -57,7 +71,8 @@ class TonalPrompt {
   }
 
   /// Повторная ошибка: верно → ответ → верно, одна громкость.
-  static AudioSequence comparative({required int correctMidi, required int chosenMidi}) {
+  static AudioSequence comparative(
+      {required int correctMidi, required int chosenMidi}) {
     return AudioSequence([
       NoteEvent(correctMidi),
       NoteEvent(chosenMidi),
