@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../core/supabase/supabase_config.dart';
 import '../../app/main_shell_screen.dart';
 import '../models/onboarding_data.dart';
 import '../models/user_profile.dart';
@@ -58,6 +57,9 @@ class _AuthGateState extends State<AuthGate> {
   String? _linkMessage;
   OnboardingData _incompleteOnboarding = const OnboardingData();
   bool _isResolving = false;
+  bool _resolveAgain = false;
+  bool _isPasswordRecoveryActive = false;
+  Future<void>? _passwordRecoveryWrite;
 
   @override
   void initState() {
@@ -72,7 +74,7 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<void> _bootstrap() async {
-    if (!SupabaseConfig.isConfigured) {
+    if (!_authService.isConfigured) {
       setState(() => _state = _GateState.configError);
       return;
     }
@@ -112,8 +114,10 @@ class _AuthGateState extends State<AuthGate> {
           _authService.getCurrentSession() != null) {
         _enterPasswordRecovery();
       } else if (event.event == AuthChangeEvent.signedIn ||
-          event.event == AuthChangeEvent.tokenRefreshed ||
-          event.event == AuthChangeEvent.signedOut) {
+          event.event == AuthChangeEvent.tokenRefreshed) {
+        _resolveState();
+      } else if (event.event == AuthChangeEvent.signedOut) {
+        _isPasswordRecoveryActive = false;
         _resolveState();
       }
     });
@@ -125,24 +129,40 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<void> _enterPasswordRecovery() async {
+    _isPasswordRecoveryActive = true;
     final user = _authService.getCurrentUser();
     if (user != null) {
-      await _pendingStore.markPasswordRecoveryPending(user.id);
+      _passwordRecoveryWrite =
+          _pendingStore.markPasswordRecoveryPending(user.id);
+      await _passwordRecoveryWrite;
     }
-    if (mounted) setState(() => _state = _GateState.passwordRecovery);
+    if (mounted && _isPasswordRecoveryActive) {
+      setState(() => _state = _GateState.passwordRecovery);
+    }
   }
 
   Future<void> _onPasswordUpdated() async {
+    await _passwordRecoveryWrite;
     await _pendingStore.clearPasswordRecoveryPending();
+    _isPasswordRecoveryActive = false;
     await _resolveState();
   }
 
   Future<void> _resolveState() async {
-    if (_isResolving || !mounted) return;
+    if (!mounted) return;
+    if (_isResolving) {
+      _resolveAgain = true;
+      return;
+    }
+    if (_isPasswordRecoveryActive) {
+      setState(() => _state = _GateState.passwordRecovery);
+      return;
+    }
+    _resolveAgain = false;
     _isResolving = true;
 
     try {
-      if (!SupabaseConfig.isConfigured) {
+      if (!_authService.isConfigured) {
         setState(() => _state = _GateState.configError);
         return;
       }
@@ -154,6 +174,7 @@ class _AuthGateState extends State<AuthGate> {
       if (user == null || session == null) {
         // Право сменить пароль даёт сессия восстановления: без неё отметка
         // больше не нужна и не должна ловить следующий обычный вход.
+        await _passwordRecoveryWrite;
         await _pendingStore.clearPasswordRecoveryPending();
         _pendingEmail = await _pendingStore.getPendingEmail();
         final pendingOnboarding = await _pendingStore.getPendingOnboarding();
@@ -216,6 +237,12 @@ class _AuthGateState extends State<AuthGate> {
       setState(() => _state = _GateState.ready);
     } finally {
       _isResolving = false;
+      if (mounted && _isPasswordRecoveryActive) {
+        setState(() => _state = _GateState.passwordRecovery);
+      } else if (mounted && _resolveAgain) {
+        _resolveAgain = false;
+        await _resolveState();
+      }
     }
   }
 
