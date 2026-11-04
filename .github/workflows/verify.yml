@@ -38,7 +38,12 @@ jobs:
       - name: Read pinned toolchain
         if: steps.scope.outputs.mode == 'full'
         id: toolchain
-        run: sed -n '/^FLUTTER_VERSION=/p; /^DENO_VERSION=/p' tool/toolchain.env >> "$GITHUB_OUTPUT"
+        run: sed -n '/^FLUTTER_VERSION=/p; /^DENO_VERSION=/p; /^NODE_VERSION=/p' tool/toolchain.env >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        if: steps.scope.outputs.mode == 'full'
+        with:
+          node-version: ${{ steps.toolchain.outputs.NODE_VERSION }}
 
       - uses: subosito/flutter-action@v2
         if: steps.scope.outputs.mode == 'full'
@@ -51,6 +56,14 @@ jobs:
         if: steps.scope.outputs.mode == 'full'
         with:
           deno-version: ${{ steps.toolchain.outputs.DENO_VERSION }}
+
+      - name: Install audio verification dependency
+        if: steps.scope.outputs.mode == 'full'
+        run: |
+          if [[ -f tool/verify_note_audio.py ]]; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
+          fi
 
       - name: Run independent QA
         env:
