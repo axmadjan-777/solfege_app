@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../audio/note_player.dart';
@@ -18,6 +20,8 @@ class NoteTrainerScreen extends StatefulWidget {
     this.repository,
     this.player,
     this.controller,
+    this.wait,
+    this.userChanges,
   });
 
   final String userId;
@@ -25,6 +29,8 @@ class NoteTrainerScreen extends StatefulWidget {
   final SongRepository? repository;
   final NotePlayer? player;
   final NoteTrainerController? controller;
+  final Future<void> Function(Duration)? wait;
+  final Stream<String?>? userChanges;
 
   @override
   State<NoteTrainerScreen> createState() => _NoteTrainerScreenState();
@@ -34,6 +40,7 @@ class _NoteTrainerScreenState extends State<NoteTrainerScreen> {
   late final NoteTrainerController _controller;
   late final bool _ownsController;
   AssetNotePlayer? _ownedPlayer;
+  StreamSubscription<String?>? _userSubscription;
   var _showLabels = true;
 
   @override
@@ -54,11 +61,21 @@ class _NoteTrainerScreenState extends State<NoteTrainerScreen> {
         repository: widget.repository ?? MemorySongRepository(),
         userId: widget.userId,
         player: player,
+        wait: widget.wait ?? Future<void>.delayed,
       );
       _ownsController = true;
       _controller.load(initialSongId: widget.initialSongId);
     }
     _controller.addListener(_rebuild);
+    final repository = _controller.repository;
+    final changes = widget.userChanges ??
+        (repository is SupabaseSongRepository
+            ? repository.client.auth.onAuthStateChange
+                .map((state) => state.session?.user.id)
+            : null);
+    _userSubscription = changes?.listen((userId) {
+      if (userId != _controller.userId) _controller.invalidateSession();
+    });
   }
 
   void _rebuild() {
@@ -68,6 +85,7 @@ class _NoteTrainerScreenState extends State<NoteTrainerScreen> {
   @override
   void dispose() {
     _controller.removeListener(_rebuild);
+    _userSubscription?.cancel();
     if (_ownsController) _controller.dispose();
     _ownedPlayer?.dispose();
     super.dispose();
@@ -96,6 +114,18 @@ class _NoteTrainerScreenState extends State<NoteTrainerScreen> {
         body: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
+            if (_controller.phase == TrainerPhase.loading)
+              const LinearProgressIndicator(),
+            if (_controller.phase == TrainerPhase.error) ...[
+              Text(_controller.feedback, key: const Key('trainer-error')),
+              if (!_controller.sessionExpired)
+                FilledButton(
+                  key: const Key('trainer-retry-load'),
+                  onPressed: () =>
+                      _controller.load(initialSongId: widget.initialSongId),
+                  child: const Text('Повторить загрузку'),
+                ),
+            ],
             _StaffCard(
               noteLabel: active == null ? '—' : currentNoteLabel(active),
               notes: notes,
@@ -143,10 +173,21 @@ class _NoteTrainerScreenState extends State<NoteTrainerScreen> {
             if (_controller.saveError != null) ...[
               const SizedBox(height: 8),
               Text(
-                'Прогресс не записался на сервер. На этом устройстве песня отмечена.',
-                style: TextStyle(color: TrainerPalette.amber.withValues(alpha: 0.9)),
+                _controller.saveError!,
+                style: TextStyle(
+                    color: TrainerPalette.amber.withValues(alpha: 0.9)),
+              ),
+              FilledButton(
+                key: const Key('trainer-retry-save'),
+                onPressed: _controller.retrySave,
+                child: const Text('Повторить сохранение'),
               ),
             ],
+            if (_controller.phase == TrainerPhase.saving)
+              const Text('Сохраняем результат…'),
+            if (_controller.phase == TrainerPhase.success)
+              const Text('Мотив завершён. Результат сохранён.',
+                  key: Key('trainer-saved')),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
@@ -155,7 +196,9 @@ class _NoteTrainerScreenState extends State<NoteTrainerScreen> {
                 tooltip: 'Подсказка',
                 onPressed: () => setState(() => _showLabels = !_showLabels),
                 icon: Icon(
-                  _showLabels ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  _showLabels
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                 ),
               ),
             ),
@@ -267,7 +310,9 @@ class _Stat extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: TrainerPalette.muted, fontSize: 12)),
+          Text(label,
+              style:
+                  const TextStyle(color: TrainerPalette.muted, fontSize: 12)),
           const SizedBox(height: 4),
           Text(
             value,

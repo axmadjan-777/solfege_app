@@ -45,5 +45,25 @@ String currentNoteLabel(String note) => '${shortName(note)} ($note)';
 
 String keyCaption(String note) => '${shortName(note).toLowerCase()} / $note';
 
-/// Имя файла без `#`: на вебе решётка обрывает адрес ассета.
-String noteAssetPath(String note) => 'audio/${note.replaceAll('#', 's')}.mp3';
+/// Один файл на высоту, включая энгармонические имена клавиш и каталога.
+String noteAssetPath(String note) {
+  final midi = midiOf(note);
+  if (midi == null || midi < 60 || midi > 79) {
+    throw FormatException('Нота вне диапазона пианино C4–G5', note);
+  }
+  const names = [
+    'C',
+    'Cs',
+    'D',
+    'Eb',
+    'E',
+    'F',
+    'Fs',
+    'G',
+    'Gs',
+    'A',
+    'Bb',
+    'B'
+  ];
+  return 'audio/${names[midi % 12]}${midi ~/ 12 - 1}.mp3';
+}

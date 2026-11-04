@@ -115,7 +115,11 @@ create table if not exists public.songs (
   artist text not null,
   difficulty text not null check (difficulty in ('easy', 'medium', 'hard')),
   expected_notes text[] not null,
-  note_positions int[] not null
+  note_positions int[] not null,
+  constraint songs_notes_shape check (
+    cardinality(expected_notes) > 0
+    and cardinality(expected_notes) = cardinality(note_positions)
+  )
 );
 
 create table if not exists public.user_progress (
@@ -123,7 +127,10 @@ create table if not exists public.user_progress (
   song_id text not null references public.songs (id) on delete cascade,
   is_completed boolean not null default false,
   score integer not null default 0,
-  primary key (user_id, song_id)
+  primary key (user_id, song_id),
+  constraint user_progress_completion_score check (
+    (is_completed and score = 50) or (not is_completed and score = 0)
+  )
 );
 
 create index if not exists user_progress_user_idx
@@ -132,8 +139,9 @@ create index if not exists user_progress_user_idx
 alter table public.songs enable row level security;
 alter table public.user_progress enable row level security;
 
-revoke all on table public.songs from anon;
-revoke all on table public.user_progress from anon;
+-- Also remove Supabase default grants: TRUNCATE is not protected by RLS.
+revoke all on table public.songs from public, anon, authenticated;
+revoke all on table public.user_progress from public, anon, authenticated;
 
 grant select on table public.songs to anon, authenticated;
 grant select, insert, update, delete on table public.user_progress to authenticated;

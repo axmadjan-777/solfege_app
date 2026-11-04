@@ -5,25 +5,7 @@ import 'song_catalog.dart';
 
 /// Песни и прогресс игрока.
 ///
-/// SQL-миграция (дублируется в `supabase/schema.sql`):
-///
-/// ```sql
-/// create table if not exists public.songs (
-///   id text primary key,
-///   title text not null,
-///   artist text not null,
-///   difficulty text not null check (difficulty in ('easy', 'medium', 'hard')),
-///   expected_notes text[] not null,
-///   note_positions int[] not null
-/// );
-/// create table if not exists public.user_progress (
-///   user_id uuid not null references auth.users (id) on delete cascade,
-///   song_id text not null references public.songs (id) on delete cascade,
-///   is_completed boolean not null default false,
-///   score integer not null default 0,
-///   primary key (user_id, song_id)
-/// );
-/// ```
+/// Схема и права — в supabase/migrations/202611050003_note_trainer.sql.
 abstract interface class SongRepository {
   Future<List<PlayableSong>> fetchSongsWithProgress(String userId);
 
@@ -93,12 +75,27 @@ class SupabaseSongRepository implements SongRepository {
 
   final SupabaseClient client;
 
+  Session _ownerSession(String userId) {
+    final session = client.auth.currentSession;
+    if (session == null || session.user.id != userId) {
+      throw StateError(
+          'Сессия изменилась. Откройте разминку из своего профиля.');
+    }
+    return session;
+  }
+
   @override
   Future<List<PlayableSong>> fetchSongsWithProgress(String userId) async {
-    final rows = await client.from('songs').select(
+    final owner = _ownerSession(userId);
+    final rows = await client
+        .from('songs')
+        .setHeader('Authorization', 'Bearer ${owner.accessToken}')
+        .select(
           'id, title, artist, difficulty, expected_notes, note_positions, '
           'user_progress(user_id, is_completed, score)',
-        );
+        )
+        .eq('user_progress.user_id', userId);
+    _ownerSession(userId);
     final songs = <PlayableSong>[];
     final progress = <Map<String, dynamic>>[];
     for (final row in rows) {
@@ -128,13 +125,17 @@ class SupabaseSongRepository implements SongRepository {
         }
       }
     }
-    if (songs.isEmpty) return mergeSongsWithProgress(songCatalog, const [], userId: userId);
     return mergeSongsWithProgress(songs, progress, userId: userId);
   }
 
   @override
   Future<void> saveProgress(String userId, String songId) async {
-    await client.from('user_progress').upsert(
+    final owner = _ownerSession(userId);
+    // One upsert is one database transaction. Retrying never adds XP twice.
+    await client
+        .from('user_progress')
+        .setHeader('Authorization', 'Bearer ${owner.accessToken}')
+        .upsert(
       {
         'user_id': userId,
         'song_id': songId,
@@ -143,5 +144,6 @@ class SupabaseSongRepository implements SongRepository {
       },
       onConflict: 'user_id,song_id',
     );
+    _ownerSession(userId);
   }
 }

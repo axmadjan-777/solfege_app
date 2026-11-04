@@ -39,6 +39,14 @@ void main() {
     expect(whites.first.note, 'C4');
     expect(whites.last.note, 'G5');
     expect(whites, hasLength(12));
+    final keys = trainerPianoKeys();
+    expect(keys, hasLength(20));
+    for (final key in keys) {
+      expect(File('assets/${noteAssetPath(key.note)}').existsSync(), isTrue,
+          reason: key.note);
+    }
+    expect(noteAssetPath('D#5'), noteAssetPath('Eb5'));
+    expect(noteAssetPath('A#4'), noteAssetPath('Bb4'));
     for (final song in songCatalog) {
       expect(song.expectedNotes.length, song.notePositions.length);
       for (final note in song.expectedNotes) {
