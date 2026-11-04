@@ -1,233 +1,189 @@
 # Сольфеджио
 
-Flutter-приложение для тренировки слуха музыкантов: гаммы, сольфеджио-нотация, onboarding и авторизация через Supabase.
+Flutter-приложение для обучения музыке: теория, тренировка слуха и музыкальный
+ИИ-помощник. Этот README помогает настроить, запустить и проверить проект.
+Описание работающего кода — в [architecture.md](docs/architecture.md),
+задачи и границы приёмки — в [roadmap](docs/product_roadmap.md).
 
-## Требования
+<a id="documentation-map"></a>
 
-- Flutter SDK ^3.5.0
-- Supabase project (ref: `zehmcszijutthmeswtci`)
+## Карта документации
 
-## Запуск
+Каждый вид сведений подробно хранится в одном месте. Остальные документы дают
+ссылку или краткий указатель. Обновляет документ автор изменения в том же PR;
+ревьюер проверяет соответствие. Перечитывать и обновлять все файлы после каждой
+задачи не требуется.
 
-Один раз настройте ключи (файл в `.gitignore`, в git не попадёт):
+| Документ | На какой вопрос отвечает | Когда обновлять |
+|---|---|---|
+| [README.md](README.md) | Как запустить и проверить проект? Где искать остальное? | Изменились настройка, команды, QA, публикация или карта документов |
+| [AGENTS.md](AGENTS.md) | Как агент выполняет одну задачу и какие границы соблюдает? | Изменились постоянный процесс, проверки завершения или границы действий |
+| [docs/architecture.md](docs/architecture.md) | Как устроено реализованное приложение и куда идут данные? | Изменились модули, точки входа, сервисы, потоки или хранение |
+| [docs/product_roadmap.md](docs/product_roadmap.md) | Что предстоит сделать и как это принять? | Изменились приоритет, согласованный объём или доказанный статус задачи |
+| [docs/decisions.md](docs/decisions.md) | Почему выбран существенный подход и что отвергнуто? | Принято или пересмотрено решение; изменился статус его внедрения |
+| [docs/task-prompt.md](docs/task-prompt.md) | Как сформулировать одну задачу? | Изменились поля или примеры постановки задачи |
+| [docs/curriculum/README.md](docs/curriculum/README.md) | Как найти и безопасно изменить учебные требования и данные? | Изменились навигация, источник генерации или порядок работы с контентом |
+| [docs/curriculum/spec.md](docs/curriculum/spec.md) | Чему и по каким правилам учим? Какие исходные данные используем? | Согласовано изменение методики, содержания или схем; JSON затем извлекаются заново |
+| [docs/archive/mvp-implementation-plan.md](docs/archive/mvp-implementation-plan.md) | Что было записано в прежнем плане I0–I25? | Только пояснение к историческому снимку; его исходный текст сохраняется |
+| [iOS LaunchImage README](ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md) | Как заменить ресурс стартового изображения iOS? | Изменился способ подготовки или подключения этого ресурса |
+
+Новый документ нужен, когда появляется отдельный вопрос и читатель. Для истории
+задачи достаточно PR и Git; общие STATE/MEMORY/SESSIONS здесь не ведутся.
+Новые обычные документы называются по роли в `docs/` в нижнем регистре; слова
+разделяются дефисом. Стандартные `AGENTS.md` и `README.md` сохраняют имена.
+Существующие понятные пути `product_roadmap.md` и `curriculum/spec.md` не
+переименовываются ради оформления. Обоснование структуры — D-001 в журнале решений.
+
+## Требования и SDK
+
+- Точные версии **Flutter и Deno** — в [tool/toolchain.env](tool/toolchain.env).
+  Flutter закреплён по успешному [CI-прогону](https://github.com/axmadjan-777/solfege_app/actions/runs/37341857670).
+- Git, Bash, Python 3. Для полного web-сценария — браузер и тестовый аккаунт.
+- `environment.sdk` в `pubspec.yaml` задаёт диапазон **Dart**, не версию Flutter.
+  Используйте закреплённый Flutter, совместимый с существующим `pubspec.lock`.
+- Android/iOS SDK нужны только для соответствующих сборок, не для основного QA.
+
+Установите указанные версии из [Flutter SDK](https://docs.flutter.dev/install/archive)
+и [Deno releases](https://github.com/denoland/deno/releases). Общий
+[выбор SDK](tool/toolchain.sh) использует явно заданные `FLUTTER_BIN`/`DENO_BIN`,
+затем локальные версии в `$HOME/.local/share/solfege_app/toolchains/`, затем PATH
+и резервные `$HOME/flutter/bin/flutter`, `$HOME/.deno/bin/deno`.
+В локальном каталоге ожидаются `flutter-<версия>/bin/flutter` и
+`deno-<версия>/deno`; его можно переопределить через `SOLFEGE_TOOLCHAIN_DIR`.
+Харнесс не устанавливает и не обновляет SDK самостоятельно.
 
 ```bash
-flutter pub get
-cp dart_defines.example.json dart_defines.json
-# Вставьте publishable key в dart_defines.json
+source tool/toolchain.sh
+"$FLUTTER_BIN" pub get --enforce-lockfile
+bash tool/install_hooks.sh
+bash tool/verify.sh
 ```
 
-Дальше каждый запуск — **короткая команда**, без длинных `--dart-define`:
+Для нестандартного пути передайте, например, `FLUTTER_BIN=/path/to/flutter/bin/flutter`.
+Для IDE отдельно выберите тот же SDK. Обновление зависимостей — отдельное
+согласованное изменение; обычная проверка не переписывает `pubspec.lock`.
+
+## Запуск приложения
+
+Один раз создайте локальную конфигурацию:
 
 ```bash
+cp dart_defines.example.json dart_defines.json
+# Вставьте publishable / anon key из Supabase Dashboard → Project Settings → API
 ./run_web.sh
 ```
 
-Или вручную (то же самое):
+Не заменяйте уже настроенный файл шаблоном. Он исключён из Git. `service_role`
+и Gemini API key нельзя передавать во Flutter или включать в web-сборку.
+
+Другие способы запуска после выбора SDK:
 
 ```bash
-flutter run -d web-server --dart-define-from-file=dart_defines.json
+source tool/toolchain.sh
+"$FLUTTER_BIN" run -d chrome --dart-define-from-file=dart_defines.json
 ```
 
-В Cursor/VS Code: **Run and Debug → Web Server (Safari)** — ключи подставятся сами.
+В Cursor/VS Code есть конфигурации в [.vscode/launch.json](.vscode/launch.json).
+Без ключей приложение показывает «Supabase не настроен». Это ожидаемо для
+проверки запуска, но не открывает основной интерфейс.
 
-Для Chrome вместо Safari:
+После изменения `dart_defines.json` полностью перезапустите приложение:
+hot reload не перечитывает `--dart-define`. В zsh не оставляйте пустую строку
+после завершающего строку `\`. Остановка — `q`/Ctrl+C в терминале запуска или
+`./stop_web.sh`; скрипт посылает SIGTERM только Flutter web-серверу с рабочим
+каталогом этой копии, не всем копиям проекта на машине.
+
+## Supabase и Gemini
+
+Базовая конфигурация проекта — [supabase/config.toml](supabase/config.toml),
+схема профиля и RLS — [supabase/schema.sql](supabase/schema.sql).
+Настройка живого проекта и применение SQL — отдельная операция с разрешением,
+не часть `verify.sh` или установки hooks. Состояние файлов не доказывает,
+что та же схема уже применена на сервере.
+
+Для нового окружения:
+
+1. Примените схему профиля к выбранной тестовой БД. Триггер создаёт профиль
+   при регистрации; onboarding-поля допускают `null`, затем заполняются upsert.
+2. Включите Email provider и настройте confirmation/reset письма. Для реальных
+   пользователей настройте SMTP; текущие лимиты проверяйте в панели Supabase.
+3. Для существующего production-сайта Site URL —
+   `https://axmadjan-777.github.io/solfege_app/`, Redirect URLs включают
+   `https://axmadjan-777.github.io/solfege_app/**`. Для другого окружения проверьте
+   также redirect URL в клиенте. Не меняйте общую production-настройку ради теста.
+4. Сохраните publishable / anon key в локальном `dart_defines.json`.
+
+Телефонный вход отключён в интерфейсе; Phone provider для текущего сценария
+не нужен. Apple Sign-In требует отдельной настройки Apple Developer и provider
+в Supabase; секрет Apple остаётся на сервере.
+
+Ссылки подтверждения и сброса пароля проверяйте на тестовом аккаунте:
+офлайн-тесты не подтверждают доставку писем. Устройство auth-сценария — в
+[architecture.md](docs/architecture.md).
+
+Для ИИ серверу нужен `GEMINI_API_KEY` в Edge Functions Secrets. Значение
+`GEMINI_MODEL` переопределяет модель; дефолт в коде — `gemini-3.1-flash-lite`.
+Доступность модели и квоты конкретного проекта требуют живой проверки.
+Развёртывание функции, когда оно входит в задачу:
 
 ```bash
-flutter run -d chrome --dart-define-from-file=dart_defines.json
+supabase functions deploy gemini-chat --project-ref zehmcszijutthmeswtci
 ```
 
-Замените `YOUR_PUBLISHABLE_KEY` на **publishable key** из Supabase Dashboard → Project Settings → API.
+## QA и pre-commit
 
-> **zsh:** пустая строка после `\` обрывает команду — `flutter run` стартует без `--dart-define`.
->
-> **Hot reload не подхватывает** `--dart-define`. После смены ключей: `q` → полный перезапуск.
+Общая команда — `bash tool/verify.sh`. Она проверяет версии SDK и выполняет:
 
-> **Важно:** secret key (`service_role`) нельзя использовать в Flutter-коде, добавлять в репозиторий или передавать через `--dart-define`.
+1. Тесты самого Git-хука на временных репозиториях.
+2. `flutter pub get --enforce-lockfile` и анализ без повторного `pub get`.
+3. Сверку JSON с исходными блоками спецификации.
+4. Все Flutter unit/widget-тесты.
+5. Проверку типов TypeScript и тесты настоящего обработчика Edge Function
+   с подменёнными Auth/Gemini, без сетевых и env-разрешений Deno.
+6. Release-сборку web без production-ключей.
 
-## Настройка Supabase
+Любая ошибка останавливает пайплайн. QA не изменяет исходники; кэши и сборка
+могут появляться в игнорируемых каталогах. SQL/RLS на живой БД, браузерный путь
+после входа, реальный звук и ответ модели этим прогоном не проверяются.
 
-### 1. SQL schema
-
-Выполните [`supabase/schema.sql`](supabase/schema.sql) в SQL Editor.
-
-Скрипт создаёт таблицу `profiles`, RLS-политики и **триггер `on_auth_user_created`**,
-который автоматически заводит строку в `profiles` при создании пользователя в
-`auth.users`.
-
-> **Важно про регистрацию.** Колонки `display_name`, `age`,
-> `musician_level` сделаны **nullable**. Если оставить их `NOT NULL`, то любой
-> триггер `AFTER INSERT ON auth.users`, который создаёт профиль, упадёт на
-> ограничении и **откатит всю транзакцию регистрации** — пользователь не
-> появится в `auth.users` (но строка в `profiles` может остаться от прошлой
-> попытки). Поэтому `handle_new_user()` объявлен как `security definer`,
-> `set search_path = ''` и **никогда не бросает исключение** (любая ошибка
-> проглатывается, чтобы не блокировать создание auth-пользователя). Если вы
-> ранее заводили свой триггер на `auth.users`, замените его этим вариантом или
-> убедитесь, что он не нарушает `NOT NULL`/`CHECK`.
-
-### 2. Phone Auth (SMS OTP)
-
-Телефонная регистрация и вход временно отключены в интерфейсе приложения.
-Не включайте Phone provider для новых окружений, пока этот сценарий не будет
-возвращён и протестирован отдельно.
-
-### 3. Email Auth
-
-Authentication → Providers:
-
-1. Включите **Email**.
-2. **Confirm email** — для продакшена включено; для локальной разработки можно временно отключить.
-3. Настройте email templates для confirmation и reset password.
-
-Приложение использует стандартный `supabase.auth.signUp(email, password)` и
-стандартную отправку писем Supabase. Встроенный SMTP Supabase подходит только
-для тестов: он отправляет письма адресам участников команды проекта и ограничен
-двумя письмами в час. Для регистрации обычных пользователей подключите свой
-SMTP в **Authentication → Emails → SMTP Settings**. Без этого Supabase может
-вернуть `email_address_not_authorized` или `over_email_send_rate_limit`; при
-таком ответе auth-пользователь не создаётся.
-
-#### URL Configuration (обязательно, иначе ссылка ведёт на `localhost`)
-
-Authentication → **URL Configuration**:
-
-1. **Site URL** = `https://axmadjan-777.github.io/solfege_app/`. По умолчанию там
-   `http://localhost:3000`, и именно его Supabase подставляет в письмо, если
-   совпадения в списке ниже нет.
-2. **Redirect URLs** → добавьте `https://axmadjan-777.github.io/solfege_app/**`.
-   Без записи в этом списке Supabase игнорирует `emailRedirectTo` из кода.
-
-#### Подтверждение работает со стандартным письмом (шаблон менять НЕ нужно)
-
-Приложение использует **implicit-флоу** (`SupabaseClientProvider.initialize`),
-поэтому стандартное письмо подтверждения работает на любом устройстве, **даже
-если шаблон письма редактировать нельзя** (бесплатный тариф + встроенный SMTP):
-
-1. Пользователь жмёт ссылку из письма → она ведёт на сервер Supabase
-   (`/auth/v1/verify`), который подтверждает почту **на стороне сервера** — это
-   не зависит от устройства/браузера.
-2. Сервер перенаправляет в приложение с токенами во фрагменте адреса
-   (`#access_token=...&type=signup`). SDK поднимает сессию автоматически.
-
-Кастомный шаблон с `token_hash` тоже поддержан (`AuthService.handleEmail
-ConfirmationLink` вызовет `verifyOTP`), но он нужен только если вы подключите
-**свой SMTP** и захотите брендировать письмо. Для базовой работы он не требуется.
-
-### 4. Publishable key
-
-Скопируйте **publishable / anon** key. Secret key в клиент не добавлять.
-
-## Email confirmation flow
-
-После регистрации с включённым подтверждением email:
-
-1. Onboarding-данные сохраняются в `user_metadata` и локально (`shared_preferences`).
-2. Показывается экран **«Подтвердите email»** с кнопкой **«Отправить письмо снова»**
-   (таймер 60 секунд между отправками).
-3. Пользователь открывает ссылку из письма. Сервер Supabase подтверждает почту,
-   перенаправляет в приложение с токенами в адресе, и приложение на старте
-   (`AuthService.handleEmailConfirmationLink`) поднимает сессию **автоматически**
-   на любом устройстве — экран «Подтвердите email» при этом не показывается,
-   сразу идёт **«Подтверждаем почту…»** → профиль → успех.
-4. После подтверждения создаётся `profiles` через upsert.
-5. Один раз показывается экран **«Email подтверждён»** → кнопка **«Старт»** → основное приложение.
-
-Ссылка восстановления пароля возвращает пользователя в приложение на экран
-**«Новый пароль»**. Для регистрации, повторной отправки, восстановления пароля
-и смены email используется один production redirect URL.
-
-Просроченную/использованную ссылку приложение распознаёт и показывает понятное
-сообщение с предложением отправить письмо заново.
-
-Если письмо не приходит:
-
-1. Проверьте **Authentication → Logs → Auth Logs**.
-2. Для встроенного SMTP убедитесь, что адрес входит в команду проекта и не
-   исчерпан лимит двух писем в час.
-3. Для любых пользовательских адресов настройте собственный SMTP.
-4. Проверьте Spam и используйте Resend только после таймера.
-
-## Manual Apple Sign-In setup
-
-1. Apple Developer Account.
-2. App ID с **Sign in with Apple**.
-3. Services ID + redirect URLs для web/OAuth.
-4. Key (`.p8`) и client secret — **только на сервере / в Supabase Dashboard**, не в Flutter.
-5. Supabase → Authentication → Apple → Enable.
-6. Redirect: `https://zehmcszijutthmeswtci.supabase.co/auth/v1/callback` + localhost для dev.
-
-## Архитектура
-
-```
-lib/features/
-├── auth/     # onboarding, AuthGate, email verification, profiles
-└── scales/   # гаммы, тональности, ScaleAudioPlayer
-```
-
-- **AuthGate** — state machine: config → auth → email pending → profile → app.
-- **ProfileService.ensureCurrentUserProfile** — upsert из onboarding / metadata / pending store.
-- **ScaleToneAudioService** — программная генерация тонов (без audio-файлов).
-
-## Gemini — музыкальный ИИ-чат
-
-Раздел **«ИИ»** использует `gemini-3.1-flash-lite` через Supabase Edge Function
-`gemini-chat`. API-ключ никогда не передаётся во Flutter и не попадает в
-web-сборку.
-
-Настройка:
-
-1. Создайте новый ограниченный Gemini API key в Google AI Studio. Если ключ
-   когда-либо публиковался в чате или git, сначала отзовите его.
-2. Supabase Dashboard → **Edge Functions → Secrets**: добавьте
-   `GEMINI_API_KEY`. Не добавляйте значение в файлы репозитория.
-3. Разверните `supabase/functions/gemini-chat` через Dashboard, MCP или CLI:
-
-   ```bash
-   supabase functions deploy gemini-chat --project-ref zehmcszijutthmeswtci
-   ```
-
-4. При необходимости модель можно переопределить secret-переменной
-   `GEMINI_MODEL`; по умолчанию используется стабильная
-   `gemini-3.1-flash-lite`. Старая `gemini-2.5-flash-lite` больше не доступна
-   новым API-проектам.
-
-Функция требует авторизованную Supabase-сессию, ограничивает историю 12
-сообщениями и применяет серверный мастер-промпт из
-`supabase/functions/gemini-chat/master_prompt.ts`.
-
-## Product roadmap
-
-См. [`docs/product_roadmap.md`](docs/product_roadmap.md).
-
-### Готово
-
-- Onboarding + auth + profiles (RLS)
-- Email verification pending + resend + one-shot success screen
-- Гаммы (русская сольфеджио-нотация, ключевые знаки)
-- Audio MVP: вверх / вниз / вверх-вниз через синтез тонов
-
-### Дальше
-
-- Диктант ступеней, интервалы, трезвучия, секстаккорд, квартсекстаккорд
-- Уменьшённые/увеличенные трезвучия, теория, audio engine v2
-
-## Тест на телефоне
-
-1. Подключите iPhone или Android, проверьте: `flutter devices`.
-2. Запускайте **только** с ключами Supabase:
-   ```bash
-   flutter run --dart-define-from-file=dart_defines.json
-   ```
-   Или в Cursor/VS Code: **Run → Android (телефон)** / **iOS (iPhone)** — конфиг в `.vscode/launch.json`.
-3. **Звук:** на iPhone включите громкость (режим «без звука» может глушить тоны, если не настроен playback).
-4. **Email на телефоне:** ссылка из письма откроется в браузере; после подтверждения войдите в приложении вручную.
-
-> Не разбивайте команду `flutter run` на несколько строк с `\` — zsh обрежет `--dart-define`.
-
-## Проверка
+Подключение один раз **в каждой рабочей копии**:
 
 ```bash
-flutter analyze
-flutter test
+bash tool/install_hooks.sh
 ```
+
+Установщик задаёт локальный `core.hooksPath=.githooks` и не заменяет чужие hooks.
+[Pre-commit](.githooks/pre-commit) вызывает [qa_staged.sh](tool/qa_staged.sh):
+снимок индекса распаковывается во временный каталог, там запускается общий QA.
+Незастейдженные правки и локальные секреты туда не попадают. При ошибке или
+изменении индекса во время проверки коммит блокируется; временная копия удаляется.
+Для ручного запуска той же проверки: `bash tool/qa_staged.sh`.
+Проверка может занять несколько минут. Это отдельный процесс проверки, не
+автоматическое заключение второго ИИ-агента.
+
+Хук срабатывает перед **коммитом**, а не на завершение любого ответа агента.
+Перед завершением задачи без коммита агент запускает `tool/verify.sh` по AGENTS.md.
+Git позволяет обойти локальный hook; независимая проверка в CI остаётся необходимой.
+
+## CI и публикация
+
+[Verify](.github/workflows/verify.yml) запускает тот же QA на push любой ветки,
+на PR и вручную. Push-проверка покрывает коммит и при конфликтующем PR; она
+не доказывает, что конфликт уже разрешён или merge безопасен.
+
+[Deploy Flutter Web](.github/workflows/deploy_web.yml) для `main` сначала вызывает
+тот же Verify, затем собирает сайт с GitHub secrets `SUPABASE_URL` и
+`SUPABASE_PUBLISHABLE_KEY` и публикует Pages. Ручной deploy также ограничен `main`.
+Проверка без ключей и production-сборка относятся к одному коммиту.
+
+Workflow не включает защиту `main` автоматически. Обязательный успешный
+check `verify` от workflow Verify перед merge задаётся отдельно в GitHub branch
+rules; при настройке сверяйте точное имя и источник check на текущем PR.
+Состояние этой работы — OPS-01 в [roadmap](docs/product_roadmap.md).
+
+## Проверка на телефоне
+
+Выберите закреплённый SDK, подключите устройство и проверьте `flutter devices`.
+Запускайте с `--dart-define-from-file=dart_defines.json`. Отдельно проверьте звук,
+авторизацию и возвращение по email-ссылке: в мобильном приложении ссылка может
+открыться в браузере. Эти сценарии не входят в web-сборку харнесса.
