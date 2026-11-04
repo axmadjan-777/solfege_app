@@ -16,7 +16,7 @@ select test_assert.ok((select count(*)=1 from public.practice_books),'owner can 
 select test_assert.ok(public.save_practice_book(auth.uid(),0,'40000000-0000-4000-8000-000000000001',test_assert.book(auth.uid()))=1,'identical retry is idempotent') as check;
 select test_assert.ok((select count(*)=1 from public.practice_book_versions),'retry does not create another history row') as check;
 select test_assert.denied($$select public.save_practice_book(auth.uid(),0,'40000000-0000-4000-8000-000000000001',test_assert.book(auth.uid(),true))$$,'write ID cannot acknowledge different content','22023') as check;
-select test_assert.denied($$select public.save_practice_book(auth.uid(),0,'40000000-0000-4000-8000-000000000002',test_assert.book(auth.uid(),true))$$,'stale revision loses CAS without overwriting','40001') as check;
+select test_assert.denied($$select public.save_practice_book(auth.uid(),0,'40000000-0000-4000-8000-000000000002',test_assert.book(auth.uid(),true))$$,'stale revision loses CAS without overwriting','PT409') as check;
 select test_assert.ok(public.save_practice_book(auth.uid(),1,'40000000-0000-4000-8000-000000000002',test_assert.book(auth.uid(),true))=2,'new evidence commits as revision two') as check;
 select test_assert.ok((select count(*)=1 from public.practice_attempts),'attempt rows saved with book') as check;
 select test_assert.ok((select count(*)=1 from public.practice_competencies),'competency rows saved with book') as check;

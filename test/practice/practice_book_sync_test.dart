@@ -79,6 +79,63 @@ void main() {
         throwsA(isA<PracticeAccountChanged>()));
     expect(calls, 1);
   });
+
+  for (final code in ['PT409', '40001']) {
+    test('RPC maps $code to a version conflict without client retries',
+        () async {
+      const owner = '10000000-0000-4000-8000-000000000001';
+      var calls = 0;
+      final client = SupabaseClient(
+          'https://project.invalid', 'test-publishable-key',
+          authOptions: const AuthClientOptions(autoRefreshToken: false),
+          httpClient: MockClient((request) async {
+        if (request.url.path.endsWith('/token')) {
+          return http.Response(
+              jsonEncode({
+                'access_token': _jwt(owner),
+                'refresh_token': 'refresh',
+                'expires_in': 3600,
+                'token_type': 'bearer',
+                'user': {
+                  'id': owner,
+                  'aud': 'authenticated',
+                  'role': 'authenticated',
+                  'email': 'qa@example.invalid',
+                  'created_at': '2026-11-05T00:00:00Z',
+                  'app_metadata': <String, dynamic>{},
+                  'user_metadata': <String, dynamic>{}
+                },
+              }),
+              200,
+              request: request,
+              headers: {'content-type': 'application/json'});
+        }
+        calls += 1;
+        expect(request.url.path, endsWith('/rpc/save_practice_book'));
+        expect(request.headers['authorization'], 'Bearer ${_jwt(owner)}');
+        return http.Response(
+            jsonEncode({
+              'code': code,
+              'details': '1',
+              'hint': null,
+              'message': 'Practice book revision conflict'
+            }),
+            code == 'PT409' ? 409 : 500,
+            request: request,
+            headers: {'content-type': 'application/json'});
+      }));
+      addTearDown(client.dispose);
+      await client.auth.setSession('refresh');
+      await expectLater(
+          PracticeBookSync(client).push(
+              userId: owner,
+              book: ProgressBook.empty(userId: owner),
+              expectedRevision: 0,
+              writeId: '40000000-0000-4000-8000-000000000003'),
+          throwsA(isA<PracticeRevisionConflict>()));
+      expect(calls, 1);
+    });
+  }
 }
 
 String _jwt(String userId) {

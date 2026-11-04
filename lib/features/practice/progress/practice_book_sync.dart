@@ -83,7 +83,9 @@ class PracticeBookSync implements PracticeBookRemote {
       _checkOwner(userId);
       return (revision as num).toInt();
     } on PostgrestException catch (error) {
-      if (error.code == '40001') throw PracticeRevisionConflict();
+      if (error.code == 'PT409' || error.code == '40001') {
+        throw PracticeRevisionConflict();
+      }
       rethrow;
     }
   }
