@@ -176,7 +176,8 @@ MixBucket? bucketOf(CompetencySnapshot snap, DateTime now) {
   return null;
 }
 
-/// Пул из книги. Открытая метка ошибки или урока должная в тот же день.
+/// Пул из книги. Переданные уроки уже посещены пользователем.
+/// Открытая метка ошибки или урока должная в тот же день.
 /// Назначенный возврат до своего срока в пул не входит.
 List<MixItem> poolFromBook({
   required List<TrainerRef> trainers,
@@ -210,14 +211,25 @@ List<MixItem> poolFromBook({
     if (bucket == null) continue;
     items.add(MixItem(id: trainer.id, bucket: bucket, action: trainer.action));
   }
+  final represented = {for (final trainer in trainers) trainer.competencyId};
   for (final lesson in lessons) {
     if (known.contains(lesson.id) || held.contains(lesson.id)) continue;
-    if (!open.contains(lesson.id)) continue;
-    items.add(MixItem(
-      id: lesson.id,
-      bucket: MixBucket.due,
-      action: lesson.action,
-    ));
+    if (open.contains(lesson.id)) {
+      items.add(MixItem(
+        id: lesson.id,
+        bucket: MixBucket.due,
+        action: lesson.action,
+      ));
+      continue;
+    }
+    // A dedicated playable trainer owns its competency even while held for a
+    // scheduled return. A lesson must not create a second route around that hold.
+    if (represented.contains(lesson.competencyId)) continue;
+    final snap = competencies[lesson.competencyId];
+    if (snap == null) continue;
+    final bucket = bucketOf(snap, now);
+    if (bucket == null) continue;
+    items.add(MixItem(id: lesson.id, bucket: bucket, action: lesson.action));
   }
   return items;
 }

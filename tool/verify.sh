@@ -24,7 +24,7 @@ python3 tool/verify_docs.py
 source tool/toolchain.sh
 trap 'echo "QA остановлен с ошибкой на строке $LINENO." >&2' ERR
 
-for executable in python3 "$FLUTTER_BIN" "$DENO_BIN"; do
+for executable in python3 npm "$FLUTTER_BIN" "$DENO_BIN"; do
   if ! command -v "$executable" >/dev/null 2>&1; then
     echo "Не найден $executable. Настройте SDK из tool/toolchain.env (см. README)." >&2
     exit 1
@@ -41,11 +41,16 @@ fi
 
 echo "QA: Flutter $actual_flutter, Deno $actual_deno"
 python3 -m unittest discover -s tool/tests -p 'test_*.py'
+python3 -m unittest discover -s tool/browser/tests -p 'test_*.py'
 "$FLUTTER_BIN" pub get --enforce-lockfile
 "$FLUTTER_BIN" analyze --no-pub
 python3 tool/extract_curriculum.py --check
 "$FLUTTER_BIN" test --no-pub
-"$DENO_BIN" check --no-lock supabase/functions/gemini-chat/index.ts tool/tests/*.ts
+"$DENO_BIN" check --no-lock supabase/functions/gemini-chat/index.ts tool/live/main.ts tool/tests/*.ts
 "$DENO_BIN" test --no-check --no-lock --no-prompt tool/tests
-"$FLUTTER_BIN" build web --release --no-pub --base-href /solfege_app/
-echo "QA пройден. Живые сервисы и пользовательская приёмка проверяются отдельно."
+npm ci --prefix tool/browser --ignore-scripts
+node --test tool/browser/tests/sanitized_reporter.test.cjs
+# The browser runner makes the one release build of the real app through its QA
+# entry point, with fake client configuration. Chromium installation is explicit.
+bash tool/verify_browser.sh
+echo "Офлайн QA и браузерная приёмка пройдены. Живые сервисы проверяются отдельно."

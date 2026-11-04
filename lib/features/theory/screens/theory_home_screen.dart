@@ -10,8 +10,10 @@ import '../../practice/progress/practice_attempt.dart';
 import '../../practice/progress/progress_store.dart';
 import '../../practice/screens/error_queue_screen.dart';
 import '../../practice/screens/practice_round_screen.dart';
+import '../level0/lesson_review.dart';
 import '../level0/level0_plan.dart';
 import '../level0/level0_player.dart';
+import 'lesson_review_screen.dart';
 import 'theory_level_screen.dart';
 
 class TheoryHomeScreen extends StatelessWidget {
@@ -107,12 +109,34 @@ class _Home extends StatelessWidget {
                     ),
                   );
                 },
+          reviewAvailable: (lesson) =>
+              progress != null &&
+              supportsLessonReview(lesson) &&
+              progress!.book.attempts
+                  .any((attempt) => attempt.errorTag == lesson.id),
+          onReview: progress == null
+              ? null
+              : (lesson) {
+                  Navigator.of(context).push(MaterialPageRoute<void>(
+                    builder: (_) => LessonReviewScreen(
+                      lesson: lesson,
+                      catalog: catalog,
+                      progress: progress!,
+                      player: player,
+                      clock: clock ?? const SystemClock(),
+                    ),
+                  ));
+                },
           onOpen: (lesson) {
             Navigator.of(context).push(
               MaterialPageRoute<void>(
                 builder: (_) => Level0Player(
                   plan: Level0Plan.fromLesson(lesson),
-                  onFinished: (result) {
+                  continueLabel:
+                      supportsLessonReview(lesson) && progress != null
+                          ? 'Контрольная практика'
+                          : null,
+                  onCompleted: (result) {
                     if (progress != null) {
                       recordLessonResult(
                         store: progress!,
@@ -122,7 +146,25 @@ class _Home extends StatelessWidget {
                         total: result.total,
                       );
                     }
-                    if (result.trainPracticeSetIds.isEmpty) return;
+                  },
+                  onFinished: (result) {
+                    if (supportsLessonReview(lesson) && progress != null) {
+                      Navigator.of(context)
+                          .pushReplacement(MaterialPageRoute<void>(
+                        builder: (_) => LessonReviewScreen(
+                          lesson: lesson,
+                          catalog: catalog,
+                          progress: progress!,
+                          player: player,
+                          clock: clock ?? const SystemClock(),
+                        ),
+                      ));
+                      return;
+                    }
+                    if (result.trainPracticeSetIds.isEmpty) {
+                      Navigator.of(context).pop();
+                      return;
+                    }
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (_) => openPractice(

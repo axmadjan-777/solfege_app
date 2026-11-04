@@ -24,10 +24,18 @@ class Level0Result {
 }
 
 class Level0Player extends StatefulWidget {
-  const Level0Player({super.key, required this.plan, required this.onFinished});
+  const Level0Player({
+    super.key,
+    required this.plan,
+    required this.onFinished,
+    this.onCompleted,
+    this.continueLabel,
+  });
 
   final Level0Plan plan;
   final ValueChanged<Level0Result> onFinished;
+  final ValueChanged<Level0Result>? onCompleted;
+  final String? continueLabel;
 
   @override
   State<Level0Player> createState() => _Level0PlayerState();
@@ -39,6 +47,14 @@ class _Level0PlayerState extends State<Level0Player> {
   var _answered = 0;
   String? _feedback;
   var _summary = false;
+  var _completed = false;
+
+  Level0Result get _result => Level0Result(
+        lessonId: widget.plan.lessonId,
+        correct: _correct,
+        total: _answered,
+        trainPracticeSetIds: widget.plan.trainPracticeSetIds,
+      );
 
   Level0Step? get _step => _summary ? null : widget.plan.steps[_index];
 
@@ -58,6 +74,10 @@ class _Level0PlayerState extends State<Level0Player> {
     coach?.note('confirm');
     if (_index + 1 >= widget.plan.steps.length) {
       setState(() => _summary = true);
+      if (!_completed) {
+        _completed = true;
+        widget.onCompleted?.call(_result);
+      }
       return;
     }
     setState(() {
@@ -90,7 +110,8 @@ class _Level0PlayerState extends State<Level0Player> {
           const SizedBox(height: 16),
           CoachTarget(
             id: 'lesson-next',
-            child: FilledButton(onPressed: _advance, child: const Text('Дальше')),
+            child:
+                FilledButton(onPressed: _advance, child: const Text('Дальше')),
           ),
         ],
       );
@@ -114,8 +135,7 @@ class _Level0PlayerState extends State<Level0Player> {
               prompt: step.body,
               options: step.options,
               correctIndexes: step.correctIndexes,
-              onResult: (result) => _mark(
-                  result.correct,
+              onResult: (result) => _mark(result.correct,
                   result.correct ? step.feedbackCorrect : step.feedbackError),
             ),
           )
@@ -151,7 +171,8 @@ class _Level0PlayerState extends State<Level0Player> {
           const SizedBox(height: 12),
           CoachTarget(
             id: 'lesson-next',
-            child: FilledButton(onPressed: _advance, child: const Text('Дальше')),
+            child:
+                FilledButton(onPressed: _advance, child: const Text('Дальше')),
           ),
         ],
       ],
@@ -166,18 +187,17 @@ class _Level0PlayerState extends State<Level0Player> {
         const SizedBox(height: 8),
         Text('Верно $_correct из $_answered'),
         const SizedBox(height: 16),
-        FilledButton(
-          onPressed: () {
-            widget.onFinished(
-              Level0Result(
-                lessonId: widget.plan.lessonId,
-                correct: _correct,
-                total: _answered,
-                trainPracticeSetIds: widget.plan.trainPracticeSetIds,
-              ),
-            );
-          },
-          child: const Text('Тренировать'),
+        Semantics(
+          identifier: 'lesson-review-open-${widget.plan.lessonId}',
+          child: FilledButton(
+            onPressed: () {
+              widget.onFinished(_result);
+            },
+            child: Text(widget.continueLabel ??
+                (widget.plan.trainPracticeSetIds.isEmpty
+                    ? 'К теории'
+                    : 'Тренировать')),
+          ),
         ),
       ],
     );

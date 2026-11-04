@@ -29,6 +29,8 @@ class ReviewStep {
   }
 }
 
+const minimumColdReviewDelay = Duration(hours: 20);
+
 class MasteryDecision {
   const MasteryDecision(
       {required this.status, required this.markedProvisionalAt});
@@ -61,7 +63,7 @@ class MasteryDecision {
 
     if (coldReview) {
       final waited = provisionalAt != null &&
-          !now.isBefore(provisionalAt.add(const Duration(hours: 20)));
+          !now.isBefore(provisionalAt.add(minimumColdReviewDelay));
       final coldAttempts = _currentColdReview(attempts);
       final coldAccuracy = _sessionAccuracy(coldAttempts);
       final coldCount = coldAttempts.length;

@@ -39,6 +39,7 @@ fi
     unset "$git_variable"
   done < <(git rev-parse --local-env-vars)
   cd "$qa_tmp/source"
+  export QA_SOURCE_TREE="$qa_tree"
   if [[ ! -f tool/verify.sh ]]; then
     echo "QA: tool/verify.sh отсутствует в подготовленном коммите." >&2
     exit 1

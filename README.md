@@ -39,7 +39,8 @@ Flutter-приложение для обучения музыке: теория,
 
 - Точные версии **Flutter и Deno** — в [tool/toolchain.env](tool/toolchain.env).
   Flutter закреплён по успешному [CI-прогону](https://github.com/axmadjan-777/solfege_app/actions/runs/37341857670).
-- Git, Bash, Python 3. Для полного web-сценария — браузер и тестовый аккаунт.
+- Git, Bash, Python 3, Node.js 24 (не ниже 24.3) и npm. Chromium закреплён
+  версией Playwright в `tool/browser/package-lock.json`.
 - `environment.sdk` в `pubspec.yaml` задаёт диапазон **Dart**, не версию Flutter.
   Используйте закреплённый Flutter, совместимый с существующим `pubspec.lock`.
 - Android/iOS SDK нужны только для соответствующих сборок, не для основного QA.
@@ -145,13 +146,33 @@ supabase functions deploy gemini-chat --project-ref zehmcszijutthmeswtci
 2. `flutter pub get --enforce-lockfile` и анализ без повторного `pub get`.
 3. Сверку JSON с исходными блоками спецификации.
 4. Все Flutter unit/widget-тесты.
-5. Одну проверку типов обработчика Edge Function и его тестов, затем сами тесты
+5. Одну проверку типов Edge Function, live-харнесса и Deno-тестов, затем офлайн-тесты
    с подменёнными Auth/Gemini, без повторной проверки типов, сетевых и env-разрешений Deno.
-6. Release-сборку web без production-ключей.
+6. `npm ci` по lock-файлу, проверку TypeScript и одну release-сборку реального
+   приложения через QA entry point с включённой Semantics, без production-ключей.
+7. Сквозные Playwright-сценарии в Chromium, мобильный и настольный viewport,
+   сравнение скриншотов. В этом наборе подменён только HTTP внешних сервисов.
+
+Перед первым полным QA установите закреплённый Chromium явно:
+
+```bash
+npm ci --prefix tool/browser --ignore-scripts
+(cd tool/browser && npx --no-install playwright install chromium)
+```
+
+На Linux для системных зависимостей используйте `playwright install --with-deps chromium`.
+Изолированный браузерный прогон: `bash tool/verify_browser.sh`.
+Команда `--optimization-level=1` пригодна для локальной отладки; приёмка и CI
+используют значение по умолчанию 4. `--reuse-build` проверяет хэши исходников,
+сборки и конфигурации перед повторным использованием готового bundle.
 
 Любая ошибка останавливает пайплайн. QA не изменяет исходники; кэши и сборка
-могут появляться в игнорируемых каталогах. SQL/RLS на живой БД, браузерный путь
-после входа, реальный звук и ответ модели этим прогоном не проверяются.
+могут появляться в игнорируемых каталогах. Настоящие Auth/RLS/Gemini проверяются
+отдельно через `bash tool/verify_live.sh` и
+`bash tool/verify_browser.sh --live --reuse-build`; настройка и границы — в
+[testing.md](docs/testing.md#живые-сервисы). Реальная слышимость требует проверки
+человеком на целевом устройстве. Отдельное модельное ревью выполняется по
+[AGENTS.md](AGENTS.md#отдельное-ии-ревью-перед-итоговым-коммитом-и-готовностью-pr).
 
 Для изменений только `README.md` и Markdown в `docs/`, кроме всего
 `docs/curriculum/` и любых `AGENTS.md`, используется лёгкий режим:
@@ -189,8 +210,9 @@ Git позволяет обойти локальный hook; независим�
 
 ## CI и публикация
 
-[Verify](.github/workflows/verify.yml) запускает один обязательный job `verify`
-на PR и при его обновлении. Отдельного запуска на push ветки нет.
+[Verify](.github/workflows/verify.yml) запускает `verify`, затем `live-acceptance`
+на PR и при его обновлении. Для документации второй job сообщает `not_required`;
+для полного изменения требует настоящие сервисы. Отдельного запуска на push ветки нет.
 Режим определяется по полному diff базы PR и проверяемого merge-коммита.
 Даже для документации job выполняется и возвращает статус: фильтры
 `paths-ignore` и пропуск всего workflow не используются. Конфликт с `main`
@@ -202,13 +224,22 @@ Git позволяет обойти локальный hook; независим�
 Проверка без ключей и production-сборка относятся к одному коммиту.
 Для push в `main` режим выбирается по diff предыдущего и нового коммита;
 лёгкий QA документации не отменяет production-сборку перед публикацией.
-Ручной Verify или deploy всегда выполняет полный QA. Поэтому в обычном цикле
-есть один QA на PR и один перед публикацией `main`; устаревшие запуски одного
-PR отменяются через concurrency. Независимый CI не заменяется локальным hook.
+Ручной Verify или deploy выполняет полный QA. В обычном цикле есть один набор
+на PR и один перед публикацией `main`. Отменяются только устаревшие офлайн jobs;
+живой набор сериализован и завершается с восстановлением тестовых профилей.
+Публикация проверяет актуальность SHA `main`, использует уникальное имя Pages
+artifact и после deploy проверяет HTTP 200. Это не повторяет живую приёмку.
+Независимый CI не заменяется локальным hook.
+
+Живой job использует repository secrets `QA_PROJECT_REF`, `QA_SUPABASE_URL`,
+`QA_SUPABASE_PUBLISHABLE_KEY` и `QA_USER_A_EMAIL`, `QA_USER_A_PASSWORD`,
+`QA_USER_A_ID` (аналогично для B). `QA_LIVE=1` задаётся явно. Fork/untrusted PR
+блокируется до доступа к секретам. Используются только выделенные аккаунты;
+service-role ключ, SQL и изменение настроек проекта не нужны.
 
 Workflow не включает защиту `main` автоматически. Обязательный успешный
-check `verify` от workflow Verify перед merge задаётся отдельно в GitHub branch
-rules; при настройке сверяйте точное имя и источник check на текущем PR.
+checks `verify` и `live-acceptance` перед merge задаются отдельно в GitHub branch
+rules; при настройке сверяйте точное имя и источник checks на текущем PR.
 Состояние этой работы — OPS-01 в [roadmap](docs/product_roadmap.md).
 
 ## Проверка на телефоне

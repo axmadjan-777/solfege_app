@@ -112,7 +112,8 @@ Widget practiceSetScreen({
           if (lesson != null) {
             return Level0Player(
               plan: Level0Plan.fromLesson(lesson),
-              onFinished: (result) {
+              continueLabel: 'Продолжить',
+              onCompleted: (result) {
                 final store = progress;
                 if (store != null) {
                   recordLessonResult(
@@ -123,8 +124,9 @@ Widget practiceSetScreen({
                     total: result.total,
                   );
                 }
-                onAnswered(result.total > 0 && result.correct == result.total);
               },
+              onFinished: (result) => onAnswered(
+                  result.total > 0 && result.correct == result.total),
             );
           }
           return practiceSetScreen(
@@ -170,14 +172,19 @@ const _playableMixIds = {
   'PR-14',
 };
 
-List<TrainerRef> _lessonRefs(CurriculumCatalog catalog) {
+List<TrainerRef> _lessonRefs(
+    CurriculumCatalog catalog, ProgressStore progress) {
+  final visited = {
+    for (final attempt in progress.book.attempts) attempt.errorTag
+  };
   return [
     for (final lesson in catalog.lessons)
-      TrainerRef(
-        id: lesson.id,
-        competencyId: lesson.primaryCompetency,
-        action: lessonMixAction(lesson.skillTrack),
-      ),
+      if (visited.contains(lesson.id))
+        TrainerRef(
+          id: lesson.id,
+          competencyId: lesson.primaryCompetency,
+          action: lessonMixAction(lesson.skillTrack),
+        ),
   ];
 }
 
@@ -200,16 +207,23 @@ DailyMixPlan _mixPlan(
 ) {
   if (progress == null) return appDailyMix();
   final now = (clock ?? const SystemClock()).now();
+  final lessons = _lessonRefs(catalog, progress);
+  final visitedIds = {for (final lesson in lessons) lesson.id};
   final pool = poolFromBook(
     trainers: _trainers(catalog),
     competencies: progress.book.competencies,
     waiting: progress.book.returns,
     now: now,
     openTags: ErrorQueue.openTags(progress.book.attempts),
-    lessons: _lessonRefs(catalog),
+    lessons: lessons,
   );
   final base = buildDailyMix(seed: now.month * 31 + now.day, pool: pool);
-  return placeDueReturns(base, _dueNow(progress, clock).toList());
+  return placeDueReturns(
+      base,
+      _dueNow(progress, clock)
+          .where((tag) =>
+              catalog.findLesson(tag) == null || visitedIds.contains(tag))
+          .toList());
 }
 
 String _mixTitle(CurriculumCatalog catalog, String id) {

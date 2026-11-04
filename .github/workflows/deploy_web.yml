@@ -8,18 +8,18 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
   verify:
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/verify.yml
+    secrets: inherit
 
   deploy:
     needs: verify
     if: github.ref == 'refs/heads/main'
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     permissions:
       contents: read
       pages: write
@@ -27,12 +27,23 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+
+      - name: Reject stale main before building
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_MAIN_SHA: ${{ github.sha }}
+        run: |
+          current_main_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')
+          if [[ "$current_main_sha" != "$EXPECTED_MAIN_SHA" ]]; then
+            echo "This run is no longer current main; production publication is blocked." >&2
+            exit 1
+          fi
 
       - name: Read pinned toolchain
         id: toolchain
@@ -61,7 +72,38 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
+          name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
           path: build/web
+
+      - name: Reject stale main immediately before publishing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_MAIN_SHA: ${{ github.sha }}
+        run: |
+          current_main_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')
+          if [[ "$current_main_sha" != "$EXPECTED_MAIN_SHA" ]]; then
+            echo "Main advanced after this build; stale publication is blocked." >&2
+            exit 1
+          fi
 
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Probe deployed page availability (HTTP 200)
+        timeout-minutes: 3
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          for attempt in {1..10}; do
+            status=$(curl --silent --show-error --location --output /dev/null \
+              --write-out '%{http_code}' --connect-timeout 5 --max-time 10 "$PAGE_URL" || true)
+            if [[ "$status" == 200 ]]; then
+              echo "Published page returned HTTP 200."
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Published page did not return HTTP 200 within the bounded availability probe." >&2
+          exit 1

@@ -23,22 +23,34 @@ void main() {
   testWidgets('user sends a music question and sees the Gemini response', (
     tester,
   ) async {
-    final service = _FakeAiChatService();
-    await tester.pumpWidget(
-      MaterialApp(home: AiChatScreen(chatService: service)),
-    );
+    final semantics = tester.ensureSemantics();
+    try {
+      final service = _FakeAiChatService();
+      await tester.pumpWidget(
+        MaterialApp(home: AiChatScreen(chatService: service)),
+      );
 
-    await tester.enterText(
-      find.byKey(const Key('ai_chat_input')),
-      'Какие ноты входят в до мажор?',
-    );
-    await tester.tap(find.byKey(const Key('ai_chat_send')));
-    await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('ai_chat_input')),
+        'Какие ноты входят в до мажор?',
+      );
+      await tester.tap(find.byKey(const Key('ai_chat_send')));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Какие ноты входят в до мажор?'), findsOneWidget);
-    expect(find.textContaining('До мажор: до, ре, ми'), findsOneWidget);
-    expect(service.receivedMessages, isNotNull);
-    expect(service.receivedMessages!.last.role, AiChatRole.user);
+      expect(find.text('Какие ноты входят в до мажор?'), findsOneWidget);
+      expect(find.textContaining('До мажор: до, ре, ми'), findsOneWidget);
+      expect(find.bySemanticsLabel('Какие ноты входят в до мажор?'),
+          findsOneWidget);
+      expect(
+        find.bySemanticsLabel('До мажор: до, ре, ми, фа, соль, ля, си. '
+            'Примеры: до–ми–соль; фа–ля–до; соль–си–ре.'),
+        findsOneWidget,
+      );
+      expect(service.receivedMessages, isNotNull);
+      expect(service.receivedMessages!.last.role, AiChatRole.user);
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('failed request can be retried without duplicating the question',

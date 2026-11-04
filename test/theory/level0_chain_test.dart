@@ -23,11 +23,14 @@ void main() {
     );
   });
 
-  testWidgets('L00-01 plays the authored steps and does not grant mastered', (tester) async {
+  testWidgets('L00-01 plays the authored steps and does not grant mastered',
+      (tester) async {
     final plan = Level0Plan.fromLesson(catalog.lesson('L00-01'));
     Level0Result? result;
     await tester.pumpWidget(
-      MaterialApp(home: Level0Player(plan: plan, onFinished: (value) => result = value)),
+      MaterialApp(
+          home:
+              Level0Player(plan: plan, onFinished: (value) => result = value)),
     );
 
     expect(find.text(plan.steps.first.body), findsOneWidget);
@@ -37,7 +40,8 @@ void main() {
       expect(find.text(step.body), findsOneWidget);
       if (step.templateId == 'T03') {
         for (final index in step.correctIndexes) {
-          await _tap(tester, find.widgetWithText(CheckboxListTile, step.options[index]));
+          await _tap(tester,
+              find.widgetWithText(CheckboxListTile, step.options[index]));
         }
         await _tap(tester, find.text('Проверить'));
       } else {
@@ -46,36 +50,44 @@ void main() {
       await _tap(tester, find.text('Дальше'));
     }
 
-    expect(find.text('Тренировать'), findsOneWidget);
-    await _tap(tester, find.text('Тренировать'));
+    expect(find.text('К теории'), findsOneWidget);
+    await _tap(tester, find.text('К теории'));
 
     expect(result, isNotNull);
     expect(result!.status, isNot(CompetencyStatus.mastered));
     expect(result!.correct, result!.total);
   });
 
-  testWidgets('L00-02 is closed on the theory list until L00-01 is mastered', (tester) async {
+  testWidgets('L00-02 is closed on the theory list until L00-01 is mastered',
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(home: TheoryHomeScreen(catalog: catalog)),
     );
 
     expect(find.text('Музыкальный тон и шум'), findsOneWidget);
     expect(
-      find.descendant(of: find.byKey(const Key('lesson-L00-01')), matching: find.text('Открыто')),
+      find.descendant(
+          of: find.byKey(const Key('lesson-L00-01')),
+          matching: find.text('Открыто')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: find.byKey(const Key('lesson-L00-02')), matching: find.text('Закрыто')),
+      find.descendant(
+          of: find.byKey(const Key('lesson-L00-02')),
+          matching: find.text('Закрыто')),
       findsOneWidget,
     );
 
     await tester.pumpWidget(
       MaterialApp(
-        home: TheoryHomeScreen(catalog: catalog, isMastered: (id) => id == 'snd.tone_vs_noise'),
+        home: TheoryHomeScreen(
+            catalog: catalog, isMastered: (id) => id == 'snd.tone_vs_noise'),
       ),
     );
     expect(
-      find.descendant(of: find.byKey(const Key('lesson-L00-02')), matching: find.text('Открыто')),
+      find.descendant(
+          of: find.byKey(const Key('lesson-L00-02')),
+          matching: find.text('Открыто')),
       findsOneWidget,
     );
   });
@@ -89,5 +101,6 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 Map<String, dynamic> _read(String name) {
-  return Map<String, dynamic>.from(jsonDecode(File('assets/curriculum/$name').readAsStringSync()) as Map);
+  return Map<String, dynamic>.from(
+      jsonDecode(File('assets/curriculum/$name').readAsStringSync()) as Map);
 }

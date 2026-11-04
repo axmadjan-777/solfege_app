@@ -263,6 +263,15 @@ class _AuthGateState extends State<AuthGate> {
     await _resolveState();
   }
 
+  Widget _readyScreen() {
+    final user = _authService.getCurrentUser();
+    if (user == null) return const WelcomeScreen();
+    return MainShellScreen(
+      key: ValueKey('shell-${user.id}'),
+      userId: user.id,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return switch (_state) {
@@ -300,7 +309,7 @@ class _AuthGateState extends State<AuthGate> {
       _GateState.incompleteProfile => OnboardingNameScreen(
           onboardingData: _incompleteOnboarding,
         ),
-      _GateState.ready => const MainShellScreen(),
+      _GateState.ready => _readyScreen(),
     };
   }
 }

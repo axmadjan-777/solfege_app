@@ -76,9 +76,11 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
     final stability = widget.progress.snapshot(_competency).stability;
     final showSaved = !_answered &&
         (stability.sessions.isNotEmpty || _status != CompetencyStatus.locked);
-    return Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        KeyedSubtree(
+        Expanded(
+            child: KeyedSubtree(
           key: ValueKey('${widget.setId}-$_round'),
           child: practiceSetScreen(
             setId: widget.setId,
@@ -100,31 +102,29 @@ class _PracticeRoundScreenState extends State<PracticeRoundScreen> {
               });
             },
           ),
-        ),
+        )),
         if (showSaved)
-          Align(
-            alignment: Alignment.topCenter,
-            child: IgnorePointer(
-              child: Material(
-                color: Colors.transparent,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(practiceStatusLabel(_status)),
-                      Text(stabilityLabel(stability)),
-                    ],
-                  ),
+          Material(
+            color: AppColors.background,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(practiceStatusLabel(_status)),
+                    Text(stabilityLabel(stability)),
+                  ],
                 ),
               ),
             ),
           ),
         if (_answered)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Material(
-              color: AppColors.background,
+          Material(
+            color: AppColors.background,
+            child: SafeArea(
+              top: false,
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(

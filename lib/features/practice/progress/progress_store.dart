@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../curriculum/models/curriculum_config.dart';
@@ -122,7 +123,7 @@ class SessionDraft {
   final String itemSignature;
 }
 
-abstract interface class ProgressStore {
+abstract interface class ProgressStore implements Listenable {
   ProgressBook get book;
 
   CompetencySnapshot snapshot(String competencyId);
@@ -134,9 +135,11 @@ abstract interface class ProgressStore {
   void scheduleReturnInDays(String tag, int days);
 
   List<String> openErrorTags();
+
+  void dispose();
 }
 
-class MemoryProgressStore implements ProgressStore {
+class MemoryProgressStore extends ChangeNotifier implements ProgressStore {
   MemoryProgressStore({
     required this.clock,
     required this.rules,
@@ -232,6 +235,7 @@ class MemoryProgressStore implements ProgressStore {
       attempts: attempts,
       returns: book.returns,
     );
+    notifyListeners();
   }
 
   @override
@@ -250,6 +254,7 @@ class MemoryProgressStore implements ProgressStore {
         days: days,
       ),
     );
+    notifyListeners();
   }
 
   @override
@@ -266,23 +271,53 @@ class MemoryProgressStore implements ProgressStore {
   }
 }
 
-class SharedPreferencesProgressStore implements ProgressStore {
+class SharedPreferencesProgressStore extends ChangeNotifier
+    implements ProgressStore {
   SharedPreferencesProgressStore({
     required SharedPreferences preferences,
     required this.clock,
     required this.rules,
     this.userId = 'local',
-    this.storageKey = 'practice_progress_v1',
-  }) : _preferences = preferences {
-    final raw = _preferences.getString(storageKey);
+    String? storageKey,
+  })  : storageKey = storageKey ?? keyForUser(userId),
+        _preferences = preferences {
+    var raw = _preferences.getString(this.storageKey);
+    // Only a legacy book that names this account may be copied. The old
+    // shared/local book has no provable owner and must remain unassigned.
+    if (raw == null && userId != 'local') {
+      final legacy = _preferences.getString(legacyStorageKey);
+      if (legacy != null) {
+        try {
+          final candidate = jsonDecode(legacy);
+          if (candidate is Map && candidate['user_id'] == userId) {
+            raw = legacy;
+            _preferences.setString(this.storageKey, legacy);
+          }
+        } on FormatException {
+          // Preserve an unreadable legacy value without exposing it to users.
+        }
+      }
+    }
+    final loaded = raw == null
+        ? ProgressBook.empty(userId: userId)
+        : ProgressBook.fromJson(jsonDecode(raw) as Map<String, dynamic>);
     _memory = MemoryProgressStore(
       clock: clock,
       rules: rules,
       userId: userId,
-      book: raw == null
-          ? ProgressBook.empty(userId: userId)
-          : ProgressBook.fromJson(jsonDecode(raw) as Map<String, dynamic>),
+      book:
+          loaded.userId == userId ? loaded : ProgressBook.empty(userId: userId),
     );
+    _memory.addListener(notifyListeners);
+  }
+
+  static const legacyStorageKey = 'practice_progress_v1';
+
+  static String keyForUser(String userId) {
+    if (userId.trim().isEmpty) {
+      throw ArgumentError.value(userId, 'userId', 'An owner is required');
+    }
+    return userId == 'local' ? legacyStorageKey : '$legacyStorageKey:$userId';
   }
 
   final SharedPreferences _preferences;
@@ -316,4 +351,11 @@ class SharedPreferencesProgressStore implements ProgressStore {
 
   @override
   List<String> openErrorTags() => _memory.openErrorTags();
+
+  @override
+  void dispose() {
+    _memory.removeListener(notifyListeners);
+    _memory.dispose();
+    super.dispose();
+  }
 }

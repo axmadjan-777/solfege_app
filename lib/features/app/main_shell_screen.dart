@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -13,7 +15,9 @@ import '../scales/screens/scales_list_screen.dart';
 import '../theory/screens/theory_home_screen.dart';
 
 class MainShellScreen extends StatefulWidget {
-  const MainShellScreen({super.key});
+  const MainShellScreen({super.key, required this.userId});
+
+  final String userId;
 
   @override
   State<MainShellScreen> createState() => _MainShellScreenState();
@@ -24,7 +28,8 @@ class _MainShellScreenState extends State<MainShellScreen> {
   var _coachBound = false;
   var _tourRunning = false;
   CoachController? _coach;
-  late final Future<PracticeProgressBinding> _progress = loadPracticeProgress();
+  late final Future<PracticeProgressBinding> _progress =
+      loadPracticeProgress(userId: widget.userId);
 
   @override
   void didChangeDependencies() {
@@ -69,6 +74,10 @@ class _MainShellScreenState extends State<MainShellScreen> {
 
   @override
   void dispose() {
+    unawaited(_progress.then<void>(
+      (binding) => binding.progress.dispose(),
+      onError: (Object _, StackTrace __) {},
+    ));
     _coach?.removeListener(_onCoach);
     if (_coach?.onShowTab != null) _coach?.onShowTab = null;
     super.dispose();
@@ -88,50 +97,59 @@ class _MainShellScreenState extends State<MainShellScreen> {
               body: Center(child: CircularProgressIndicator()));
         }
         final binding = snapshot.data!;
-        final tabs = [
-          const _ShellTab(
-              label: 'Гаммы',
-              icon: Icons.music_note_rounded,
-              screen: ScalesListScreen()),
-          _ShellTab(
-            label: 'Теория',
-            icon: Icons.menu_book_rounded,
-            coachId: 'nav-theory',
-            screen: TheoryHomeScreen(
-              catalog: binding.catalog,
-              progress: binding.progress,
-              clock: binding.clock,
-              needsReview: (id) =>
-                  binding.progress.snapshot(id).status ==
-                  CompetencyStatus.needsReview,
-            ),
-          ),
-          _ShellTab(
-            label: 'Практика',
-            icon: Icons.fitness_center_rounded,
-            screen: PracticeMapScreen(
-                catalog: binding.catalog,
-                progress: binding.progress,
-                clock: binding.clock),
-          ),
-          const _ShellTab(
-              label: 'ИИ',
-              icon: Icons.auto_awesome_rounded,
-              screen: AiChatScreen()),
-          const _ShellTab(
-            label: 'Профиль',
-            icon: Icons.person_rounded,
-            coachId: 'nav-profile',
-            screen: ProfileScreen(),
-          ),
-        ];
-        return _Shell(
-          index: _index,
-          tabs: tabs,
-          onSelected: (value) {
-            setState(() => _index = value);
-            final action = coachActionForTab(value);
-            if (action != null) CoachScope.maybeOf(context)?.note(action);
+        return ListenableBuilder(
+          listenable: binding.progress,
+          builder: (context, _) {
+            final tabs = [
+              const _ShellTab(
+                  label: 'Гаммы',
+                  icon: Icons.music_note_rounded,
+                  screen: ScalesListScreen()),
+              _ShellTab(
+                label: 'Теория',
+                icon: Icons.menu_book_rounded,
+                coachId: 'nav-theory',
+                screen: TheoryHomeScreen(
+                  catalog: binding.catalog,
+                  progress: binding.progress,
+                  clock: binding.clock,
+                  isMastered: (id) =>
+                      binding.progress.snapshot(id).status ==
+                      CompetencyStatus.mastered,
+                  needsReview: (id) =>
+                      binding.progress.snapshot(id).status ==
+                      CompetencyStatus.needsReview,
+                ),
+              ),
+              _ShellTab(
+                label: 'Практика',
+                icon: Icons.fitness_center_rounded,
+                screen: PracticeMapScreen(
+                    catalog: binding.catalog,
+                    progress: binding.progress,
+                    clock: binding.clock,
+                    isMastered: (id) =>
+                        binding.progress.snapshot(id).status ==
+                        CompetencyStatus.mastered),
+              ),
+              const _ShellTab(
+                  label: 'ИИ',
+                  icon: Icons.auto_awesome_rounded,
+                  screen: AiChatScreen()),
+              const _ShellTab(
+                  label: 'Профиль',
+                  icon: Icons.person_rounded,
+                  coachId: 'nav-profile',
+                  screen: ProfileScreen()),
+            ];
+            return _Shell(
+                index: _index,
+                tabs: tabs,
+                onSelected: (value) {
+                  setState(() => _index = value);
+                  final action = coachActionForTab(value);
+                  if (action != null) CoachScope.maybeOf(context)?.note(action);
+                });
           },
         );
       },
