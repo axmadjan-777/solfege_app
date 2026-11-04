@@ -60,6 +60,19 @@ class _AuthGateState extends State<AuthGate> {
   bool _resolveAgain = false;
   bool _isPasswordRecoveryActive = false;
   Future<void>? _passwordRecoveryWrite;
+  final ValueNotifier<String?> _sessionUserId = ValueNotifier(null);
+  int _identityGeneration = 0;
+  String? _readyUserId;
+
+  void _observeIdentity() {
+    final next = _authService.getCurrentUser()?.id;
+    if (_sessionUserId.value == next) return;
+    _isPasswordRecoveryActive = false;
+    _identityGeneration += 1;
+    _sessionUserId.value = next;
+    _readyUserId = null;
+    if (mounted) setState(() => _state = _GateState.loading);
+  }
 
   @override
   void initState() {
@@ -70,6 +83,7 @@ class _AuthGateState extends State<AuthGate> {
   @override
   void dispose() {
     _authSubscription?.cancel();
+    _sessionUserId.dispose();
     super.dispose();
   }
 
@@ -109,7 +123,9 @@ class _AuthGateState extends State<AuthGate> {
       }
     }
 
+    _observeIdentity();
     _authSubscription = _authService.authStateChanges.listen((event) {
+      _observeIdentity();
       if (event.event == AuthChangeEvent.passwordRecovery &&
           _authService.getCurrentSession() != null) {
         _enterPasswordRecovery();
@@ -160,6 +176,12 @@ class _AuthGateState extends State<AuthGate> {
     }
     _resolveAgain = false;
     _isResolving = true;
+    final generation = _identityGeneration;
+    final resolvingUserId = _authService.getCurrentUser()?.id;
+    bool stale() =>
+        !mounted ||
+        generation != _identityGeneration ||
+        resolvingUserId != _authService.getCurrentUser()?.id;
 
     try {
       if (!_authService.isConfigured) {
@@ -178,6 +200,7 @@ class _AuthGateState extends State<AuthGate> {
         await _pendingStore.clearPasswordRecoveryPending();
         _pendingEmail = await _pendingStore.getPendingEmail();
         final pendingOnboarding = await _pendingStore.getPendingOnboarding();
+        if (stale()) return;
         _incompleteOnboarding = pendingOnboarding ?? const OnboardingData();
 
         final awaitingEmail =
@@ -200,7 +223,7 @@ class _AuthGateState extends State<AuthGate> {
       // Смена пароля обязательна, поэтому событие входа или обновления токена не
       // должно уводить с экрана нового пароля.
       if (await _pendingStore.isPasswordRecoveryPending(user.id)) {
-        if (!mounted) return;
+        if (stale()) return;
         setState(() => _state = _GateState.passwordRecovery);
         return;
       }
@@ -208,12 +231,14 @@ class _AuthGateState extends State<AuthGate> {
       UserProfile? profile;
       try {
         profile = await _profileService.ensureCurrentUserProfile();
+        if (stale()) return;
       } on StateError {
         profile = await _profileService.getCurrentProfile();
         _incompleteOnboarding = _profileService.incompleteOnboardingData(
           profile: profile,
           pending: await _pendingStore.getPendingOnboarding(),
         );
+        if (stale()) return;
         setState(() => _state = _GateState.incompleteProfile);
         return;
       }
@@ -228,12 +253,14 @@ class _AuthGateState extends State<AuthGate> {
 
       final hasShown = await _pendingStore.hasShownVerifiedSuccess(user.id);
       final shouldShow = await _pendingStore.shouldShowVerifiedSuccess(user.id);
+      if (stale()) return;
 
       if (!hasShown && shouldShow && user.emailConfirmedAt != null) {
         setState(() => _state = _GateState.emailVerifiedSuccess);
         return;
       }
 
+      _readyUserId = user.id;
       setState(() => _state = _GateState.ready);
     } finally {
       _isResolving = false;
@@ -300,7 +327,10 @@ class _AuthGateState extends State<AuthGate> {
       _GateState.incompleteProfile => OnboardingNameScreen(
           onboardingData: _incompleteOnboarding,
         ),
-      _GateState.ready => const MainShellScreen(),
+      _GateState.ready => MainShellScreen(
+          key: ValueKey(_readyUserId),
+          userId: _readyUserId!,
+          sessionUserId: _sessionUserId),
     };
   }
 }

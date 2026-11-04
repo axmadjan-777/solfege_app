@@ -29,8 +29,8 @@ class CompetencySnapshot {
           for (final session in stability.sessions) session.toJson()
         ],
         'interval_step': intervalStep,
-        'due_at': dueAt?.toIso8601String(),
-        'provisional_at': provisionalAt?.toIso8601String(),
+        'due_at': dueAt?.toUtc().toIso8601String(),
+        'provisional_at': provisionalAt?.toUtc().toIso8601String(),
       };
 
   factory CompetencySnapshot.fromJson(Map<String, dynamic> json) =>
@@ -40,7 +40,8 @@ class CompetencySnapshot {
           sessions: [
             for (final session in json['stability'] as List)
               StabilitySession.fromJson(
-                  Map<String, dynamic>.from(session as Map)),
+                Map<String, dynamic>.from(session as Map),
+              ),
           ],
         ),
         intervalStep: json['interval_step'] as int,
@@ -59,6 +60,7 @@ class ProgressBook {
     required this.competencies,
     required this.attempts,
     this.returns = const [],
+    this.passedStages = const <String, List<int>>{},
   });
 
   final String userId;
@@ -66,13 +68,32 @@ class ProgressBook {
   final List<AttemptRecord> attempts;
   final List<ScheduledReturn> returns;
 
+  /// Сданные стадии тренажёра: `PR-01` → `[1, 2]`.
+  final Map<String, List<int>> passedStages;
+
+  ProgressBook copyWith({
+    Map<String, CompetencySnapshot>? competencies,
+    List<AttemptRecord>? attempts,
+    List<ScheduledReturn>? returns,
+    Map<String, List<int>>? passedStages,
+  }) {
+    return ProgressBook(
+      userId: userId,
+      competencies: competencies ?? this.competencies,
+      attempts: attempts ?? this.attempts,
+      returns: returns ?? this.returns,
+      passedStages: passedStages ?? this.passedStages,
+    );
+  }
+
   Map<String, Object?> toJson() => {
         'user_id': userId,
         'competencies': {
-          for (final e in competencies.entries) e.key: e.value.toJson()
+          for (final e in competencies.entries) e.key: e.value.toJson(),
         },
         'attempts': [for (final attempt in attempts) attempt.toJson()],
         'returns': [for (final item in returns) item.toJson()],
+        'passed_stages': passedStages,
       };
 
   factory ProgressBook.fromJson(Map<String, dynamic> json) => ProgressBook(
@@ -80,7 +101,8 @@ class ProgressBook {
         competencies: {
           for (final entry in (json['competencies'] as Map).entries)
             entry.key as String: CompetencySnapshot.fromJson(
-                Map<String, dynamic>.from(entry.value as Map)),
+              Map<String, dynamic>.from(entry.value as Map),
+            ),
         },
         attempts: [
           for (final attempt in json['attempts'] as List)
@@ -90,10 +112,26 @@ class ProgressBook {
           for (final item in json['returns'] as List? ?? const [])
             ScheduledReturn.fromJson(Map<String, dynamic>.from(item as Map)),
         ],
+        passedStages: {
+          for (final entry
+              in (json['passed_stages'] as Map? ?? const <String, dynamic>{})
+                  .entries)
+            entry.key as String: [
+              for (final value in entry.value as List) (value as num).toInt(),
+            ],
+        },
       );
 
   static ProgressBook empty({String userId = 'local'}) =>
       ProgressBook(userId: userId, competencies: {}, attempts: []);
+}
+
+/// Правила отдельной компетенции для составного задания.
+class CompetencyProgressPolicy {
+  const CompetencyProgressPolicy({required this.rules, required this.policy});
+
+  final MasteryRules rules;
+  final ReviewPolicy policy;
 }
 
 class SessionDraft {
@@ -108,6 +146,9 @@ class SessionDraft {
     this.transfer = false,
     this.errorTag = '',
     this.itemSignature = 'item',
+    this.competencyIds,
+    this.competencyPolicies = const {},
+    this.responseMs = const [],
   });
 
   final String competencyId;
@@ -120,6 +161,9 @@ class SessionDraft {
   final bool transfer;
   final String errorTag;
   final String itemSignature;
+  final List<String>? competencyIds;
+  final Map<String, CompetencyProgressPolicy> competencyPolicies;
+  final List<int> responseMs;
 }
 
 abstract interface class ProgressStore {
@@ -132,6 +176,8 @@ abstract interface class ProgressStore {
   void scheduleNextDayReturn(String tag);
 
   void scheduleReturnInDays(String tag, int days);
+
+  void markStagePassed(String setId, int stage);
 
   List<String> openErrorTags();
 }
@@ -164,8 +210,14 @@ class MemoryProgressStore implements ProgressStore {
 
   @override
   void recordSession(SessionDraft session) {
+    if (session.correct.isEmpty) return;
+    final ids =
+        (session.competencyIds ?? [session.competencyId]).toSet().toList();
+    if (ids.isEmpty || !ids.contains(session.competencyId)) {
+      throw ArgumentError(
+          'Список компетенций должен содержать основную компетенцию');
+    }
     final now = clock.now();
-    final current = snapshot(session.competencyId);
     final fresh = <AttemptRecord>[
       for (var i = 0; i < session.correct.length; i++)
         AttemptRecord(
@@ -173,9 +225,9 @@ class MemoryProgressStore implements ProgressStore {
           sessionId: session.sessionId,
           itemSignature: '${session.itemSignature}-$i',
           errorTag: session.errorTag,
-          competencyIds: [session.competencyId],
+          competencyIds: ids,
           isCorrect: session.correct[i],
-          responseMs: 0,
+          responseMs: i < session.responseMs.length ? session.responseMs[i] : 0,
           hintsUsed: 0,
           replays: 0,
           confidence: null,
@@ -187,51 +239,57 @@ class MemoryProgressStore implements ProgressStore {
         ),
     ];
     final attempts = [...book.attempts, ...fresh];
-    final mine =
-        attempts.where((a) => a.competencyId == session.competencyId).toList();
-    final decision = MasteryDecision.evaluate(
-      current: current.status,
-      provisionalAt: current.provisionalAt,
-      attempts: mine,
-      now: now,
-      coldReview: session.coldReview,
-      immediateMinAccuracy: rules.immediateMinAccuracy,
-      immediateWindow: rules.immediateWindow,
-      immediateMaxCriticalErrors: rules.immediateMaxCriticalErrors,
-      delayedMinAccuracy: rules.delayedMinAccuracy,
-      delayedMinItems: rules.delayedMinItems,
-      demotionAccuracyBelow: rules.demotionAccuracyBelow,
-      demotionWindow: rules.demotionWindow,
-    );
-    final accuracy = fresh.where((a) => a.isCorrect).length / fresh.length;
-    final stability = StabilityUpdate.addSession(
-      current: current.stability,
-      at: now,
-      tonality: session.tonality,
-      successful: accuracy >= rules.delayedMinAccuracy,
-    );
-    final step = ReviewStep.advance(
-      intervalDays: session.policy.intervalDays,
-      index: current.intervalStep,
-      now: now,
-      incorrect: accuracy < rules.delayedMinAccuracy,
-      transfer: session.transfer && accuracy >= rules.delayedMinAccuracy,
-    );
     final competencies =
         Map<String, CompetencySnapshot>.from(book.competencies);
-    competencies[session.competencyId] = CompetencySnapshot(
-      status: decision.status,
-      stability: stability,
-      intervalStep: step.index,
-      dueAt: step.dueAt,
-      provisionalAt: decision.markedProvisionalAt,
-    );
-    book = ProgressBook(
-      userId: book.userId,
-      competencies: competencies,
-      attempts: attempts,
-      returns: book.returns,
-    );
+    for (final id in ids) {
+      final current = snapshot(id);
+      final profile = session.competencyPolicies[id];
+      final evidenceRules = profile?.rules ?? rules;
+      final policy = profile?.policy ?? session.policy;
+      final mine = attempts
+          .where((a) => a.competencyId == id || a.competencyIds.contains(id))
+          .toList();
+      final decision = MasteryDecision.evaluate(
+        current: current.status,
+        provisionalAt: current.provisionalAt,
+        attempts: mine,
+        now: now,
+        coldReview: session.coldReview,
+        immediateMinAccuracy: evidenceRules.immediateMinAccuracy,
+        immediateWindow: evidenceRules.immediateWindow,
+        immediateMaxCriticalErrors: evidenceRules.immediateMaxCriticalErrors,
+        delayedMinAccuracy: evidenceRules.delayedMinAccuracy,
+        delayedMinItems: evidenceRules.delayedMinItems,
+        demotionAccuracyBelow: evidenceRules.demotionAccuracyBelow,
+        demotionWindow: evidenceRules.demotionWindow,
+        minimumDelay: profile == null
+            ? const Duration(hours: 20)
+            : Duration(hours: policy.firstDelayRangeHours.$1),
+      );
+      final accuracy = fresh.where((a) => a.isCorrect).length / fresh.length;
+      final stability = StabilityUpdate.addSession(
+        current: current.stability,
+        at: now,
+        tonality: session.tonality,
+        successful: accuracy >= evidenceRules.delayedMinAccuracy,
+      );
+      final step = ReviewStep.advance(
+        intervalDays: policy.intervalDays,
+        index: current.intervalStep,
+        now: now,
+        incorrect: accuracy < evidenceRules.delayedMinAccuracy,
+        transfer:
+            session.transfer && accuracy >= evidenceRules.delayedMinAccuracy,
+      );
+      competencies[id] = CompetencySnapshot(
+        status: decision.status,
+        stability: stability,
+        intervalStep: step.index,
+        dueAt: step.dueAt,
+        provisionalAt: decision.markedProvisionalAt,
+      );
+    }
+    book = book.copyWith(competencies: competencies, attempts: attempts);
   }
 
   @override
@@ -239,10 +297,7 @@ class MemoryProgressStore implements ProgressStore {
 
   @override
   void scheduleReturnInDays(String tag, int days) {
-    book = ProgressBook(
-      userId: book.userId,
-      competencies: book.competencies,
-      attempts: book.attempts,
+    book = book.copyWith(
       returns: scheduleAfter(
         current: book.returns,
         tag: tag,
@@ -250,6 +305,17 @@ class MemoryProgressStore implements ProgressStore {
         days: days,
       ),
     );
+  }
+
+  @override
+  void markStagePassed(String setId, int stage) {
+    final next = {
+      for (final entry in book.passedStages.entries)
+        entry.key: List<int>.of(entry.value),
+    };
+    final stages = next.putIfAbsent(setId, () => <int>[]);
+    if (!stages.contains(stage)) stages.add(stage);
+    book = book.copyWith(passedStages: next);
   }
 
   @override
@@ -261,7 +327,7 @@ class MemoryProgressStore implements ProgressStore {
     }
     return [
       for (final entry in latest.entries)
-        if (!entry.value) entry.key
+        if (!entry.value) entry.key,
     ];
   }
 }
@@ -291,17 +357,6 @@ class SharedPreferencesProgressStore implements ProgressStore {
   final String userId;
   final String storageKey;
   late MemoryProgressStore _memory;
-  void Function(ProgressBook book)? onBookChanged;
-
-  void _persist() {
-    _preferences.setString(storageKey, jsonEncode(book.toJson()));
-    onBookChanged?.call(book);
-  }
-
-  void adoptBook(ProgressBook next) {
-    _memory.book = next;
-    _preferences.setString(storageKey, jsonEncode(book.toJson()));
-  }
 
   @override
   ProgressBook get book => _memory.book;
@@ -313,7 +368,7 @@ class SharedPreferencesProgressStore implements ProgressStore {
   @override
   void recordSession(SessionDraft session) {
     _memory.recordSession(session);
-    _persist();
+    _preferences.setString(storageKey, jsonEncode(book.toJson()));
   }
 
   @override
@@ -322,7 +377,13 @@ class SharedPreferencesProgressStore implements ProgressStore {
   @override
   void scheduleReturnInDays(String tag, int days) {
     _memory.scheduleReturnInDays(tag, days);
-    _persist();
+    _preferences.setString(storageKey, jsonEncode(book.toJson()));
+  }
+
+  @override
+  void markStagePassed(String setId, int stage) {
+    _memory.markStagePassed(setId, stage);
+    _preferences.setString(storageKey, jsonEncode(book.toJson()));
   }
 
   @override

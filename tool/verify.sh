@@ -41,6 +41,10 @@ fi
 
 echo "QA: Flutter $actual_flutter, Deno $actual_deno"
 python3 -m unittest discover -s tool/tests -p 'test_*.py'
+bash tool/verify_database.sh
+if [[ -f tool/verify_note_audio.py ]]; then
+  python3 tool/verify_note_audio.py > /dev/null
+fi
 "$FLUTTER_BIN" pub get --enforce-lockfile
 "$FLUTTER_BIN" analyze --no-pub
 python3 tool/extract_curriculum.py --check

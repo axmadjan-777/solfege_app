@@ -7,7 +7,7 @@ class ScheduledReturn {
 
   Map<String, Object?> toJson() => {
         'tag': tag,
-        'due_at': dueAt.toIso8601String(),
+        'due_at': dueAt.toUtc().toIso8601String(),
       };
 
   factory ScheduledReturn.fromJson(Map<String, dynamic> json) {

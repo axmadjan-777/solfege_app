@@ -2,6 +2,7 @@ import '../../curriculum/data/curriculum_catalog.dart';
 import '../../curriculum/models/lesson.dart';
 import '../../curriculum/models/practice_set.dart';
 import 'progress_store.dart';
+import 'stage_progress.dart';
 
 /// Одна попытка тренажёра пишется в книгу прогресса и не ставит `mastered`.
 void recordPracticeAnswer({
@@ -15,9 +16,11 @@ void recordPracticeAnswer({
 }) {
   final set = catalog.practiceSets.firstWhere((item) => item.id == setId);
   final competencyId = competencyOf(set);
+  final profile = coldReview ? practiceReviewPolicy(catalog, setId) : null;
   store.recordSession(
     SessionDraft(
       competencyId: competencyId,
+      competencyPolicies: profile == null ? const {} : {competencyId: profile},
       sessionId: sessionId ?? '$setId-${store.book.attempts.length}',
       correct: [correct],
       policy: catalog.config.policy(set.reviewRule),
@@ -27,6 +30,17 @@ void recordPracticeAnswer({
       itemSignature: setId,
     ),
   );
+}
+
+/// Прежний вход использует те же ограничения каталога, что и проверка стадии.
+CompetencyProgressPolicy practiceReviewPolicy(
+    CurriculumCatalog catalog, String setId) {
+  final set = catalog.practiceSet(setId);
+  final id = competencyOf(set);
+  final stage =
+      set.stages.firstWhere((stage) => stage.competencyIds.contains(id));
+  return stageCompetencyPolicy(
+      catalog: catalog, stage: stage, competencyId: id);
 }
 
 /// Итог урока пишется в ту же книгу, что и ответ тренажёра. Короткий урок не ставит `mastered`.
