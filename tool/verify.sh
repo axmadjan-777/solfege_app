@@ -4,6 +4,22 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+case "${1:-}" in
+  --docs-only)
+    [[ "$#" == 1 ]] || exit 2
+    exec python3 tool/verify_docs.py
+    ;;
+  "")
+    [[ "$#" == 0 ]] || exit 2
+    ;;
+  *)
+    echo "Usage: bash tool/verify.sh [--docs-only]" >&2
+    exit 2
+    ;;
+esac
+
+python3 tool/verify_docs.py
+
 # shellcheck source=tool/toolchain.sh
 source tool/toolchain.sh
 trap 'echo "QA остановлен с ошибкой на строке $LINENO." >&2' ERR
@@ -29,7 +45,7 @@ python3 -m unittest discover -s tool/tests -p 'test_*.py'
 "$FLUTTER_BIN" analyze --no-pub
 python3 tool/extract_curriculum.py --check
 "$FLUTTER_BIN" test --no-pub
-"$DENO_BIN" check --no-lock supabase/functions/gemini-chat/index.ts
-"$DENO_BIN" test --no-lock --no-prompt tool/tests
+"$DENO_BIN" check --no-lock supabase/functions/gemini-chat/index.ts tool/tests/*.ts
+"$DENO_BIN" test --no-check --no-lock --no-prompt tool/tests
 "$FLUTTER_BIN" build web --release --no-pub --base-href /solfege_app/
 echo "QA пройден. Живые сервисы и пользовательская приёмка проверяются отдельно."
