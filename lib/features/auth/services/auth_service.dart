@@ -40,6 +40,8 @@ class AuthService {
   final ProfileService _profileService;
   final PendingRegistrationStore _pendingStore;
 
+  bool get isConfigured => SupabaseConfig.isConfigured;
+
   Stream<AuthState> get authStateChanges =>
       SupabaseClientProvider.client.auth.onAuthStateChange;
 
