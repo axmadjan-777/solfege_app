@@ -36,7 +36,8 @@ void main() {
     final clock = FixedClock(DateTime.utc(2026, 10, 5));
     final store = _store(preferences, clock);
     final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+      catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+    );
 
     await tester.pumpWidget(_round(store, clock));
     await tester.pump();
@@ -48,7 +49,9 @@ void main() {
     final reloaded = _store(preferences, clock);
     expect(reloaded.snapshot(competency).stability.sessions, hasLength(1));
     expect(
-        reloaded.snapshot(competency).stability.sessions.single.tonality, 'C');
+      reloaded.snapshot(competency).stability.sessions.single.tonality,
+      'C',
+    );
     expect(reloaded.snapshot(competency).status, CompetencyStatus.practicing);
 
     await tester.pumpWidget(_round(reloaded, clock));
@@ -80,6 +83,28 @@ void main() {
       ['PR-08'],
     );
   });
+
+  test(
+    'a passed stage survives another answer, scheduling and a new launch',
+    () async {
+      final preferences = await SharedPreferences.getInstance();
+      final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+      final store = _store(preferences, clock);
+      store.markStagePassed('PR-01', 1);
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-01',
+        correct: true,
+      );
+      store.scheduleNextDayReturn('PR-01');
+
+      final reloaded = _store(preferences, clock);
+      expect(reloaded.book.passedStages['PR-01'], [1]);
+      expect(reloaded.book.attempts, hasLength(1));
+      expect(reloaded.book.returns.single.tag, 'PR-01');
+    },
+  );
 }
 
 Widget _round(ProgressStore store, Clock clock) {
@@ -95,7 +120,9 @@ Widget _round(ProgressStore store, Clock clock) {
 }
 
 SharedPreferencesProgressStore _store(
-    SharedPreferences preferences, Clock clock) {
+  SharedPreferences preferences,
+  Clock clock,
+) {
   return SharedPreferencesProgressStore(
     preferences: preferences,
     clock: clock,
@@ -105,5 +132,6 @@ SharedPreferencesProgressStore _store(
 
 Map<String, dynamic> _read(String name) {
   return Map<String, dynamic>.from(
-      jsonDecode(File('assets/curriculum/$name').readAsStringSync()) as Map);
+    jsonDecode(File('assets/curriculum/$name').readAsStringSync()) as Map,
+  );
 }
