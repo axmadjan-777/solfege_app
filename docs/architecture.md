@@ -66,14 +66,17 @@ Flutter-клиент показывает экраны, загружает вс�
 | Профиль | `public.profiles` в Supabase; чтение и upsert текущего пользователя | [ProfileService](../lib/features/auth/services/profile_service.dart) |
 | Незавершённая регистрация | Metadata пользователя и временное локальное состояние | [auth/services](../lib/features/auth/services/) |
 | Учебный прогресс | SharedPreferences, ключ `practice_progress_v1`, по умолчанию `userId=local` | [PracticeProgressBinding](../lib/features/practice/progress/practice_progress_binding.dart), [ProgressStore](../lib/features/practice/progress/progress_store.dart) |
-| История чата | Список сообщений в памяти экрана | [AiChatScreen](../lib/features/ai/screens/ai_chat_screen.dart) |
+| История чата | Список на экране и загрузка/запись `ai_chat_sessions` / `ai_chat_messages` текущего пользователя | [AiChatScreen](../lib/features/ai/screens/ai_chat_screen.dart), [AiChatHistory](../lib/features/ai/services/ai_chat_history.dart) |
 
 Профиль сохраняется в облаке, а учебный прогресс этой версии — на устройстве.
 Облачная синхронизация и разделение локального ключа по аккаунтам здесь не
 реализованы; задача изоляции — APP-02 в roadmap. Код облачной книги из другого
 открытого PR нельзя считать поведением этой версии.
 
-[schema.sql](../supabase/schema.sql) описывает профиль и RLS. Содержимое файла
+[schema.sql](../supabase/schema.sql) описывает профиль, таблицы истории чата и RLS.
+История требует применения новых SQL и проверки двух аккаунтов до публикации.
+При недоступной истории экран показывает предупреждение; отправка вопроса
+в Gemini остаётся доступна. Содержимое файла
 не подтверждает, что та же схема применена в живом проекте.
 
 ## Как запускается звук гаммы

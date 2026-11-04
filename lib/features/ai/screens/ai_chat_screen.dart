@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../models/ai_chat_message.dart';
+import '../services/ai_chat_history.dart';
 import '../services/ai_chat_service.dart';
+import '../thinking_lines.dart';
 
 class AiChatScreen extends StatefulWidget {
-  const AiChatScreen({super.key, this.chatService});
+  const AiChatScreen({super.key, this.chatService, this.history});
 
   final AiChatService? chatService;
+  final AiChatHistory? history;
 
   @override
   State<AiChatScreen> createState() => _AiChatScreenState();
@@ -18,12 +21,50 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
   late final AiChatService _chatService =
       widget.chatService ?? GeminiAiChatService();
+  late final AiChatHistory _history =
+      widget.history ?? SupabaseAiChatHistory();
   final _messages = <AiChatMessage>[];
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
 
   bool _isLoading = false;
+  bool _loadingHistory = true;
   String? _errorDetails;
+  String? _historyWarning;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHistory();
+  }
+
+  Future<void> _loadHistory() async {
+    try {
+      final saved = await _history.load();
+      if (!mounted) return;
+      setState(() {
+        if (_messages.isEmpty) {
+          _messages.addAll(saved);
+        } else {
+          _messages.insertAll(0, saved);
+        }
+        _loadingHistory = false;
+        _historyWarning = null;
+      });
+    } on AiChatHistoryException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _loadingHistory = false;
+        _historyWarning = error.message;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loadingHistory = false;
+        _historyWarning = 'Не удалось открыть прошлые сообщения.';
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -55,6 +96,22 @@ class _AiChatScreenState extends State<AiChatScreen> {
     await _requestAnswer();
   }
 
+  Future<void> _remember(AiChatMessage message) async {
+    if (message.stored) return;
+    try {
+      final stored = await _history.append(message);
+      if (!mounted) return;
+      final index = _messages.indexOf(message);
+      if (index < 0) return;
+      setState(() => _messages[index] = stored);
+    } catch (_) {
+      if (!mounted) return;
+      setState(
+        () => _historyWarning = 'Сообщение осталось только на этом экране.',
+      );
+    }
+  }
+
   Future<void> _requestAnswer() async {
     if (_isLoading || _messages.isEmpty) return;
     setState(() {
@@ -63,21 +120,20 @@ class _AiChatScreenState extends State<AiChatScreen> {
     });
     _scrollToEnd();
 
+    await _remember(_messages.last);
     try {
       final answer = await _chatService.send(List.unmodifiable(_messages));
       if (!mounted) return;
-      setState(() {
-        _messages.add(
-          AiChatMessage(role: AiChatRole.model, text: answer),
-        );
-      });
+      final reply = AiChatMessage(role: AiChatRole.model, text: answer);
+      setState(() => _messages.add(reply));
+      await _remember(reply);
     } on AiChatException catch (error) {
       if (!mounted) return;
       setState(() => _errorDetails = error.message);
     } catch (_) {
       if (!mounted) return;
       setState(
-        () => _errorDetails = 'Проверьте подключение и попробуйте снова.',
+        () => _errorDetails = 'Запрос не дошёл. Проверьте подключение и повторите.',
       );
     } finally {
       if (mounted) {
@@ -106,28 +162,47 @@ class _AiChatScreenState extends State<AiChatScreen> {
         child: Column(
           children: [
             _buildHeader(context),
-            Expanded(
-              child: _messages.isEmpty
-                  ? const _EmptyChat()
-                  : ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-                      itemCount: _messages.length +
-                          (_isLoading ? 1 : 0) +
-                          (_errorDetails != null ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index < _messages.length) {
-                          return _MessageBubble(message: _messages[index]);
-                        }
-                        if (_isLoading) {
-                          return const _TypingBubble();
-                        }
-                        return _ErrorBubble(
-                          details: _errorDetails!,
-                          onRetry: _requestAnswer,
-                        );
-                      },
+            if (_historyWarning != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                child: Row(
+                  children: [
+                    Expanded(child: Text(_historyWarning!)),
+                    TextButton(
+                      onPressed: _loadHistory,
+                      child: const Text('Обновить'),
                     ),
+                  ],
+                ),
+              ),
+            Expanded(
+              child: _loadingHistory
+                  ? const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Text('Листаю старые ноты'),
+                      ),
+                    )
+                  : _messages.isEmpty
+                      ? const _EmptyChat()
+                      : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                          itemCount: _messages.length +
+                              (_isLoading ? 1 : 0) +
+                              (_errorDetails != null ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index < _messages.length) {
+                              return _MessageBubble(message: _messages[index]);
+                            }
+                            if (_isLoading) return const ThinkingBubble();
+                            return _ErrorBubble(
+                              details: _errorDetails!,
+                              onRetry: _requestAnswer,
+                            );
+                          },
+                        ),
             ),
             _buildComposer(context),
           ],
@@ -272,25 +347,6 @@ class _MessageBubble extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: isUser ? AppColors.textOnAccent : AppColors.textPrimary,
               ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TypingBubble extends StatelessWidget {
-  const _TypingBubble();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12),
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(strokeWidth: 2),
         ),
       ),
     );
