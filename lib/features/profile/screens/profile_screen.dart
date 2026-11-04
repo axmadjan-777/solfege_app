@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../note_trainer/widgets/warmup_section.dart';
 import '../../auth/models/gender.dart';
 import '../../auth/models/user_profile.dart';
 import '../../auth/services/auth_service.dart';
@@ -58,6 +59,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
+
+  String _warmupUserId(User? user) => user?.id ?? 'local';
 
   Future<void> _load() async {
     setState(() => _isLoading = true);
@@ -186,6 +189,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'Профиль',
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
+                  const SizedBox(height: 16),
+                  WarmupSection(userId: _warmupUserId(user)),
                   const SizedBox(height: 24),
                   if (_profile?.musicianLevel != null)
                     Padding(

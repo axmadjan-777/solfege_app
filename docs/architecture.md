@@ -39,7 +39,7 @@ Flutter-клиент показывает экраны, загружает вс�
 | Теория | Карту уроков и объяснения с заданиями | [TheoryHomeScreen](../lib/features/theory/screens/theory_home_screen.dart) |
 | Практика | Тренажёры и учебные сессии | [PracticeMapScreen](../lib/features/practice/screens/practice_map_screen.dart) |
 | ИИ | Чат с музыкальным помощником | [AiChatScreen](../lib/features/ai/screens/ai_chat_screen.dart) |
-| Профиль | Данные вошедшего пользователя | [ProfileScreen](../lib/features/profile/screens/profile_screen.dart) |
+| Профиль | Данные вошедшего пользователя и карточки нотного тренажёра | [ProfileScreen](../lib/features/profile/screens/profile_screen.dart), [NoteTrainerScreen](../lib/features/note_trainer/screens/note_trainer_screen.dart) |
 
 Общие виджеты заданий находятся в [interaction](../lib/features/interaction/).
 Условия открытия учебных экранов и найденные разрывы интеграции рассматриваются
@@ -73,7 +73,11 @@ Flutter-клиент показывает экраны, загружает вс�
 реализованы; задача изоляции — APP-02 в roadmap. Код облачной книги из другого
 открытого PR нельзя считать поведением этой версии.
 
-[schema.sql](../supabase/schema.sql) описывает профиль и RLS. Содержимое файла
+[schema.sql](../supabase/schema.sql) описывает профиль, песни, прогресс песен и RLS.
+Нотный тренажёр использует встроенный каталог как запасной источник,
+локальные MP3 и [SongRepository](../lib/features/note_trainer/data/song_repository.dart).
+Облачные таблицы требуют применения SQL и проверки прав двух аккаунтов
+перед публикацией; наличие локального каталога этого не подтверждает. Содержимое файла
 не подтверждает, что та же схема применена в живом проекте.
 
 ## Как запускается звук гаммы
