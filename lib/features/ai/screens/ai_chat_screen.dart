@@ -80,7 +80,15 @@ class _AiChatScreenState extends State<AiChatScreen> {
       final saved = await _history.load();
       if (!_isCurrent(generation, owner) || load != _historyLoad) return;
       setState(() {
-        final pending = _messages.where((message) => !message.stored).toList();
+        final savedIds = {
+          for (final message in saved)
+            if (message.id != null) message.id!,
+        };
+        final pending = _messages
+            .where((message) =>
+                !message.stored &&
+                (message.id == null || !savedIds.contains(message.id)))
+            .toList();
         _messages
           ..clear()
           ..addAll(saved)
@@ -116,6 +124,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
   Future<void> _send() async {
     final question = _inputController.text.trim();
     if (_isLoading || _loadingHistory || question.isEmpty) return;
+    if (!_isCurrent(_generation, _owner)) return;
     if (question.length > _maxMessageLength) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -145,7 +154,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     int generation,
     String? owner,
   ) async {
-    if (message.stored) return;
+    if (message.stored || !_isCurrent(generation, owner)) return;
     try {
       final stored = await _history.append(message);
       if (!_isCurrent(generation, owner)) return;
@@ -167,6 +176,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     if (_isLoading || _messages.isEmpty) return;
     final generation = _generation;
     final owner = _owner;
+    if (!_isCurrent(generation, owner)) return;
     setState(() {
       _isLoading = true;
       _errorDetails = null;

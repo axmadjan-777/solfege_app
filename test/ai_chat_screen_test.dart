@@ -155,6 +155,89 @@ void main() {
   });
 
   testWidgets(
+      'send cannot append A text for B before the owner notification arrives',
+      (tester) async {
+    final history = _ScopedHistory();
+    addTearDown(history.changes.close);
+    final service = _FakeAiChatService();
+    await tester.pumpWidget(MaterialApp(
+        home: AiChatScreen(chatService: service, history: history)));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byKey(const Key('ai_chat_input')), 'Черновик аккаунта A');
+
+    // The SDK session changes synchronously; its public event stream is async.
+    history.owner = 'B';
+    await tester.tap(find.byKey(const Key('ai_chat_send')));
+    await tester.pumpAndSettle();
+    expect(history.rows['B'], hasLength(1));
+    expect(service.receivedMessages, isNull);
+
+    history.changes.add('B');
+    await tester.pumpAndSettle();
+    expect(find.text('История B'), findsOneWidget);
+    expect(find.text('Черновик аккаунта A'), findsNothing);
+  });
+
+  testWidgets(
+      'retry cannot send A history for B before the owner notification arrives',
+      (tester) async {
+    final history = _ScopedHistory();
+    addTearDown(history.changes.close);
+    final service = _CountingFailedService();
+    await tester.pumpWidget(MaterialApp(
+        home: AiChatScreen(chatService: service, history: history)));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byKey(const Key('ai_chat_input')), 'Вопрос аккаунта A');
+    await tester.tap(find.byKey(const Key('ai_chat_send')));
+    await tester.pumpAndSettle();
+    expect(service.calls, 1);
+
+    history.owner = 'B';
+    await tester.tap(find.text('Повторить'));
+    await tester.pumpAndSettle();
+    expect(service.calls, 1);
+    expect(history.rows['B'], hasLength(1));
+    history.changes.add('B');
+    await tester.pumpAndSettle();
+    expect(find.text('Вопрос аккаунта A'), findsNothing);
+  });
+
+  testWidgets(
+      'refresh reconciles a lost acknowledgement by ID and keeps only genuinely unsaved rows',
+      (tester) async {
+    final history = _LostAcknowledgementHistory();
+    await tester.pumpWidget(MaterialApp(
+        home:
+            AiChatScreen(chatService: _FakeAiChatService(), history: history)));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('ai_chat_input')),
+        'Вопрос с потерянным подтверждением');
+    await tester.tap(find.byKey(const Key('ai_chat_send')));
+    await tester.pumpAndSettle();
+
+    for (var index = 0; index < 2; index++) {
+      await tester.tap(find.text('Обновить'));
+      await tester.pumpAndSettle();
+      expect(find.text('Вопрос с потерянным подтверждением'), findsOneWidget);
+      expect(find.textContaining('До мажор: до, ре, ми'), findsOneWidget);
+      expect(find.text('Сообщение осталось только на этом экране.'),
+          findsOneWidget);
+    }
+
+    history.commitPendingAnswer();
+    await tester.tap(find.text('Обновить'));
+    await tester.pumpAndSettle();
+    expect(find.text('Вопрос с потерянным подтверждением'), findsOneWidget);
+    expect(find.textContaining('До мажор: до, ре, ми'), findsOneWidget);
+    expect(
+        find.text('Сообщение осталось только на этом экране.'), findsNothing);
+    expect(find.text('Обновить'), findsNothing);
+    expect(await history.load(), hasLength(2));
+  });
+
+  testWidgets(
       'switching account hides A messages and ignores a late Gemini reply',
       (tester) async {
     final history = _ScopedHistory();
@@ -222,6 +305,38 @@ class _GateService implements AiChatService {
 
   @override
   Future<String> send(List<AiChatMessage> messages) => pending;
+}
+
+class _CountingFailedService implements AiChatService {
+  int calls = 0;
+
+  @override
+  Future<String> send(List<AiChatMessage> messages) async {
+    calls += 1;
+    throw const AiChatException('offline');
+  }
+}
+
+class _LostAcknowledgementHistory implements AiChatHistory {
+  final _rows = <AiChatMessage>[];
+  AiChatMessage? _pendingAnswer;
+
+  @override
+  Future<List<AiChatMessage>> load() async => List.of(_rows);
+
+  @override
+  Future<AiChatMessage> append(AiChatMessage message) async {
+    if (message.role == AiChatRole.user) {
+      _rows.add(message.markStored());
+    } else {
+      _pendingAnswer = message;
+    }
+    throw const AiChatHistoryException('acknowledgement lost');
+  }
+
+  void commitPendingAnswer() {
+    _rows.add(_pendingAnswer!.markStored());
+  }
 }
 
 class _BrokenHistory implements AiChatHistory {
