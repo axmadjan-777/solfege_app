@@ -111,6 +111,30 @@ Deno.test("invalid Supabase session never reaches Gemini", () =>
     assert(s.requests.length === 1, "Only Supabase auth should be called");
   }));
 
+Deno.test("secret and management API keys are rejected before auth requests", () =>
+  withServices(async (s) => {
+    for (const key of ["sb_secret_test", "sbp_test"]) {
+      s.env.SUPABASE_PUBLISHABLE_KEYS = JSON.stringify({ default: key });
+      s.env.SUPABASE_ANON_KEY = key;
+      assert((await post(question)).status === 401, "Expected 401");
+    }
+    assert(s.requests.length === 0, "Unsafe keys must not be sent to Auth");
+  }));
+
+Deno.test("invalid publishable config falls back to the anon key", () =>
+  withServices(async (s) => {
+    for (const value of [42, null, "sb_secret_test", "sbp_test"]) {
+      s.env.SUPABASE_PUBLISHABLE_KEYS = JSON.stringify({ default: value });
+      assert((await post(question)).status === 200, "Expected successful fallback");
+    }
+    const authRequests = s.requests.filter((r) => r.url.endsWith("/auth/v1/user"));
+    assert(authRequests.length === 4, "Every fallback should authenticate");
+    assert(
+      authRequests.every((r) => r.headers.get("apikey") === "test-publishable-key"),
+      "Only the configured anon key may be sent",
+    );
+  }));
+
 Deno.test("missing server API key returns service unavailable", () =>
   withServices(async (s) => {
     delete s.env.GEMINI_API_KEY;

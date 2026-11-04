@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../ai/screens/ai_chat_screen.dart';
+import '../coach/coach_catalog.dart';
+import '../coach/coach_controller.dart';
+import '../coach/coach_layer.dart';
 import '../practice/progress/attempt.dart';
 import '../practice/progress/practice_progress_binding.dart';
 import '../practice/screens/practice_map_screen.dart';
@@ -18,7 +21,58 @@ class MainShellScreen extends StatefulWidget {
 
 class _MainShellScreenState extends State<MainShellScreen> {
   int _index = 0;
+  var _coachBound = false;
+  var _tourRunning = false;
+  CoachController? _coach;
   late final Future<PracticeProgressBinding> _progress = loadPracticeProgress();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_coachBound) return;
+    _coachBound = true;
+    final coach = CoachScope.maybeOf(context);
+    if (coach == null) return;
+    _coach = coach;
+    coach.onShowTab = (tab) {
+      if (mounted) setState(() => _index = tab);
+    };
+    coach.addListener(_onCoach);
+    _loadCoach(coach);
+  }
+
+  Future<void> _loadCoach(CoachController coach) async {
+    try {
+      if (await coach.persistence.isDone()) {
+        if (mounted) coach.finish(persist: false);
+        return;
+      }
+    } catch (_) {
+      return;
+    }
+    if (mounted) coach.arm();
+  }
+
+  void _onCoach() {
+    final coach = _coach;
+    if (coach == null) return;
+    if (coach.visible) _tourRunning = true;
+    if (_tourRunning && coach.done && mounted) {
+      _tourRunning = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Маршрут пройден. Сначала теория, затем практика.'),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _coach?.removeListener(_onCoach);
+    if (_coach?.onShowTab != null) _coach?.onShowTab = null;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +96,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
           _ShellTab(
             label: 'Теория',
             icon: Icons.menu_book_rounded,
+            coachId: 'nav-theory',
             screen: TheoryHomeScreen(
               catalog: binding.catalog,
               progress: binding.progress,
@@ -64,14 +119,21 @@ class _MainShellScreenState extends State<MainShellScreen> {
               icon: Icons.auto_awesome_rounded,
               screen: AiChatScreen()),
           const _ShellTab(
-              label: 'Профиль',
-              icon: Icons.person_rounded,
-              screen: ProfileScreen()),
+            label: 'Профиль',
+            icon: Icons.person_rounded,
+            coachId: 'nav-profile',
+            screen: ProfileScreen(),
+          ),
         ];
         return _Shell(
-            index: _index,
-            tabs: tabs,
-            onSelected: (value) => setState(() => _index = value));
+          index: _index,
+          tabs: tabs,
+          onSelected: (value) {
+            setState(() => _index = value);
+            final action = coachActionForTab(value);
+            if (action != null) CoachScope.maybeOf(context)?.note(action);
+          },
+        );
       },
     );
   }
@@ -110,11 +172,8 @@ class _Shell extends StatelessWidget {
             destinations: tabs
                 .map(
                   (tab) => NavigationDestination(
-                    icon: Icon(tab.icon),
-                    selectedIcon: Icon(
-                      tab.icon,
-                      color: AppColors.coral,
-                    ),
+                    icon: _navIcon(tab, selected: false),
+                    selectedIcon: _navIcon(tab, selected: true),
                     label: tab.label,
                   ),
                 )
@@ -131,9 +190,21 @@ class _ShellTab {
     required this.label,
     required this.icon,
     required this.screen,
+    this.coachId,
   });
 
   final String label;
   final IconData icon;
   final Widget screen;
+  final String? coachId;
+}
+
+Widget _navIcon(_ShellTab tab, {required bool selected}) {
+  final icon = Icon(tab.icon, color: selected ? AppColors.coral : null);
+  final id = tab.coachId;
+  if (id == null) return icon;
+  return CoachTarget(
+    id: id,
+    child: Padding(padding: const EdgeInsets.all(8), child: icon),
+  );
 }
