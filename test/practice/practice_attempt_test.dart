@@ -12,6 +12,7 @@ import 'package:solfege_app/features/practice/progress/progress_store.dart';
 import 'package:solfege_app/features/practice/screens/practice_followup.dart';
 import 'package:solfege_app/features/practice/screens/practice_map_screen.dart';
 import 'package:solfege_app/features/practice/screens/practice_round_screen.dart';
+import 'package:solfege_app/features/practice/trainers/stage_catalog.dart';
 
 void main() {
   late CurriculumCatalog catalog;
@@ -27,37 +28,56 @@ void main() {
     );
   });
 
-  testWidgets('a correct interval is stored as practicing and not mastered',
-      (tester) async {
+  testWidgets('a correct interval is stored as practicing and not mastered', (
+    tester,
+  ) async {
     final store = _store();
     final player = FakePracticeAudioPlayer();
     await tester.pumpWidget(
       MaterialApp(
-          home: PracticeMapScreen(
-              catalog: catalog, player: player, progress: store)),
+        home: PracticeMapScreen(
+          catalog: catalog,
+          player: player,
+          progress: store,
+        ),
+      ),
     );
     await tester.scrollUntilVisible(find.text('Интервалы на слух'), 400);
     await tester.tap(find.text('Интервалы на слух'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('м3'));
+    final set = catalog.practiceSets.firstWhere((item) => item.id == 'PR-03');
+    final plan = buildStageSession(
+      set: set,
+      stage: 1,
+      seed: stageSessionSeed('PR-03', 1, store.book.attempts.length),
+    );
+    await tester.tap(find.text('Шире или уже'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(plan.tasks.first.answer));
     await tester.pump();
 
     final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+      catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+    );
     expect(competency, 'ear.interval.m3_M3');
     expect(store.book.attempts.single.isCorrect, isTrue);
     expect(store.snapshot(competency).status, CompetencyStatus.practicing);
     expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
   });
 
-  testWidgets('a wrong interval and a sung report stay below mastered',
-      (tester) async {
+  testWidgets('a wrong interval and a sung report stay below mastered', (
+    tester,
+  ) async {
     final store = _store();
     final player = FakePracticeAudioPlayer();
     await tester.pumpWidget(
       MaterialApp(
         home: practiceSetScreen(
-            setId: 'PR-03', player: player, catalog: catalog, progress: store),
+          setId: 'PR-03',
+          player: player,
+          catalog: catalog,
+          progress: store,
+        ),
       ),
     );
     await tester.pump();
@@ -69,80 +89,103 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: practiceSetScreen(
-            setId: 'PR-14', player: player, catalog: catalog, progress: store),
+          setId: 'PR-14',
+          player: player,
+          catalog: catalog,
+          progress: store,
+        ),
       ),
     );
     await tester.tap(find.text('Я спел'));
     await tester.pump();
     final sing = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-14'));
+      catalog.practiceSets.firstWhere((set) => set.id == 'PR-14'),
+    );
     expect(store.snapshot(sing).status, isNot(CompetencyStatus.mastered));
     expect(store.book.attempts, hasLength(2));
   });
 
   testWidgets(
-      'twelve correct answers stay provisional until a later cold review',
-      (tester) async {
-    final clock = FixedClock(DateTime.utc(2026, 10, 5));
-    final store =
-        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
-    final player = FakePracticeAudioPlayer();
-    await tester.pumpWidget(
-      MaterialApp(
-        home: PracticeRoundScreen(
-          setId: 'PR-03',
-          player: player,
-          catalog: catalog,
-          progress: store,
-          clock: clock,
+    'twelve correct answers stay provisional until a later cold review',
+    (tester) async {
+      final clock = FixedClock(DateTime.utc(2026, 10, 5));
+      final store = MemoryProgressStore(
+        clock: clock,
+        rules: catalog.config.masteryRules,
+      );
+      final player = FakePracticeAudioPlayer();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PracticeRoundScreen(
+            setId: 'PR-03',
+            player: player,
+            catalog: catalog,
+            progress: store,
+            clock: clock,
+          ),
         ),
-      ),
-    );
+      );
 
-    for (var i = 0; i < 12; i++) {
-      await tester.pump();
-      await tester.tap(find.text('м3'));
-      await tester.pump();
-      if (i < 11) {
-        await tester.tap(find.text('Следующее'));
+      for (var i = 0; i < 12; i++) {
         await tester.pump();
-      }
-    }
-
-    final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
-    expect(find.text('Предварительно сдано'), findsOneWidget);
-    expect(store.snapshot(competency).status,
-        CompetencyStatus.provisionallyPassed);
-
-    await tester.tap(find.text('Холодная проверка'));
-    await tester.pump();
-    expect(find.text('Рано'), findsOneWidget);
-    expect(store.snapshot(competency).status,
-        CompetencyStatus.provisionallyPassed);
-
-    clock.advance(const Duration(hours: 20));
-    await tester.tap(find.text('Холодная проверка'));
-    await tester.pump();
-    for (var i = 0; i < 4; i++) {
-      await _answer(tester, 'м3');
-      if (i < 3) {
-        await tester.tap(find.text('Следующее'));
+        await tester.tap(find.text('м3'));
         await tester.pump();
+        if (i < 11) {
+          await tester.tap(find.text('Следующее'));
+          await tester.pump();
+        }
       }
-    }
-    expect(find.text('Освоено'), findsWidgets);
-    expect(store.snapshot(competency).status, CompetencyStatus.mastered);
-  });
 
-  testWidgets('a miss on the cold review asks to practice again',
-      (tester) async {
+      final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+      );
+      expect(find.text('Предварительно сдано'), findsOneWidget);
+      expect(
+        store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed,
+      );
+
+      await tester.tap(find.text('Холодная проверка'));
+      await tester.pump();
+      expect(find.text('Рано'), findsOneWidget);
+      expect(
+        store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed,
+      );
+
+      clock.advance(const Duration(hours: 20));
+      await tester.tap(find.text('Холодная проверка'));
+      await tester.pump();
+      for (var i = 0;
+          i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+          i++) {
+        await _answer(tester, 'м3');
+        if (i + 1 <
+            catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
+          await tester.tap(find.text('Следующее'));
+          await tester.pump();
+        }
+      }
+      expect(find.text('Освоено'), findsWidgets);
+      expect(store.snapshot(competency).status, CompetencyStatus.mastered);
+    },
+  );
+
+  testWidgets('a miss on the cold review asks to practice again', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5));
-    final store =
-        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
     for (var i = 0; i < 12; i++) {
       recordPracticeAnswer(
-          store: store, catalog: catalog, setId: 'PR-03', correct: true);
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+      );
     }
     clock.advance(const Duration(hours: 20));
     await tester.pumpWidget(
@@ -159,28 +202,46 @@ void main() {
     await _answer(tester, 'м3');
     await tester.tap(find.text('Холодная проверка'));
     await tester.pump();
-    for (final label in ['м3', 'м3', 'м3', 'б3']) {
+    for (final label in [
+      ...List<String>.filled(
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2,
+          'м3'),
+      'б3',
+      'б3'
+    ]) {
       await _answer(tester, label);
-      if (label != 'б3') {
+      if (store.book.attempts
+              .where((attempt) =>
+                  attempt.coldReview &&
+                  attempt.sessionId == store.book.attempts.last.sessionId)
+              .length <
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
         await tester.tap(find.text('Следующее'));
         await tester.pump();
       }
     }
 
     final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+      catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+    );
     expect(find.text('Нужно повторить'), findsOneWidget);
     expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
     expect(store.snapshot(competency).provisionalAt, isNull);
     expect(find.text('Освоено'), findsNothing);
 
-    await tester.tap(find.text('Следующее'));
-    await tester.pump();
-    await _answer(tester, 'м3');
+    for (var repeat = 0;
+        repeat < catalog.config.masteryRules.immediateWindow;
+        repeat++) {
+      await tester.tap(find.text('Следующее'));
+      await tester.pump();
+      await _answer(tester, 'м3');
+    }
     final restored = store.snapshot(competency).provisionalAt;
     expect(find.text('Предварительно сдано'), findsOneWidget);
-    expect(store.snapshot(competency).status,
-        CompetencyStatus.provisionallyPassed);
+    expect(
+      store.snapshot(competency).status,
+      CompetencyStatus.provisionallyPassed,
+    );
     expect(restored, clock.now());
 
     await tester.tap(find.text('Холодная проверка'));
@@ -191,9 +252,11 @@ void main() {
     clock.advance(const Duration(hours: 20));
     await tester.tap(find.text('Холодная проверка'));
     await tester.pump();
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0;
+        i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+        i++) {
       await _answer(tester, 'м3');
-      if (i < 3) {
+      if (i + 1 < catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
         await tester.tap(find.text('Следующее'));
         await tester.pump();
       }
@@ -207,24 +270,38 @@ void main() {
     final store = _store();
     for (var i = 0; i < 12; i++) {
       recordPracticeAnswer(
-          store: store, catalog: catalog, setId: 'PR-03', correct: true);
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+      );
     }
     for (final correct in [true, true, true, true, false, false]) {
       recordPracticeAnswer(
-          store: store, catalog: catalog, setId: 'PR-03', correct: correct);
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: correct,
+      );
     }
 
     final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
-    expect(store.snapshot(competency).status,
-        CompetencyStatus.provisionallyPassed);
+      catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+    );
+    expect(
+      store.snapshot(competency).status,
+      CompetencyStatus.provisionallyPassed,
+    );
   });
 
-  testWidgets('four misses in the last six answers ask for review',
-      (tester) async {
+  testWidgets('four misses in the last six answers ask for review', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5));
-    final store =
-        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
     final player = FakePracticeAudioPlayer();
     await tester.pumpWidget(
       MaterialApp(
@@ -252,129 +329,166 @@ void main() {
     }
 
     final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+      catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+    );
     expect(find.text('Нужно повторить'), findsOneWidget);
     expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
     expect(find.text('Холодная проверка'), findsNothing);
   });
 
-  test('eleven correct answers after the misses restore provisional status',
-      () {
-    final store = _store();
-    _slip(store, catalog);
-    final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
-    final marked = store.snapshot(competency).provisionalAt;
-    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
+  test(
+    'eleven correct answers after the misses restore provisional status',
+    () {
+      final store = _store();
+      _slip(store, catalog);
+      final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+      );
+      final marked = store.snapshot(competency).provisionalAt;
+      expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
 
-    for (var i = 0; i < 10; i++) {
-      recordPracticeAnswer(
-          store: store, catalog: catalog, setId: 'PR-03', correct: true);
-    }
-    expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
-
-    recordPracticeAnswer(
-        store: store, catalog: catalog, setId: 'PR-03', correct: true);
-    expect(store.snapshot(competency).status,
-        CompetencyStatus.provisionallyPassed);
-    expect(store.snapshot(competency).provisionalAt, marked);
-    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
-  });
-
-  testWidgets(
-      'the round screen returns to provisional after the window recovers',
-      (tester) async {
-    final clock = FixedClock(DateTime.utc(2026, 10, 5));
-    final store =
-        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
-    _slip(store, catalog);
-    final player = FakePracticeAudioPlayer();
-    await tester.pumpWidget(
-      MaterialApp(
-        home: PracticeRoundScreen(
-          setId: 'PR-03',
-          player: player,
+      for (var i = 0; i < 10; i++) {
+        recordPracticeAnswer(
+          store: store,
           catalog: catalog,
-          progress: store,
-          clock: clock,
-        ),
-      ),
-    );
-
-    for (var i = 0; i < 11; i++) {
-      await _answer(tester, 'м3');
-      if (i == 9) expect(find.text('Нужно повторить'), findsOneWidget);
-      if (i < 10) {
-        await tester.tap(find.text('Следующее'));
-        await tester.pump();
+          setId: 'PR-03',
+          correct: true,
+        );
       }
-    }
+      expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
 
-    expect(find.text('Предварительно сдано'), findsOneWidget);
-    expect(find.text('Холодная проверка'), findsOneWidget);
-    final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
-    expect(store.snapshot(competency).status,
-        CompetencyStatus.provisionallyPassed);
-    await tester.tap(find.text('Холодная проверка'));
-    await tester.pump();
-    expect(find.text('Рано'), findsOneWidget);
-    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
-  });
+      recordPracticeAnswer(
+        store: store,
+        catalog: catalog,
+        setId: 'PR-03',
+        correct: true,
+      );
+      expect(
+        store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed,
+      );
+      expect(store.snapshot(competency).provisionalAt, marked);
+      expect(
+        store.snapshot(competency).status,
+        isNot(CompetencyStatus.mastered),
+      );
+    },
+  );
 
   testWidgets(
-      'three spaced sessions in two keys become stable without mastered',
-      (tester) async {
-    final clock = FixedClock(DateTime.utc(2026, 10, 5));
-    final store =
-        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
-    final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
-    await tester.pumpWidget(
-      MaterialApp(
-        home: PracticeRoundScreen(
-          setId: 'PR-03',
-          player: FakePracticeAudioPlayer(),
-          catalog: catalog,
-          progress: store,
-          clock: clock,
+    'the round screen returns to provisional after the window recovers',
+    (tester) async {
+      final clock = FixedClock(DateTime.utc(2026, 10, 5));
+      final store = MemoryProgressStore(
+        clock: clock,
+        rules: catalog.config.masteryRules,
+      );
+      _slip(store, catalog);
+      final player = FakePracticeAudioPlayer();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PracticeRoundScreen(
+            setId: 'PR-03',
+            player: player,
+            catalog: catalog,
+            progress: store,
+            clock: clock,
+          ),
         ),
-      ),
-    );
+      );
 
-    await _answer(tester, 'м3');
-    expect(find.text('Устойчивость 1/3'), findsOneWidget);
-    await tester.tap(find.text('Следующее'));
-    await tester.pump();
-    await _answer(tester, 'м3');
-    expect(find.text('Устойчивость 1/3'), findsOneWidget);
+      for (var i = 0; i < 11; i++) {
+        await _answer(tester, 'м3');
+        if (i == 9) expect(find.text('Нужно повторить'), findsOneWidget);
+        if (i < 10) {
+          await tester.tap(find.text('Следующее'));
+          await tester.pump();
+        }
+      }
 
-    clock.advance(const Duration(hours: 20));
-    await tester.tap(find.text('Следующее'));
-    await tester.pump();
-    await _answer(tester, 'м3');
-    expect(find.text('Устойчивость 2/3'), findsOneWidget);
+      expect(find.text('Предварительно сдано'), findsOneWidget);
+      expect(find.text('Холодная проверка'), findsOneWidget);
+      final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+      );
+      expect(
+        store.snapshot(competency).status,
+        CompetencyStatus.provisionallyPassed,
+      );
+      await tester.tap(find.text('Холодная проверка'));
+      await tester.pump();
+      expect(find.text('Рано'), findsOneWidget);
+      expect(
+        store.snapshot(competency).status,
+        isNot(CompetencyStatus.mastered),
+      );
+    },
+  );
 
-    clock.advance(const Duration(hours: 20));
-    await tester.tap(find.text('Тональность: до'));
-    await tester.pump();
-    expect(find.text('Тональность: соль'), findsOneWidget);
-    await tester.tap(find.text('Следующее'));
-    await tester.pump();
-    await _answer(tester, 'м3');
+  testWidgets(
+    'three spaced sessions in two keys become stable without mastered',
+    (tester) async {
+      final clock = FixedClock(DateTime.utc(2026, 10, 5));
+      final store = MemoryProgressStore(
+        clock: clock,
+        rules: catalog.config.masteryRules,
+      );
+      final competency = competencyOf(
+        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PracticeRoundScreen(
+            setId: 'PR-03',
+            player: FakePracticeAudioPlayer(),
+            catalog: catalog,
+            progress: store,
+            clock: clock,
+          ),
+        ),
+      );
 
-    expect(find.text('Стабильно'), findsOneWidget);
-    expect(store.snapshot(competency).stability.reached, isTrue);
-    expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
-  });
+      await _answer(tester, 'м3');
+      expect(find.text('Устойчивость 1/3'), findsOneWidget);
+      await tester.tap(find.text('Следующее'));
+      await tester.pump();
+      await _answer(tester, 'м3');
+      expect(find.text('Устойчивость 1/3'), findsOneWidget);
 
-  testWidgets('three sessions in one key ask for another tonality',
-      (tester) async {
+      clock.advance(const Duration(hours: 20));
+      await tester.tap(find.text('Следующее'));
+      await tester.pump();
+      await _answer(tester, 'м3');
+      expect(find.text('Устойчивость 2/3'), findsOneWidget);
+
+      clock.advance(const Duration(hours: 20));
+      await tester.tap(find.text('Тональность: до'));
+      await tester.pump();
+      expect(find.text('Тональность: соль'), findsOneWidget);
+      await tester.tap(find.text('Следующее'));
+      await tester.pump();
+      await _answer(tester, 'м3');
+
+      expect(find.text('Стабильно'), findsOneWidget);
+      expect(store.snapshot(competency).stability.reached, isTrue);
+      expect(
+        store.snapshot(competency).status,
+        isNot(CompetencyStatus.mastered),
+      );
+    },
+  );
+
+  testWidgets('three sessions in one key ask for another tonality', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5));
-    final store =
-        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
     final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+      catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+    );
     await tester.pumpWidget(
       MaterialApp(
         home: PracticeRoundScreen(
@@ -413,13 +527,17 @@ void main() {
     expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
   });
 
-  testWidgets('a miss after 20 hours does not count as a stability session',
-      (tester) async {
+  testWidgets('a miss after 20 hours does not count as a stability session', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5));
-    final store =
-        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
     final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+      catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+    );
     await tester.pumpWidget(
       MaterialApp(
         home: PracticeRoundScreen(
@@ -452,11 +570,43 @@ void main() {
     expect(store.snapshot(competency).status, isNot(CompetencyStatus.mastered));
   });
 
-  testWidgets('a miss on the second due cold review asks to repeat',
-      (tester) async {
+  testWidgets('a wrong interval can be repeated before the next card', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
-    final store =
-        MemoryProgressStore(clock: clock, rules: catalog.config.masteryRules);
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PracticeRoundScreen(
+          setId: 'PR-03',
+          player: FakePracticeAudioPlayer(),
+          catalog: catalog,
+          progress: store,
+          clock: clock,
+        ),
+      ),
+    );
+    await _answer(tester, 'б3');
+    expect(find.text('Пока не то'), findsOneWidget);
+    expect(find.text('Повторить'), findsOneWidget);
+    await tester.tap(find.text('Повторить'));
+    await tester.pump();
+    await _answer(tester, 'м3');
+    expect(find.text('Верно'), findsOneWidget);
+    expect(store.book.attempts.last.isCorrect, isTrue);
+  });
+
+  testWidgets('a miss on the second due cold review asks to repeat', (
+    tester,
+  ) async {
+    final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
+    final store = MemoryProgressStore(
+      clock: clock,
+      rules: catalog.config.masteryRules,
+    );
     for (var i = 0; i < 12; i++) {
       recordPracticeAnswer(
         store: store,
@@ -466,7 +616,13 @@ void main() {
       );
     }
     clock.advance(const Duration(hours: 20));
-    for (final correct in [true, true, true, false]) {
+    for (final correct in [
+      ...List<bool>.filled(
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2,
+          true),
+      false,
+      false
+    ]) {
       recordPracticeAnswer(
         store: store,
         catalog: catalog,
@@ -477,12 +633,12 @@ void main() {
       );
     }
     clock.advance(const Duration(hours: 1));
-    recordPracticeAnswer(
-      store: store,
-      catalog: catalog,
-      setId: 'PR-03',
-      correct: true,
-    );
+    for (var repeat = 0;
+        repeat < catalog.config.masteryRules.immediateWindow;
+        repeat++) {
+      recordPracticeAnswer(
+          store: store, catalog: catalog, setId: 'PR-03', correct: true);
+    }
     clock.advance(const Duration(hours: 20));
     await tester.pumpWidget(
       MaterialApp(
@@ -498,21 +654,35 @@ void main() {
     await _answer(tester, 'м3');
     await tester.tap(find.text('Холодная проверка'));
     await tester.pump();
-    for (final label in ['м3', 'м3', 'м3', 'б3']) {
+    for (final label in [
+      ...List<String>.filled(
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems - 2,
+          'м3'),
+      'б3',
+      'б3'
+    ]) {
       await _answer(tester, label);
-      if (label != 'б3') {
+      if (store.book.attempts
+              .where((attempt) =>
+                  attempt.coldReview &&
+                  attempt.sessionId == store.book.attempts.last.sessionId)
+              .length <
+          catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
         await tester.tap(find.text('Следующее'));
         await tester.pump();
       }
     }
 
     final competency = competencyOf(
-        catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'));
+      catalog.practiceSets.firstWhere((set) => set.id == 'PR-03'),
+    );
     expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
     expect(store.snapshot(competency).provisionalAt, isNull);
     expect(find.text('Нужно повторить'), findsOneWidget);
     expect(
-        find.widgetWithText(FilledButton, 'Холодная проверка'), findsNothing);
+      find.widgetWithText(FilledButton, 'Холодная проверка'),
+      findsNothing,
+    );
     expect(find.text('Холодная проверка'), findsNothing);
 
     await tester.tap(find.text('Следующее'));
@@ -521,16 +691,20 @@ void main() {
     expect(store.snapshot(competency).status, CompetencyStatus.needsReview);
     expect(find.text('Нужно повторить'), findsOneWidget);
     expect(
-        find.widgetWithText(FilledButton, 'Холодная проверка'), findsNothing);
+      find.widgetWithText(FilledButton, 'Холодная проверка'),
+      findsNothing,
+    );
 
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 11; i++) {
       await tester.tap(find.text('Следующее'));
       await tester.pump();
       await _answer(tester, 'м3');
     }
     expect(find.text('Предварительно сдано'), findsOneWidget);
-    expect(store.snapshot(competency).status,
-        CompetencyStatus.provisionallyPassed);
+    expect(
+      store.snapshot(competency).status,
+      CompetencyStatus.provisionallyPassed,
+    );
     expect(store.snapshot(competency).provisionalAt, clock.now());
 
     await tester.tap(find.text('Холодная проверка'));
@@ -541,9 +715,11 @@ void main() {
     clock.advance(const Duration(hours: 20));
     await tester.tap(find.text('Холодная проверка'));
     await tester.pump();
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0;
+        i < catalog.competency('ear.interval.m3_M3').coldReviewMinItems;
+        i++) {
       await _answer(tester, 'м3');
-      if (i < 3) {
+      if (i + 1 < catalog.competency('ear.interval.m3_M3').coldReviewMinItems) {
         await tester.tap(find.text('Следующее'));
         await tester.pump();
       }
@@ -551,7 +727,9 @@ void main() {
     expect(find.text('Освоено'), findsWidgets);
     expect(store.snapshot(competency).status, CompetencyStatus.mastered);
     expect(
-        find.widgetWithText(FilledButton, 'Холодная проверка'), findsNothing);
+      find.widgetWithText(FilledButton, 'Холодная проверка'),
+      findsNothing,
+    );
     expect(find.widgetWithText(FilledButton, 'Следующее'), findsNothing);
 
     await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
@@ -621,6 +799,7 @@ void main() {
     await tester.tap(find.text('б3'));
     await tester.pump();
     expect(find.text('Пока не то'), findsOneWidget);
+    expect(find.text('Повторить'), findsOneWidget);
     expect(store.snapshot(competency).status, CompetencyStatus.mastered);
     expect(store.book.attempts.last.isCorrect, isFalse);
     expect(store.book.attempts.last.errorTag, 'PR-03');
@@ -639,6 +818,18 @@ void main() {
     await tester.pumpWidget(_mix(catalog, store, clock));
     expect(find.text('Сначала: Интервалы на слух'), findsOneWidget);
     expect(find.textContaining('Легко:'), findsNothing);
+
+    await tester.tap(find.text('Начать'));
+    await tester.pump();
+    await tester.tap(find.text('м3'));
+    await tester.pump();
+    expect(find.text('Верно'), findsOneWidget);
+    expect(store.book.attempts.last.isCorrect, isTrue);
+    expect(store.snapshot(competency).status, CompetencyStatus.mastered);
+    await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+    await tester.pumpWidget(_mix(catalog, store, clock));
+    expect(find.text('Легко: Интервалы на слух'), findsOneWidget);
+    expect(find.textContaining('Сначала:'), findsNothing);
   });
 }
 
@@ -657,11 +848,19 @@ Widget _mix(CurriculumCatalog catalog, ProgressStore store, Clock clock) {
 void _slip(MemoryProgressStore store, CurriculumCatalog catalog) {
   for (var i = 0; i < 12; i++) {
     recordPracticeAnswer(
-        store: store, catalog: catalog, setId: 'PR-03', correct: true);
+      store: store,
+      catalog: catalog,
+      setId: 'PR-03',
+      correct: true,
+    );
   }
   for (final correct in [true, true, false, false, false, false]) {
     recordPracticeAnswer(
-        store: store, catalog: catalog, setId: 'PR-03', correct: correct);
+      store: store,
+      catalog: catalog,
+      setId: 'PR-03',
+      correct: correct,
+    );
   }
 }
 
@@ -681,11 +880,13 @@ MemoryProgressStore _store() {
     lessons: _read('lessons.json'),
   );
   return MemoryProgressStore(
-      clock: FixedClock(DateTime.utc(2026, 10, 5)),
-      rules: catalog.config.masteryRules);
+    clock: FixedClock(DateTime.utc(2026, 10, 5)),
+    rules: catalog.config.masteryRules,
+  );
 }
 
 Map<String, dynamic> _read(String name) {
   return Map<String, dynamic>.from(
-      jsonDecode(File('assets/curriculum/$name').readAsStringSync()) as Map);
+    jsonDecode(File('assets/curriculum/$name').readAsStringSync()) as Map,
+  );
 }
