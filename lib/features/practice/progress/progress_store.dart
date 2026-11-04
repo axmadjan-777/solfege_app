@@ -29,8 +29,8 @@ class CompetencySnapshot {
           for (final session in stability.sessions) session.toJson()
         ],
         'interval_step': intervalStep,
-        'due_at': dueAt?.toIso8601String(),
-        'provisional_at': provisionalAt?.toIso8601String(),
+        'due_at': dueAt?.toUtc().toIso8601String(),
+        'provisional_at': provisionalAt?.toUtc().toIso8601String(),
       };
 
   factory CompetencySnapshot.fromJson(Map<String, dynamic> json) =>

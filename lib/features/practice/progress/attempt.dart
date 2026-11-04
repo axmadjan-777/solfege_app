@@ -22,9 +22,12 @@ class Stability {
 
   final List<StabilitySession> sessions;
 
-  bool get reached => sessions.length >= 3 && sessions.map((s) => s.tonality).toSet().length >= 2;
+  bool get reached =>
+      sessions.length >= 3 &&
+      sessions.map((s) => s.tonality).toSet().length >= 2;
 
-  Stability add(StabilitySession session) => Stability(sessions: [...sessions, session]);
+  Stability add(StabilitySession session) =>
+      Stability(sessions: [...sessions, session]);
 }
 
 class StabilitySession {
@@ -33,9 +36,11 @@ class StabilitySession {
   final DateTime at;
   final String tonality;
 
-  Map<String, Object?> toJson() => {'at': at.toIso8601String(), 'tonality': tonality};
+  Map<String, Object?> toJson() =>
+      {'at': at.toUtc().toIso8601String(), 'tonality': tonality};
 
-  factory StabilitySession.fromJson(Map<String, dynamic> json) => StabilitySession(
+  factory StabilitySession.fromJson(Map<String, dynamic> json) =>
+      StabilitySession(
         at: DateTime.parse(json['at'] as String),
         tonality: json['tonality'] as String,
       );
@@ -88,7 +93,7 @@ class AttemptRecord {
         'hints_used': hintsUsed,
         'replays': replays,
         'confidence': confidence,
-        'created_at': createdAt.toIso8601String(),
+        'created_at': createdAt.toUtc().toIso8601String(),
         'tonality': tonality,
         'critical': critical,
         'cold_review': coldReview,
@@ -100,7 +105,9 @@ class AttemptRecord {
         sessionId: json['session_id'] as String,
         itemSignature: json['item_signature'] as String,
         errorTag: json['error_tag'] as String,
-        competencyIds: [for (final id in json['competency_ids'] as List) id as String],
+        competencyIds: [
+          for (final id in json['competency_ids'] as List) id as String
+        ],
         isCorrect: json['is_correct'] as bool,
         responseMs: json['response_ms'] as int,
         hintsUsed: json['hints_used'] as int,
