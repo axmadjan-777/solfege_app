@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../coach/coach_layer.dart';
 import '../../interaction/templates/level01_templates.dart';
 import '../../interaction/templates/tap_template.dart';
 import '../../practice/progress/attempt.dart';
@@ -43,6 +44,7 @@ class _Level0PlayerState extends State<Level0Player> {
 
   void _mark(bool correct, String feedback) {
     if (_feedback != null) return;
+    CoachScope.maybeOf(context)?.note('answer');
     setState(() {
       _feedback = feedback;
       _answered += 1;
@@ -51,6 +53,9 @@ class _Level0PlayerState extends State<Level0Player> {
   }
 
   void _advance() {
+    final coach = CoachScope.maybeOf(context);
+    coach?.note('read-on');
+    coach?.note('confirm');
     if (_index + 1 >= widget.plan.steps.length) {
       setState(() => _summary = true);
       return;
@@ -83,7 +88,10 @@ class _Level0PlayerState extends State<Level0Player> {
         children: [
           Text(step.body),
           const SizedBox(height: 16),
-          FilledButton(onPressed: _advance, child: const Text('Дальше')),
+          CoachTarget(
+            id: 'lesson-next',
+            child: FilledButton(onPressed: _advance, child: const Text('Дальше')),
+          ),
         ],
       );
     }
@@ -91,37 +99,60 @@ class _Level0PlayerState extends State<Level0Player> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (step.templateId == 'T09')
-          TapPulseTemplate(
-            prompt: step.body,
-            tapsRequired: step.tapsRequired,
-            onResult: (result) => _mark(result.correct, step.feedbackCorrect),
+          CoachTarget(
+            id: 'lesson-answer',
+            child: TapPulseTemplate(
+              prompt: step.body,
+              tapsRequired: step.tapsRequired,
+              onResult: (result) => _mark(result.correct, step.feedbackCorrect),
+            ),
           )
         else if (step.templateId == 'T03')
-          MultiChoiceTemplate(
-            prompt: step.body,
-            options: step.options,
-            correctIndexes: step.correctIndexes,
-            onResult: (result) => _mark(result.correct, result.correct ? step.feedbackCorrect : step.feedbackError),
+          CoachTarget(
+            id: 'lesson-answer',
+            child: MultiChoiceTemplate(
+              prompt: step.body,
+              options: step.options,
+              correctIndexes: step.correctIndexes,
+              onResult: (result) => _mark(
+                  result.correct,
+                  result.correct ? step.feedbackCorrect : step.feedbackError),
+            ),
           )
         else ...[
           Text(step.body),
           const SizedBox(height: 12),
-          for (var i = 0; i < step.options.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: FilledButton(
-                onPressed: _feedback == null
-                    ? () => _mark(i == step.correctIndex, i == step.correctIndex ? step.feedbackCorrect : step.feedbackError)
-                    : null,
-                child: Text(step.options[i]),
-              ),
+          CoachTarget(
+            id: 'lesson-answer',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < step.options.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: FilledButton(
+                      onPressed: _feedback == null
+                          ? () => _mark(
+                              i == step.correctIndex,
+                              i == step.correctIndex
+                                  ? step.feedbackCorrect
+                                  : step.feedbackError)
+                          : null,
+                      child: Text(step.options[i]),
+                    ),
+                  ),
+              ],
             ),
+          ),
         ],
         if (_feedback != null) ...[
           const SizedBox(height: 12),
           Text(_feedback!),
           const SizedBox(height: 12),
-          FilledButton(onPressed: _advance, child: const Text('Дальше')),
+          CoachTarget(
+            id: 'lesson-next',
+            child: FilledButton(onPressed: _advance, child: const Text('Дальше')),
+          ),
         ],
       ],
     );
