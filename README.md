@@ -231,6 +231,14 @@ Git позволяет обойти локальный hook; независим�
 artifact и после deploy проверяет HTTP 200. Это не повторяет живую приёмку.
 Независимый CI не заменяется локальным hook.
 
+Живой job получает имя bundle из output успешно завершённого `verify`, вместе
+с SHA дерева. При повторном запуске только `live-acceptance` используется этот
+же проверенный artifact, даже когда номер попытки workflow уже вырос; повторять
+офлайн-QA и сборку для такого запуска не требуется. Исходники и байты bundle
+проверяются перед использованием.
+Artifact содержит и скрытый служебный `.last_build_id`, включённый в digest;
+upload ограничен явно указанными `build/qa-web` и `build/browser-run.json`.
+
 Живой job использует repository secrets `QA_PROJECT_REF`, `QA_SUPABASE_URL`,
 `QA_SUPABASE_PUBLISHABLE_KEY` и `QA_USER_A_EMAIL`, `QA_USER_A_PASSWORD`,
 `QA_USER_A_ID` (аналогично для B). `QA_LIVE=1` задаётся явно. Fork/untrusted PR

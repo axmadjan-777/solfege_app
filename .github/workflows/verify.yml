@@ -49,6 +49,7 @@ jobs:
       scope: ${{ steps.scope.outputs.mode }}
       baseline_only: ${{ steps.scope.outputs.baseline_only }}
       source_tree: ${{ steps.target.outputs.tree }}
+      bundle_artifact: ${{ steps.target.outputs.bundle_artifact }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,7 +75,9 @@ jobs:
 
       - name: Identify the exact source tree
         id: target
-        run: echo "tree=$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "tree=$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
+          echo "bundle_artifact=qa-web-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
 
       - name: Read pinned toolchain
         if: steps.scope.outputs.mode == 'full'
@@ -137,7 +140,10 @@ jobs:
         if: success() && steps.scope.outputs.mode == 'full' && steps.scope.outputs.baseline_only != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: qa-web-${{ github.run_id }}-${{ github.run_attempt }}
+          name: ${{ steps.target.outputs.bundle_artifact }}
+          # The bundle digest includes Flutter's .last_build_id marker.
+          # Only generated, credential-free QA output is uploaded here.
+          include-hidden-files: true
           path: |
             build/qa-web
             build/browser-run.json
@@ -217,9 +223,11 @@ jobs:
         id: toolchain
         env:
           EXPECTED_SOURCE_TREE: ${{ needs.verify.outputs.source_tree }}
+          VERIFIED_BUNDLE_ARTIFACT: ${{ needs.verify.outputs.bundle_artifact }}
         run: |
           test -n "$EXPECTED_SOURCE_TREE"
           test "$(git rev-parse 'HEAD^{tree}')" = "$EXPECTED_SOURCE_TREE"
+          [[ "$VERIFIED_BUNDLE_ARTIFACT" =~ ^qa-web-${GITHUB_RUN_ID}-[1-9][0-9]*$ ]]
           sed -n '/^DENO_VERSION=/p' tool/toolchain.env >> "$GITHUB_OUTPUT"
 
       - uses: denoland/setup-deno@v2
@@ -246,7 +254,7 @@ jobs:
         if: steps.gate.outputs.mode == 'full'
         uses: actions/download-artifact@v4
         with:
-          name: qa-web-${{ github.run_id }}-${{ github.run_attempt }}
+          name: ${{ needs.verify.outputs.bundle_artifact }}
           path: build
 
       - name: Verify hosted Auth, profiles, RLS and Gemini

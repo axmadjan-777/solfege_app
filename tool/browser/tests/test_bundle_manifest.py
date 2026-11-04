@@ -28,6 +28,7 @@ class BundleManifestTest(unittest.TestCase):
         self.bundle = self.root / "build/qa-web"
         self.bundle.mkdir(parents=True)
         (self.bundle / "main.dart.js").write_text("synthetic compiled bundle")
+        (self.bundle / ".last_build_id").write_text("synthetic Flutter build marker")
         self.environment = {"PATH": os.defpath, "QA_SOURCE_TREE": "a" * 40}
 
     def tearDown(self):
@@ -64,6 +65,13 @@ class BundleManifestTest(unittest.TestCase):
     def test_reuse_rejects_tampered_bundle(self):
         self.create()
         (self.bundle / "main.dart.js").write_text("changed bundle")
+        result = self.verify(check=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("bundle_sha256", result.stderr)
+
+    def test_reuse_rejects_transport_that_drops_hidden_build_files(self):
+        self.create()
+        (self.bundle / ".last_build_id").unlink()
         result = self.verify(check=False)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("bundle_sha256", result.stderr)
