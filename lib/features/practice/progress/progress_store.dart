@@ -24,14 +24,12 @@ class CompetencySnapshot {
   final DateTime? provisionalAt;
 
   Map<String, Object?> toJson() => {
-        'status': status.id,
-        'stability': [
-          for (final session in stability.sessions) session.toJson()
-        ],
-        'interval_step': intervalStep,
-        'due_at': dueAt?.toIso8601String(),
-        'provisional_at': provisionalAt?.toIso8601String(),
-      };
+    'status': status.id,
+    'stability': [for (final session in stability.sessions) session.toJson()],
+    'interval_step': intervalStep,
+    'due_at': dueAt?.toIso8601String(),
+    'provisional_at': provisionalAt?.toIso8601String(),
+  };
 
   factory CompetencySnapshot.fromJson(Map<String, dynamic> json) =>
       CompetencySnapshot(
@@ -40,7 +38,8 @@ class CompetencySnapshot {
           sessions: [
             for (final session in json['stability'] as List)
               StabilitySession.fromJson(
-                  Map<String, dynamic>.from(session as Map)),
+                Map<String, dynamic>.from(session as Map),
+              ),
           ],
         ),
         intervalStep: json['interval_step'] as int,
@@ -59,6 +58,7 @@ class ProgressBook {
     required this.competencies,
     required this.attempts,
     this.returns = const [],
+    this.passedStages = const <String, List<int>>{},
   });
 
   final String userId;
@@ -66,31 +66,59 @@ class ProgressBook {
   final List<AttemptRecord> attempts;
   final List<ScheduledReturn> returns;
 
+  /// Сданные стадии тренажёра: `PR-01` → `[1, 2]`.
+  final Map<String, List<int>> passedStages;
+
+  ProgressBook copyWith({
+    Map<String, CompetencySnapshot>? competencies,
+    List<AttemptRecord>? attempts,
+    List<ScheduledReturn>? returns,
+    Map<String, List<int>>? passedStages,
+  }) {
+    return ProgressBook(
+      userId: userId,
+      competencies: competencies ?? this.competencies,
+      attempts: attempts ?? this.attempts,
+      returns: returns ?? this.returns,
+      passedStages: passedStages ?? this.passedStages,
+    );
+  }
+
   Map<String, Object?> toJson() => {
-        'user_id': userId,
-        'competencies': {
-          for (final e in competencies.entries) e.key: e.value.toJson()
-        },
-        'attempts': [for (final attempt in attempts) attempt.toJson()],
-        'returns': [for (final item in returns) item.toJson()],
-      };
+    'user_id': userId,
+    'competencies': {
+      for (final e in competencies.entries) e.key: e.value.toJson(),
+    },
+    'attempts': [for (final attempt in attempts) attempt.toJson()],
+    'returns': [for (final item in returns) item.toJson()],
+    'passed_stages': passedStages,
+  };
 
   factory ProgressBook.fromJson(Map<String, dynamic> json) => ProgressBook(
-        userId: json['user_id'] as String? ?? 'local',
-        competencies: {
-          for (final entry in (json['competencies'] as Map).entries)
-            entry.key as String: CompetencySnapshot.fromJson(
-                Map<String, dynamic>.from(entry.value as Map)),
-        },
-        attempts: [
-          for (final attempt in json['attempts'] as List)
-            AttemptRecord.fromJson(Map<String, dynamic>.from(attempt as Map)),
+    userId: json['user_id'] as String? ?? 'local',
+    competencies: {
+      for (final entry in (json['competencies'] as Map).entries)
+        entry.key as String: CompetencySnapshot.fromJson(
+          Map<String, dynamic>.from(entry.value as Map),
+        ),
+    },
+    attempts: [
+      for (final attempt in json['attempts'] as List)
+        AttemptRecord.fromJson(Map<String, dynamic>.from(attempt as Map)),
+    ],
+    returns: [
+      for (final item in json['returns'] as List? ?? const [])
+        ScheduledReturn.fromJson(Map<String, dynamic>.from(item as Map)),
+    ],
+    passedStages: {
+      for (final entry
+          in (json['passed_stages'] as Map? ?? const <String, dynamic>{})
+              .entries)
+        entry.key as String: [
+          for (final value in entry.value as List) (value as num).toInt(),
         ],
-        returns: [
-          for (final item in json['returns'] as List? ?? const [])
-            ScheduledReturn.fromJson(Map<String, dynamic>.from(item as Map)),
-        ],
-      );
+    },
+  );
 
   static ProgressBook empty({String userId = 'local'}) =>
       ProgressBook(userId: userId, competencies: {}, attempts: []);
@@ -132,6 +160,8 @@ abstract interface class ProgressStore {
   void scheduleNextDayReturn(String tag);
 
   void scheduleReturnInDays(String tag, int days);
+
+  void markStagePassed(String setId, int stage);
 
   List<String> openErrorTags();
 }
@@ -187,8 +217,9 @@ class MemoryProgressStore implements ProgressStore {
         ),
     ];
     final attempts = [...book.attempts, ...fresh];
-    final mine =
-        attempts.where((a) => a.competencyId == session.competencyId).toList();
+    final mine = attempts
+        .where((a) => a.competencyId == session.competencyId)
+        .toList();
     final decision = MasteryDecision.evaluate(
       current: current.status,
       provisionalAt: current.provisionalAt,
@@ -217,8 +248,9 @@ class MemoryProgressStore implements ProgressStore {
       incorrect: accuracy < rules.delayedMinAccuracy,
       transfer: session.transfer && accuracy >= rules.delayedMinAccuracy,
     );
-    final competencies =
-        Map<String, CompetencySnapshot>.from(book.competencies);
+    final competencies = Map<String, CompetencySnapshot>.from(
+      book.competencies,
+    );
     competencies[session.competencyId] = CompetencySnapshot(
       status: decision.status,
       stability: stability,
@@ -226,12 +258,7 @@ class MemoryProgressStore implements ProgressStore {
       dueAt: step.dueAt,
       provisionalAt: decision.markedProvisionalAt,
     );
-    book = ProgressBook(
-      userId: book.userId,
-      competencies: competencies,
-      attempts: attempts,
-      returns: book.returns,
-    );
+    book = book.copyWith(competencies: competencies, attempts: attempts);
   }
 
   @override
@@ -239,10 +266,7 @@ class MemoryProgressStore implements ProgressStore {
 
   @override
   void scheduleReturnInDays(String tag, int days) {
-    book = ProgressBook(
-      userId: book.userId,
-      competencies: book.competencies,
-      attempts: book.attempts,
+    book = book.copyWith(
       returns: scheduleAfter(
         current: book.returns,
         tag: tag,
@@ -250,6 +274,17 @@ class MemoryProgressStore implements ProgressStore {
         days: days,
       ),
     );
+  }
+
+  @override
+  void markStagePassed(String setId, int stage) {
+    final next = {
+      for (final entry in book.passedStages.entries)
+        entry.key: List<int>.of(entry.value),
+    };
+    final stages = next.putIfAbsent(setId, () => <int>[]);
+    if (!stages.contains(stage)) stages.add(stage);
+    book = book.copyWith(passedStages: next);
   }
 
   @override
@@ -261,7 +296,7 @@ class MemoryProgressStore implements ProgressStore {
     }
     return [
       for (final entry in latest.entries)
-        if (!entry.value) entry.key
+        if (!entry.value) entry.key,
     ];
   }
 }
@@ -311,6 +346,12 @@ class SharedPreferencesProgressStore implements ProgressStore {
   @override
   void scheduleReturnInDays(String tag, int days) {
     _memory.scheduleReturnInDays(tag, days);
+    _preferences.setString(storageKey, jsonEncode(book.toJson()));
+  }
+
+  @override
+  void markStagePassed(String setId, int stage) {
+    _memory.markStagePassed(setId, stage);
     _preferences.setString(storageKey, jsonEncode(book.toJson()));
   }
 

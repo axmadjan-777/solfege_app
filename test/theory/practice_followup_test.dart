@@ -14,6 +14,7 @@ import 'package:solfege_app/features/practice/screens/practice_followup.dart';
 import 'package:solfege_app/features/practice/trainers/error_queue.dart';
 import 'package:solfege_app/features/practice/trainers/daily_mix.dart';
 import 'package:solfege_app/features/practice/screens/practice_map_screen.dart';
+import 'package:solfege_app/features/practice/trainers/stage_catalog.dart';
 import 'package:solfege_app/features/theory/level0/level0_plan.dart';
 import 'package:solfege_app/features/theory/screens/theory_home_screen.dart';
 
@@ -57,7 +58,10 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: practiceSetScreen(
-              setId: entry.key, player: player, catalog: catalog),
+            setId: entry.key,
+            player: player,
+            catalog: catalog,
+          ),
         ),
       );
       await tester.pump();
@@ -73,13 +77,39 @@ void main() {
 
   testWidgets('the practice map opens interval ear', (tester) async {
     await tester.pumpWidget(
-        MaterialApp(home: PracticeMapScreen(catalog: catalog, player: player)));
+      MaterialApp(
+        home: PracticeMapScreen(catalog: catalog, player: player),
+      ),
+    );
     await tester.scrollUntilVisible(find.text('Интервалы на слух'), 400);
     await tester.tap(find.text('Интервалы на слух'));
     await tester.pumpAndSettle();
-    expect(find.text('м3'), findsOneWidget);
-    expect(find.text('б3'), findsOneWidget);
-    await tester.tap(find.text('м3'));
+    expect(find.text('Шире или уже'), findsOneWidget);
+    expect(find.text('Малая и большая терция'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('stage-PR-03-4')),
+        matching: find.text('Скоро'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('stage-PR-03-2')),
+        matching: find.text('Закрыто'),
+      ),
+      findsOneWidget,
+    );
+    final set = catalog.practiceSets.firstWhere((item) => item.id == 'PR-03');
+    final plan = buildStageSession(
+      set: set,
+      stage: 1,
+      seed: stageSessionSeed('PR-03', 1, 0),
+    );
+    await tester.tap(find.text('Шире или уже'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ноты скрыты'), findsOneWidget);
+    await tester.tap(find.text(plan.tasks.first.answer));
     await tester.pump();
     expect(find.text('Верно'), findsOneWidget);
   });
@@ -113,6 +143,8 @@ void main() {
     await _tap(tester, find.text('Тренировать'));
     await tester.pumpAndSettle();
     expect(find.text('Пульс'), findsOneWidget);
+    await tester.tap(find.text('Пульс'));
+    await tester.pumpAndSettle();
     expect(find.text('Тапни вместе с кликом'), findsOneWidget);
   });
 
@@ -152,8 +184,9 @@ void main() {
     expect(find.textContaining('Сначала:'), findsNothing);
   });
 
-  testWidgets('a mastered note leads the mix when its due date arrives',
-      (tester) async {
+  testWidgets('a mastered note leads the mix when its due date arrives', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -221,8 +254,9 @@ void main() {
     expect(find.text('Опоры и соседи (C4–G4)'), findsOneWidget);
   });
 
-  testWidgets('one correct answer keeps a review competency first',
-      (tester) async {
+  testWidgets('one correct answer keeps a review competency first', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -258,8 +292,9 @@ void main() {
     expect(find.textContaining('Недавно:'), findsNothing);
   });
 
-  testWidgets('the passing window moves the interval from first to recent',
-      (tester) async {
+  testWidgets('the passing window moves the interval from first to recent', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -314,8 +349,9 @@ void main() {
     expect(find.text('Должное: 0'), findsOneWidget);
   });
 
-  testWidgets('a passed cold review moves the interval to easy',
-      (tester) async {
+  testWidgets('a passed cold review moves the interval to easy', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -358,8 +394,9 @@ void main() {
     expect(find.textContaining('Сначала:'), findsNothing);
   });
 
-  testWidgets('a cold-review miss puts the interval back first',
-      (tester) async {
+  testWidgets('a cold-review miss puts the interval back first', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -409,8 +446,9 @@ void main() {
     expect(find.textContaining('Недавно:'), findsNothing);
   });
 
-  testWidgets('the next window after a cold miss starts a new wait',
-      (tester) async {
+  testWidgets('the next window after a cold miss starts a new wait', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -471,8 +509,9 @@ void main() {
     expect(find.textContaining('Легко:'), findsNothing);
   });
 
-  testWidgets('the new twenty hours let a cold review make the interval easy',
-      (tester) async {
+  testWidgets('the new twenty hours let a cold review make the interval easy', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -537,7 +576,9 @@ void main() {
       );
     }
     expect(
-        store.snapshot('ear.interval.m3_M3').status, CompetencyStatus.mastered);
+      store.snapshot('ear.interval.m3_M3').status,
+      CompetencyStatus.mastered,
+    );
     await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
     await tester.pumpWidget(_mix(catalog, player, store, clock));
     expect(find.text('Легко: Интервалы на слух'), findsOneWidget);
@@ -545,8 +586,9 @@ void main() {
     expect(find.textContaining('Сначала:'), findsNothing);
   });
 
-  testWidgets('a miss on the second due cold review puts the interval first',
-      (tester) async {
+  testWidgets('a miss on the second due cold review puts the interval first', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -616,8 +658,9 @@ void main() {
     expect(find.textContaining('Недавно:'), findsNothing);
   });
 
-  testWidgets('a due interval leads the recent pulse and records the answer',
-      (tester) async {
+  testWidgets('a due interval leads the recent pulse and records the answer', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -659,8 +702,9 @@ void main() {
     expect(store.book.attempts.last.isCorrect, isTrue);
   });
 
-  testWidgets('a miss is due the same day and a correct retry clears it',
-      (tester) async {
+  testWidgets('a miss is due the same day and a correct retry clears it', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -688,8 +732,9 @@ void main() {
     expect(find.text('Недавнее: 2'), findsOneWidget);
   });
 
-  testWidgets('an open lesson leads the mix and a perfect retry clears it',
-      (tester) async {
+  testWidgets('an open lesson leads the mix and a perfect retry clears it', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -724,8 +769,9 @@ void main() {
     expect(find.text('Пока нет должных заданий.'), findsOneWidget);
   });
 
-  testWidgets('two open errors are both named before the mix starts',
-      (tester) async {
+  testWidgets('two open errors are both named before the mix starts', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -753,8 +799,9 @@ void main() {
     expect(dailyMixLimit(catalog.config.raw), const Duration(minutes: 5));
   });
 
-  testWidgets('a return due tomorrow opens note reading the next day',
-      (tester) async {
+  testWidgets('a return due tomorrow opens note reading the next day', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -789,8 +836,9 @@ void main() {
     expect(errorReturnSuccessDays(catalog.config.raw), 3);
   });
 
-  testWidgets('a correct due note waits three days before it leads again',
-      (tester) async {
+  testWidgets('a correct due note waits three days before it leads again', (
+    tester,
+  ) async {
     final clock = FixedClock(DateTime.utc(2026, 10, 5, 8));
     final store = MemoryProgressStore(
       clock: clock,
@@ -851,5 +899,6 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 
 Map<String, dynamic> _read(String name) {
   return Map<String, dynamic>.from(
-      jsonDecode(File('assets/curriculum/$name').readAsStringSync()) as Map);
+    jsonDecode(File('assets/curriculum/$name').readAsStringSync()) as Map,
+  );
 }
