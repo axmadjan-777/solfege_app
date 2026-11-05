@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../note_trainer/widgets/warmup_section.dart';
+import '../../note_trainer/audio/note_player.dart';
+import '../../note_trainer/data/song_repository.dart';
 import '../../auth/models/gender.dart';
 import '../../auth/models/user_profile.dart';
 import '../../auth/services/auth_service.dart';
@@ -14,10 +17,16 @@ class ProfileScreen extends StatefulWidget {
     super.key,
     this.authService,
     this.profileService,
+    this.songRepository,
+    this.notePlayer,
+    this.noteWait,
   });
 
   final AuthService? authService;
   final ProfileService? profileService;
+  final SongRepository? songRepository;
+  final NotePlayer? notePlayer;
+  final Future<void> Function(Duration)? noteWait;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -58,6 +67,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
+
+  String _warmupUserId(User? user) => user?.id ?? 'local';
 
   Future<void> _load() async {
     setState(() => _isLoading = true);
@@ -185,6 +196,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Text(
                     'Профиль',
                     style: Theme.of(context).textTheme.displaySmall,
+                  ),
+                  const SizedBox(height: 16),
+                  WarmupSection(
+                    userId: _warmupUserId(user),
+                    repository: widget.songRepository,
+                    player: widget.notePlayer,
+                    wait: widget.noteWait,
                   ),
                   const SizedBox(height: 24),
                   if (_profile?.musicianLevel != null)
