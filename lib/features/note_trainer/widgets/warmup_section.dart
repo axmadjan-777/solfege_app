@@ -256,6 +256,11 @@ class _SongCard extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    disabledForegroundColor: TrainerPalette.green,
+                    disabledBackgroundColor:
+                        TrainerPalette.green.withValues(alpha: 0.16),
+                  ),
                   onPressed: song.isCompleted ? null : onPressed,
                   child: Text(
                     song.isCompleted
