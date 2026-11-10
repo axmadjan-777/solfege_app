@@ -15,14 +15,4 @@ if [[ -z "${FLUTTER_BIN:-}" ]]; then
   fi
 fi
 
-if [[ -z "${DENO_BIN:-}" ]]; then
-  if [[ -x "$SOLFEGE_TOOLCHAIN_DIR/deno-$DENO_VERSION/deno" ]]; then
-    DENO_BIN="$SOLFEGE_TOOLCHAIN_DIR/deno-$DENO_VERSION/deno"
-  elif command -v deno >/dev/null 2>&1; then
-    DENO_BIN="$(command -v deno)"
-  else
-    DENO_BIN="${HOME}/.deno/bin/deno"
-  fi
-fi
-
-export FLUTTER_BIN DENO_BIN
+export FLUTTER_BIN

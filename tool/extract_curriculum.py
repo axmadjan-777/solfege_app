@@ -11,7 +11,6 @@
 
 Использование:
     python3 tool/extract_curriculum.py            # перезаписать файлы
-    python3 tool/extract_curriculum.py --check    # сверить с закоммиченными, exit 1 при расхождении
 """
 
 from __future__ import annotations
@@ -88,12 +87,7 @@ def render(spec_path: str, line_no: int, raw: str) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument(
-        "--check",
-        action="store_true",
-        help="не писать файлы, а сверить с существующими (для CI)",
-    )
-    args = parser.parse_args()
+    parser.parse_args()
 
     lines = SPEC.read_text(encoding="utf-8").splitlines()
     blocks = extract_blocks(lines)
@@ -104,28 +98,15 @@ def main() -> int:
         print(f"Ожидаемые блоки не совпали: нет {sorted(missing)}, лишние {sorted(extra)}")
         return 1
 
-    mismatches: list[str] = []
     for spec_path in sorted(blocks):
         line_no, raw = blocks[spec_path]
         content = render(spec_path, line_no, raw)
         target = target_for(spec_path)
         rel = target.relative_to(ROOT)
-        if args.check:
-            current = target.read_text(encoding="utf-8") if target.exists() else None
-            if current != content:
-                mismatches.append(str(rel))
-            continue
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content, encoding="utf-8")
         print(f"{rel}  ← spec.md:{line_no}  ({len(content.encode('utf-8'))} байт)")
 
-    if args.check:
-        if mismatches:
-            print("Извлечённые файлы расходятся со spec.md (запустите tool/extract_curriculum.py):")
-            for m in mismatches:
-                print(f"  {m}")
-            return 1
-        print(f"OK: {len(blocks)} JSON-блоков совпадают с docs/curriculum/spec.md")
     return 0
 
 

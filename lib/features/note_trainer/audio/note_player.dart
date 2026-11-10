@@ -6,8 +6,7 @@ abstract interface class NotePlayer {
   Future<void> play(String note);
 }
 
-/// Плеер владеет backend и освобождает его один раз. Интерфейс позволяет
-/// проверить порядок асинхронных команд без настоящего аудиоплагина.
+/// Плеер владеет backend и освобождает его один раз.
 abstract interface class NoteAudioBackend {
   Future<void> stop();
   Future<void> playAsset(String path);
@@ -61,14 +60,5 @@ class AssetNotePlayer implements NotePlayer {
     // can still retry playback.
     _tail = operation.then<void>((_) {}, onError: (Object _, StackTrace __) {});
     await operation;
-  }
-}
-
-class RecordingNotePlayer implements NotePlayer {
-  final played = <String>[];
-
-  @override
-  Future<void> play(String note) async {
-    played.add(note);
   }
 }

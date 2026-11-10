@@ -85,8 +85,7 @@ class AuthService {
   /// через `verifyOTP`; 2) показывает понятные сообщения для устаревших ссылок и
   /// для случая, когда PKCE-ссылку открыли в другом браузере.
   ///
-  /// [uri] по умолчанию берётся из текущего адреса страницы ([Uri.base]) — это
-  /// удобно подменять в тестах.
+  /// [uri] по умолчанию берётся из текущего адреса страницы ([Uri.base]).
   Future<EmailLinkResult> handleEmailConfirmationLink([Uri? uri]) async {
     final current = uri ?? Uri.base;
     final params = _linkParameters(current);
@@ -313,7 +312,7 @@ class AuthService {
       return AuthException(
         '$accountState'
         'Supabase исчерпал лимит отправки email. Встроенный почтовый сервис '
-        'разрешает только 2 письма в час и предназначен для тестирования. '
+        'разрешает только 2 письма в час. '
         'Подождите и повторите попытку; для обычных пользователей подключите '
         'собственный SMTP в Supabase → Authentication → Emails → SMTP Settings.',
         statusCode: error.statusCode,
@@ -328,7 +327,7 @@ class AuthService {
       return AuthException(
         '$accountState'
         'Встроенный SMTP Supabase отправляет письма только участникам команды '
-        'проекта. Добавьте адрес в команду для теста или подключите собственный '
+        'проекта. Добавьте адрес в команду или подключите собственный '
         'SMTP для регистрации пользователей.',
         statusCode: error.statusCode,
         code: code,

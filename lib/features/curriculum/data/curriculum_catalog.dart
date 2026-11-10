@@ -4,8 +4,7 @@ import '../models/json_reader.dart';
 import '../models/lesson.dart';
 import '../models/practice_set.dart';
 
-/// Разобранная программа. Парсер не импортирует Flutter: тесты передают
-/// уже декодированные карты, приложение читает ассеты отдельно.
+/// Разобранная программа из декодированных JSON. Загрузка ассетов выполняется отдельно.
 class CurriculumCatalog {
   const CurriculumCatalog({
     required this.config,

@@ -3,7 +3,7 @@ import 'dart:math';
 /// Одинаковая громкость сравниваемых сигналов. Часть 5.
 const practiceAudioVolume = 0.35;
 
-/// Событие, которое плеер умеет сыграть. Тесты смотрят на список, не на WAV.
+/// Событие, которое плеер умеет сыграть.
 sealed class AudioEvent {
   const AudioEvent();
 }

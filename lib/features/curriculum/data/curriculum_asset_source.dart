@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'curriculum_catalog.dart';
 
-/// Загрузка шести JSON из ассетов. Тесты читают файлы с диска и этот класс не зовут.
+/// Загрузка шести JSON из ассетов.
 class CurriculumAssetSource {
   const CurriculumAssetSource();
 
