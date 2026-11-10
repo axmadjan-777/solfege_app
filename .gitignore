@@ -41,6 +41,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-
-# Database QA dependencies
-tool/database/node_modules/
