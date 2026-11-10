@@ -39,6 +39,7 @@
 | Для чего | Команда |
 |---|---|
 | Запустить / остановить web этой копии | `./run_web.sh` / `./stop_web.sh` |
+| Проверить код и выбранные сценарии | `./tool/check.sh [all\|answers\|progress]` — [границы и чтение ошибок](README.md#проверки) |
 | Извлечь учебные данные из спецификации | `python3 tool/extract_curriculum.py` |
 
 Версия Flutter — в [tool/toolchain.env](tool/toolchain.env); установка и выбор
